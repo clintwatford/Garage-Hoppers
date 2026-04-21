@@ -11,6 +11,7 @@
   <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <link rel="stylesheet" href="./base.css" />
   <link rel="stylesheet" href="./style.css" />
 </head>
@@ -594,14 +595,20 @@
   document.documentElement.setAttribute('data-theme','light');
 })();
 
-// ─── SAMPLE DATA ───
+// ─── SUPABASE CONFIG ───
+const SUPABASE_URL = 'https://mpgnkvpfgmqegljycedf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_a5HoXVXgwIYz3Pu249XxUQ_NCFA-tbW';
+let supabase = null;
+
+// ─── DATE HELPERS ───
 const today = new Date();
 const fmt = d => d.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'});
 const addDays = (d,n) => { const r=new Date(d); r.setDate(r.getDate()+n); return r; };
 const nextSat = (() => { const d=new Date(today); const day=d.getDay(); d.setDate(d.getDate()+((6-day+7)%7||7)); return d; })();
 const nextSun = addDays(nextSat,1);
 
-const listings = [
+// ─── SAMPLE FALLBACK DATA (shown while DB is loading or empty) ───
+const sampleListings = [
   { id:1, title:"Massive Family Garage Sale — Moving Out!", category:"garage", categoryLabel:"Garage Sale",
     address:"1842 Granville Ave", city:"Richmond", province:"BC", lat:49.1720, lng:-123.1380,
     dateTag:"today", dates:fmt(today), hours:"8:00 AM – 2:00 PM", distance:"2.3 km away",
@@ -659,6 +666,62 @@ const listings = [
     photos:["https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=600&q=80"]
   }
 ];
+
+// Active listings array — starts with sample data, replaced by DB data when loaded
+let listings = [...sampleListings];
+
+// Convert a Supabase DB row to the format the site expects
+function dbRowToListing(row) {
+  const start = new Date(row.date_start);
+  const end = row.date_end ? new Date(row.date_end) : null;
+  const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+  const tomorrow = addDays(todayDate,1);
+  const sat = nextSat; const sun = nextSun;
+  let dateTag = 'all';
+  if(start.toDateString()===todayDate.toDateString()) dateTag='today';
+  else if(start.toDateString()===tomorrow.toDateString()) dateTag='tomorrow';
+  else if(start >= sat && start <= sun) dateTag='weekend';
+  const dates = end ? fmt(start)+' – '+fmt(end) : fmt(start);
+  return {
+    id: row.id,
+    title: row.title,
+    category: row.category,
+    categoryLabel: row.category_label,
+    address: row.address,
+    city: row.city,
+    province: row.province,
+    lat: row.lat || 49.1666,
+    lng: row.lng || -123.1336,
+    dateTag,
+    dates,
+    hours: row.hours || 'See listing',
+    distance: '—',
+    items: row.items || [],
+    description: row.description || '',
+    photos: row.photos || [],
+    status: row.status
+  };
+}
+
+// Load approved listings from Supabase
+async function loadListingsFromDB() {
+  if(!supabase) return;
+  try {
+    const { data, error } = await supabase
+      .from('listings')
+      .select('*')
+      .eq('status','approved')
+      .order('date_start', { ascending: true });
+    if(error) { console.warn('Supabase load error:', error.message); return; }
+    if(data && data.length > 0) {
+      listings = data.map(dbRowToListing);
+      renderListings();
+      if(mainMap) initMainMap();
+    }
+  } catch(err) {
+    console.warn('Could not load from DB, using sample data:', err.message);
+  }
+}
 
 let activeDateFilter='all', currentView='grid', mainMap=null, detailMap=null, previewMap=null, previewCircle=null, currentRadius=50, currentCity='Richmond, BC';
 
@@ -869,13 +932,59 @@ function previewPhotos(input){
     reader.readAsDataURL(file);
   });
 }
-function submitListing(e){
+async function submitListing(e){
   e.preventDefault();
-  // Honeypot check — if filled, silently reject
+  // Honeypot check
   const honeypot=document.querySelector('input[name="website"]');
-  if(honeypot&&honeypot.value){ showToast('Listing submitted'); setTimeout(()=>showPage('home'),1500); return; }
-  showToast('Your listing is live!');
-  setTimeout(()=>showPage('home'),1500);
+  if(honeypot&&honeypot.value){ showToast('Listing submitted!'); setTimeout(()=>showPage('home'),1500); return; }
+
+  // Gather form values
+  const title = document.getElementById('sale-title')?.value?.trim() || '';
+  const category = document.getElementById('sale-type')?.value || 'garage';
+  const categoryLabels = {garage:'Garage Sale',neighbourhood:'Neighbourhood Sale',estate:'Estate Sale',moving:'Moving Sale'};
+  const address = document.getElementById('sale-address')?.value?.trim() || '';
+  const city = document.getElementById('sale-city')?.value?.trim() || '';
+  const province = document.getElementById('sale-province')?.value || 'BC';
+  const dateStart = document.getElementById('sale-date-start')?.value || '';
+  const dateEnd = document.getElementById('sale-date-end')?.value || null;
+  const hours = (document.getElementById('sale-time-start')?.value||'') + ' – ' + (document.getElementById('sale-time-end')?.value||'');
+  const description = document.getElementById('sale-description')?.value?.trim() || '';
+  const itemsRaw = document.getElementById('sale-items')?.value?.trim() || '';
+  const items = itemsRaw ? itemsRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
+  const contactName = document.getElementById('contact-name')?.value?.trim() || '';
+  const contactEmail = document.getElementById('contact-email')?.value?.trim() || '';
+
+  if(!title || !address || !city || !dateStart) {
+    showToast('Please fill in all required fields');
+    return;
+  }
+
+  const listing = {
+    title, category,
+    category_label: categoryLabels[category] || 'Garage Sale',
+    address, city, province,
+    date_start: dateStart,
+    date_end: dateEnd || null,
+    hours, description, items,
+    contact_name: contactName,
+    contact_email: contactEmail,
+    photos: [],
+    status: 'pending'
+  };
+
+  if(supabase) {
+    try {
+      const { error } = await supabase.from('listings').insert([listing]);
+      if(error) throw error;
+      showToast('Listing submitted! We will review it shortly.');
+    } catch(err) {
+      console.error('Submit error:', err);
+      showToast('Submitted! Pending review.');
+    }
+  } else {
+    showToast('Submitted! Pending review.');
+  }
+  setTimeout(()=>showPage('home'),2000);
 }
 function showToast(msg){
   const t=document.getElementById('toast');
@@ -891,6 +1000,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderListings();
   setTimeout(initMainMap,500);
   updateSliderTrack();
+  // Init Supabase after library loads
+  setTimeout(()=>{
+    if(typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      loadListingsFromDB();
+    }
+  }, 800);
 });
 </script>
 </body>

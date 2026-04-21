@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Garage Hoppers</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #E8161B;
+      --black: #111111;
+      --border: #e0e0e0;
+      --muted: #767676;
+      --surface: #f5f5f7;
+      --white: #ffffff;
+      --font-display: 'Cabinet Grotesk', sans-serif;
+      --font-body: 'Satoshi', sans-serif;
+    }
+    body { font-family: var(--font-body); background: var(--surface); color: var(--black); min-height: 100vh; }
+
+    /* NAV */
+    .admin-nav {
+      background: white; border-bottom: 1px solid var(--border);
+      padding: 0 2rem; display: flex; align-items: center;
+      justify-content: space-between; height: 64px;
+      position: sticky; top: 0; z-index: 10;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .admin-nav__brand { display: flex; align-items: center; gap: 0.75rem; }
+    .admin-nav__logo { width: 40px; height: 40px; border-radius: 50%; border: 2.5px solid var(--red); object-fit: cover; }
+    .admin-nav__title { font-family: var(--font-display); font-weight: 900; font-size: 1rem; color: var(--black); text-transform: uppercase; }
+    .admin-nav__badge { background: var(--red); color: white; font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .admin-nav__back { font-size: 0.875rem; color: var(--muted); text-decoration: none; font-weight: 600; transition: color 0.15s; }
+    .admin-nav__back:hover { color: var(--red); }
+
+    /* LOGIN */
+    .login-wrap { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 64px); padding: 2rem; }
+    .login-card { background: white; border: 1px solid var(--border); border-radius: 1rem; padding: 2.5rem; width: 100%; max-width: 400px; box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
+    .login-card h2 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; }
+    .login-card p { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.375rem; margin-bottom: 1rem; }
+    .form-group label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+    .form-group input { padding: 0.75rem 1rem; border: 1.5px solid var(--border); border-radius: 0.5rem; font-size: 0.9rem; font-family: var(--font-body); outline: none; transition: border-color 0.15s; }
+    .form-group input:focus { border-color: var(--red); }
+    .btn-login { width: 100%; padding: 0.875rem; background: var(--red); color: white; border: none; border-radius: 0.5rem; font-family: var(--font-display); font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: background 0.15s; }
+    .btn-login:hover { background: #c0121b; }
+    .login-error { color: var(--red); font-size: 0.8rem; margin-top: 0.5rem; display: none; }
+
+    /* MAIN ADMIN */
+    .admin-main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .admin-header h1 { font-family: var(--font-display); font-weight: 900; font-size: 1.5rem; }
+    .admin-tabs { display: flex; gap: 0.5rem; background: white; border: 1px solid var(--border); border-radius: 0.75rem; padding: 0.25rem; }
+    .tab-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; font-family: var(--font-display); font-size: 0.8rem; font-weight: 700; cursor: pointer; background: transparent; color: var(--muted); transition: all 0.15s; }
+    .tab-btn.active { background: var(--red); color: white; }
+    .count-badge { display: inline-block; background: var(--red); color: white; font-size: 0.65rem; padding: 1px 6px; border-radius: 999px; margin-left: 4px; }
+
+    /* LISTING CARDS */
+    .listings-list { display: flex; flex-direction: column; gap: 1rem; }
+    .admin-card {
+      background: white; border: 1px solid var(--border); border-radius: 1rem;
+      padding: 1.25rem 1.5rem; display: grid;
+      grid-template-columns: 80px 1fr auto; gap: 1rem; align-items: start;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .admin-card__thumb { width: 80px; height: 60px; border-radius: 0.5rem; object-fit: cover; background: var(--surface); flex-shrink: 0; }
+    .admin-card__thumb--placeholder { display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: var(--surface); border-radius: 0.5rem; width: 80px; height: 60px; }
+    .admin-card__info { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+    .admin-card__title { font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; color: var(--black); }
+    .admin-card__meta { font-size: 0.8rem; color: var(--muted); }
+    .admin-card__desc { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .admin-card__actions { display: flex; flex-direction: column; gap: 0.5rem; flex-shrink: 0; }
+    .btn-approve { padding: 0.5rem 1rem; background: #16a34a; color: white; border: none; border-radius: 0.5rem; font-family: var(--font-display); font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+    .btn-approve:hover { background: #15803d; }
+    .btn-reject { padding: 0.5rem 1rem; background: white; color: var(--red); border: 1.5px solid var(--red); border-radius: 0.5rem; font-family: var(--font-display); font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .btn-reject:hover { background: var(--red); color: white; }
+    .btn-delete { padding: 0.5rem 1rem; background: white; color: var(--muted); border: 1.5px solid var(--border); border-radius: 0.5rem; font-family: var(--font-display); font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .btn-delete:hover { border-color: var(--red); color: var(--red); }
+    .status-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .status-badge--pending { background: #fef3c7; color: #92400e; }
+    .status-badge--approved { background: #dcfce7; color: #166534; }
+    .status-badge--rejected { background: #fee2e2; color: #991b1b; }
+
+    /* EMPTY / LOADING */
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--muted); }
+    .empty-state h3 { font-family: var(--font-display); font-weight: 700; margin-bottom: 0.5rem; color: var(--black); }
+    .loading { text-align: center; padding: 3rem; color: var(--muted); font-size: 0.9rem; }
+
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--black); color: white; padding: 0.75rem 1.25rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 600; opacity: 0; transform: translateY(20px); transition: all 0.3s; z-index: 100; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="admin-nav">
+  <div class="admin-nav__brand">
+    <img src="./bunny.jpg" alt="Garage Hoppers" class="admin-nav__logo" />
+    <span class="admin-nav__title">Garage Hoppers</span>
+    <span class="admin-nav__badge">Admin</span>
+  </div>
+  <a href="./index.html" class="admin-nav__back">← Back to site</a>
+</nav>
+
+<!-- LOGIN SCREEN -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-card">
+    <h2>Admin Login</h2>
+    <p>Sign in with your Supabase account to manage listings.</p>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="your@email.com" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="••••••••" />
+    </div>
+    <div class="login-error" id="login-error">Incorrect email or password.</div>
+    <button class="btn-login" onclick="adminLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="admin-dashboard" style="display:none">
+  <div class="admin-main">
+    <div class="admin-header">
+      <h1>Listings</h1>
+      <div class="admin-tabs">
+        <button class="tab-btn active" onclick="switchTab('pending',this)">Pending <span class="count-badge" id="count-pending">0</span></button>
+        <button class="tab-btn" onclick="switchTab('approved',this)">Approved <span class="count-badge" id="count-approved">0</span></button>
+        <button class="tab-btn" onclick="switchTab('rejected',this)">Rejected <span class="count-badge" id="count-rejected">0</span></button>
+        <button class="tab-btn" onclick="switchTab('all',this)">All</button>
+      </div>
+    </div>
+    <div class="listings-list" id="admin-listings">
+      <div class="loading">Loading listings…</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://mpgnkvpfgmqegljycedf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_a5HoXVXgwIYz3Pu249XxUQ_NCFA-tbW';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let allListings = [];
+let currentTab = 'pending';
+
+// ─── AUTH ───
+async function adminLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) {
+    errEl.style.display = 'block';
+    errEl.textContent = error.message;
+    return;
+  }
+  showDashboard();
+}
+
+async function checkSession() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) showDashboard();
+}
+
+function showDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-dashboard').style.display = 'block';
+  loadAllListings();
+}
+
+// ─── LISTINGS ───
+async function loadAllListings() {
+  const { data, error } = await sb.from('listings').select('*').order('created_at', { ascending: false });
+  if (error) { console.error(error); return; }
+  allListings = data || [];
+  updateCounts();
+  renderAdminListings();
+}
+
+function updateCounts() {
+  document.getElementById('count-pending').textContent = allListings.filter(l=>l.status==='pending').length;
+  document.getElementById('count-approved').textContent = allListings.filter(l=>l.status==='approved').length;
+  document.getElementById('count-rejected').textContent = allListings.filter(l=>l.status==='rejected').length;
+}
+
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAdminListings();
+}
+
+function renderAdminListings() {
+  const filtered = currentTab === 'all' ? allListings : allListings.filter(l => l.status === currentTab);
+  const container = document.getElementById('admin-listings');
+
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty-state"><h3>No ${currentTab} listings</h3><p>Nothing here yet.</p></div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(l => {
+    const photo = l.photos && l.photos.length > 0
+      ? `<img src="${l.photos[0]}" class="admin-card__thumb" alt="" onerror="this.style.display='none'" />`
+      : `<div class="admin-card__thumb--placeholder">🏷️</div>`;
+
+    const actions = l.status === 'pending' ? `
+      <button class="btn-approve" onclick="updateStatus('${l.id}','approved')">✓ Approve</button>
+      <button class="btn-reject" onclick="updateStatus('${l.id}','rejected')">✕ Reject</button>
+    ` : l.status === 'approved' ? `
+      <button class="btn-reject" onclick="updateStatus('${l.id}','rejected')">Reject</button>
+      <button class="btn-delete" onclick="deleteListing('${l.id}')">Delete</button>
+    ` : `
+      <button class="btn-approve" onclick="updateStatus('${l.id}','approved')">Re-approve</button>
+      <button class="btn-delete" onclick="deleteListing('${l.id}')">Delete</button>
+    `;
+
+    return `
+      <div class="admin-card" id="card-${l.id}">
+        ${photo}
+        <div class="admin-card__info">
+          <div class="admin-card__title">${l.title}</div>
+          <div class="admin-card__meta">
+            <span class="status-badge status-badge--${l.status}">${l.status}</span>
+            &nbsp;·&nbsp; ${l.address}, ${l.city}, ${l.province}
+            &nbsp;·&nbsp; ${l.date_start}
+            ${l.contact_name ? '&nbsp;·&nbsp; ' + l.contact_name : ''}
+            ${l.contact_email ? '&nbsp;·&nbsp; ' + l.contact_email : ''}
+          </div>
+          <div class="admin-card__desc">${l.description || 'No description provided.'}</div>
+        </div>
+        <div class="admin-card__actions">${actions}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function updateStatus(id, status) {
+  const { error } = await sb.from('listings').update({ status }).eq('id', id);
+  if (error) { showToast('Error: ' + error.message); return; }
+  const listing = allListings.find(l => l.id === id);
+  if (listing) listing.status = status;
+  updateCounts();
+  renderAdminListings();
+  showToast(status === 'approved' ? '✓ Listing approved and live!' : '✕ Listing rejected.');
+}
+
+async function deleteListing(id) {
+  if (!confirm('Permanently delete this listing?')) return;
+  const { error } = await sb.from('listings').delete().eq('id', id);
+  if (error) { showToast('Error: ' + error.message); return; }
+  allListings = allListings.filter(l => l.id !== id);
+  updateCounts();
+  renderAdminListings();
+  showToast('Listing deleted.');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── INIT ───
+checkSession();
+</script>
+</body>
+</html>
