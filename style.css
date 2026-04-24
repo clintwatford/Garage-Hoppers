@@ -732,3 +732,217 @@
   .footer__grid { grid-template-columns:1fr; }
   .listings-header { flex-direction:column;align-items:flex-start; }
 }
+/* ═══════════════════════════════════════════
+   ADDITIONS — Garage Hoppers style.css
+   Append everything below to the end of
+   your existing style.css file
+════════════════════════════════════════════ */
+
+/* ─── FORM VALIDATION STATES ─── */
+/* Inline error messages under fields */
+.form-error {
+  display: none;
+  font-size: var(--text-xs);
+  color: var(--color-error);
+  font-weight: 600;
+  margin-top: var(--space-1);
+}
+
+/* Field turns red border when JS sets borderColor */
+.form-input:invalid:not(:placeholder-shown),
+.form-select:invalid:not(:placeholder-shown),
+.form-textarea:invalid:not(:placeholder-shown) {
+  border-color: var(--color-error);
+}
+
+/* Successful field state (optional — add class="valid" via JS if desired) */
+.form-input.valid,
+.form-select.valid,
+.form-textarea.valid {
+  border-color: var(--color-success);
+}
+
+/* Submit button disabled state */
+#submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ─── FAQ PAGE ─── */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+}
+
+.faq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-base);
+  color: var(--color-black);
+  cursor: pointer;
+  list-style: none;
+  background: white;
+  transition: background var(--transition-interactive);
+  user-select: none;
+}
+
+.faq-question::-webkit-details-marker { display: none; }
+
+.faq-question::after {
+  content: '+';
+  font-size: 1.4rem;
+  font-weight: 300;
+  color: var(--color-primary);
+  flex-shrink: 0;
+  margin-left: var(--space-4);
+  transition: transform var(--transition-interactive);
+}
+
+.faq-item[open] .faq-question {
+  background: var(--color-surface-2);
+}
+
+.faq-item[open] .faq-question::after {
+  content: '×';
+}
+
+.faq-answer {
+  padding: 0 var(--space-6) var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: 1.75;
+  background: white;
+}
+
+/* ─── STATIC PAGE BODY (Privacy, Terms) ─── */
+.static-page-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  color: var(--color-text-muted);
+  font-size: var(--text-base);
+  line-height: 1.75;
+}
+
+.static-page-body h2 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-base);
+  color: var(--color-black);
+  margin-top: var(--space-4);
+  margin-bottom: 0;
+}
+
+.static-page-body p {
+  margin: 0;
+}
+
+/* ─── LISTING CARD — after removing duplicate category ─── */
+/* Give the date a bit more presence now it stands alone in the meta row */
+.listing-card__meta {
+  min-height: 24px;
+}
+
+.listing-card__date {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  /* no longer needs margin-left:auto since category span is removed */
+}
+
+/* ─── MOBILE FIXES ─── */
+
+/* Hero search fields stack more gracefully on small screens */
+@media (max-width: 480px) {
+  .hero-search__row {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .hero-search__field + .hero-search__field {
+    border-left: none !important;
+    border-top: 1.5px solid var(--color-divider);
+    border-radius: var(--radius-lg) !important;
+  }
+
+  /* Upload zone padding reduced on mobile */
+  .upload-zone {
+    padding: var(--space-6);
+  }
+
+  /* Filter bar wraps cleanly */
+  .filters-bar {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .filter-chip {
+    white-space: nowrap;
+  }
+
+  /* Form submit area stacks on tiny screens */
+  #post-sale-form > div:last-of-type {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #post-sale-form > div:last-of-type .btn {
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* Ensure the FAB doesn't overlap form submit on mobile */
+@media (max-width: 640px) {
+  .fab-post {
+    bottom: var(--space-4);
+    right: var(--space-4);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-xs);
+  }
+}
+
+/* ─── ACCESSIBILITY ─── */
+/* Visible focus ring on all interactive elements */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Skip to content link (add to top of body if desired) */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--space-4);
+  background: var(--color-primary);
+  color: white;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  text-decoration: none;
+  z-index: 999;
+  transition: top 0.1s;
+}
+.skip-link:focus { top: var(--space-2); }
+

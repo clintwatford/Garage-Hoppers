@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Garage Hoppers — Find Garage Sales Near You</title>
-  <meta name="description" content="Discover garage sales, estate sales, and neighbourhood sales near you. Free listings, map search, and radius filtering across Canada." />
-  <!-- Google AdSense — add your publisher ID below when approved -->
-  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
-  <link rel="preconnect" href="https://api.fontshare.com" />
-  <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <link rel="stylesheet" href="./base.css" />
-  <link rel="stylesheet" href="./style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Garage Hoppers — Find Garage Sales Near You</title>
+<meta name="description" content="Discover garage sales, estate sales, and neighbourhood sales near you. Free listings, map search, and radius filtering across Canada." />
+
+<!-- Google AdSense — add your publisher ID below when approved -->
+<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+<link rel="preconnect" href="https://api.fontshare.com" />
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<link rel="stylesheet" href="./base.css" />
+<link rel="stylesheet" href="./style.css" />
 </head>
 <body>
 
 <!-- ═══════════════════════════════════════════
-     NAVBAR
+  NAVBAR
 ════════════════════════════════════════════ -->
 <header class="navbar">
   <div class="navbar__inner">
-    <a href="#" class="navbar__logo" onclick="showPage('home'); return false;">
+    <a href="#" class="navbar__logo" onclick="showPage('home'); return false;" aria-label="Garage Hoppers home">
       <img src="./bunny.jpg" alt="Garage Hoppers bunny logo" class="navbar__logo-img" />
       <div class="navbar__logo-text">
         Garage Hoppers
@@ -38,7 +40,7 @@
 
     <div class="search-bar" id="nav-search" style="display:none">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="search" placeholder="Search garage sales…" aria-label="Search listings" />
+      <input type="search" id="nav-search-input" placeholder="Search garage sales…" aria-label="Search listings" />
     </div>
 
     <div class="navbar__actions">
@@ -48,11 +50,11 @@
 </header>
 
 <!-- ═══════════════════════════════════════════
-     HOME PAGE
+  HOME PAGE
 ════════════════════════════════════════════ -->
 <main id="page-home" class="page-section active">
 
-  <!-- HERO — compact -->
+  <!-- HERO -->
   <section class="hero">
     <div class="hero__content">
       <h1 class="hero__title">Find <em>great deals</em> at sales near you</h1>
@@ -70,7 +72,8 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             <div style="text-align:left">
               <span class="hero-search__label">Date</span>
-              <input type="date" style="border:none;background:transparent;outline:none;font-weight:700;font-size:var(--text-sm);color:var(--color-text);padding:0;cursor:pointer" />
+              <!-- FIX: min set to today so past dates can't be selected; onchange syncs filter chips -->
+              <input type="date" id="hero-date-picker" style="border:none;background:transparent;outline:none;font-weight:700;font-size:var(--text-sm);color:var(--color-text);padding:0;cursor:pointer" aria-label="Filter by date" onchange="filterByDate(this.value)" />
             </div>
           </div>
         </div>
@@ -85,7 +88,6 @@
   <!-- LISTINGS SECTION -->
   <section class="listings-section" id="listings-anchor">
     <div class="container">
-
       <div class="listings-header">
         <h2 id="listings-count-heading">Loading sales near you…</h2>
         <div class="view-toggle">
@@ -103,9 +105,9 @@
       <!-- Date filters -->
       <div class="filters-bar" role="list" aria-label="Date filters">
         <button class="filter-chip active" onclick="filterDate(this,'all')" role="listitem">All Sales</button>
-        <button class="filter-chip" onclick="filterDate(this,'today')" role="listitem">📅 Today</button>
-        <button class="filter-chip" onclick="filterDate(this,'tomorrow')" role="listitem">🌅 Tomorrow</button>
-        <button class="filter-chip" onclick="filterDate(this,'weekend')" role="listitem">🎉 This Weekend</button>
+        <button class="filter-chip" onclick="filterDate(this,'today')" role="listitem" id="chip-today">📅 Today</button>
+        <button class="filter-chip" onclick="filterDate(this,'tomorrow')" role="listitem" id="chip-tomorrow">🌅 Tomorrow</button>
+        <button class="filter-chip" onclick="filterDate(this,'weekend')" role="listitem" id="chip-weekend">🎉 This Weekend</button>
       </div>
 
       <!-- Map view -->
@@ -115,12 +117,10 @@
 
       <!-- Grid view -->
       <div class="listings-grid" id="listings-grid" role="list" aria-label="Garage sale listings"></div>
-
     </div>
   </section>
 
-  <!-- ── GOOGLE ADS SLOT — Leaderboard below listings ── -->
-  <!-- Activate by replacing the placeholder with your AdSense unit code -->
+  <!-- GOOGLE ADS SLOT -->
   <div class="ad-slot ad-slot--leaderboard" aria-label="Advertisement">
     <div class="ad-slot__placeholder">
       <span>Advertisement</span>
@@ -178,12 +178,10 @@
 </main>
 
 <!-- ═══════════════════════════════════════════
-<!-- ═══════════════════════════════════════════
-     LISTING DETAIL PAGE
+  LISTING DETAIL PAGE
 ════════════════════════════════════════════ -->
 <main id="page-detail" class="page-section">
 
-  <!-- Breadcrumb bar -->
   <div class="detail-breadcrumb">
     <div class="container">
       <a href="#" onclick="showPage('home');return false;" class="detail-back">
@@ -193,17 +191,11 @@
     </div>
   </div>
 
-  <!-- Photo gallery hero -->
   <div class="detail-gallery" id="detail-photos"></div>
 
-  <!-- Content -->
   <div class="container">
     <div class="detail-layout">
-
-      <!-- LEFT: Main info column -->
       <div class="detail-main">
-
-        <!-- Title & meta -->
         <div class="detail-title-block">
           <div class="detail-badges">
             <span class="detail-badge detail-badge--category" id="detail-category"></span>
@@ -218,19 +210,16 @@
           </div>
         </div>
 
-        <!-- About -->
         <div class="detail-section-card">
           <h2 class="detail-section-card__title">About this sale</h2>
           <p id="detail-description" class="detail-section-card__body"></p>
         </div>
 
-        <!-- Items -->
         <div class="detail-section-card">
           <h2 class="detail-section-card__title">What's for sale</h2>
           <div class="items-list" id="detail-items"></div>
         </div>
 
-        <!-- Map -->
         <div class="detail-section-card detail-section-card--map">
           <h2 class="detail-section-card__title">Location</h2>
           <div class="detail-map-container">
@@ -247,13 +236,9 @@
             </a>
           </div>
         </div>
-
       </div>
 
-      <!-- RIGHT: Sticky sidebar -->
       <aside class="detail-sidebar">
-
-        <!-- Info card -->
         <div class="detail-info-card">
           <div class="detail-info-row">
             <div class="detail-info-icon">
@@ -294,7 +279,6 @@
               <div class="detail-info-value" id="sidebar-distance"></div>
             </div>
           </div>
-          <!-- Action buttons -->
           <div class="detail-info-actions">
             <a href="#" class="detail-btn-directions" target="_blank" rel="noopener noreferrer" id="directions-link-2">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
@@ -307,7 +291,6 @@
           </div>
         </div>
 
-        <!-- Post your sale nudge -->
         <div class="detail-post-card">
           <div class="detail-post-card__emoji">🏷️</div>
           <div class="detail-post-card__title">Hosting a sale?</div>
@@ -317,13 +300,14 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
         </div>
-
       </aside>
     </div>
   </div>
 </main>
 
-<!-- POST A SALE PAGE -->
+<!-- ═══════════════════════════════════════════
+  POST A SALE PAGE
+════════════════════════════════════════════ -->
 <main id="page-post" class="page-section">
   <div style="background:var(--color-surface-2);border-bottom:1px solid var(--color-divider);padding:var(--space-4) 0;">
     <div class="container">
@@ -338,23 +322,24 @@
     <div style="max-width:720px;margin-inline:auto">
       <div style="margin-bottom:var(--space-8)">
         <h1 style="font-family:var(--font-display);font-size:var(--text-xl);font-weight:900;letter-spacing:-0.02em;margin-bottom:var(--space-2);text-transform:uppercase">Post your sale</h1>
-        <p style="color:var(--color-text-muted)">It's free, takes about 3 minutes, and your listing goes live immediately.</p>
+        <p style="color:var(--color-text-muted)">It's free, takes about 3 minutes, and your listing goes live after a quick review.</p>
       </div>
 
-      <form onsubmit="submitListing(event)" novalidate>
+      <!-- FIX: Removed novalidate so browser assists + we layer our own validation on top -->
+      <form id="post-sale-form" onsubmit="submitListing(event)">
 
-        <!-- Honeypot spam trap — hidden from real users, bots fill it -->
+        <!-- Honeypot spam trap -->
         <div class="form-honeypot" aria-hidden="true">
           <input type="text" name="website" tabindex="-1" autocomplete="off" />
         </div>
 
-        <!-- STEP 1: Photos FIRST -->
+        <!-- STEP 1: Photos -->
         <div class="detail-card" style="margin-bottom:var(--space-6)">
           <h2 style="font-family:var(--font-display);font-weight:900;font-size:var(--text-base);margin-bottom:var(--space-2);padding-bottom:var(--space-4);border-bottom:1px solid var(--color-divider);text-transform:uppercase">
             📸 Step 1 — Add photos
           </h2>
           <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-5)">Great photos get way more visitors. Add up to 10 photos of your items.</p>
-          <div class="upload-zone" onclick="document.getElementById('photo-input').click()" role="button" tabindex="0">
+          <div class="upload-zone" onclick="document.getElementById('photo-input').click()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('photo-input').click()">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
             <p><strong>Click to upload photos</strong> or drag and drop</p>
             <p style="margin-top:var(--space-1);font-size:var(--text-xs)">PNG, JPG up to 10MB each · Up to 10 photos</p>
@@ -369,54 +354,72 @@
             📋 Step 2 — Basic information
           </h2>
           <div class="form-grid">
+
             <div class="form-group form-group--full">
               <label class="form-label" for="sale-title">Sale title <span>*</span></label>
-              <input class="form-input" id="sale-title" type="text" placeholder="e.g. Big Family Garage Sale — Furniture, Tools & More" required />
+              <input class="form-input" id="sale-title" name="sale-title" type="text" placeholder="e.g. Big Family Garage Sale — Furniture, Tools & More" required />
               <span class="form-hint">Be descriptive — this is what shoppers see first.</span>
+              <!-- FIX: inline error element for each required field -->
+              <span class="form-error" id="err-sale-title" aria-live="polite"></span>
             </div>
+
             <div class="form-group">
               <label class="form-label" for="sale-type">Sale type <span>*</span></label>
-              <select class="form-select" id="sale-type" required>
+              <select class="form-select" id="sale-type" name="sale-type" required>
                 <option value="">Select type…</option>
                 <option value="garage">Garage Sale</option>
                 <option value="neighbourhood">Neighbourhood Sale</option>
                 <option value="estate">Estate Sale</option>
                 <option value="moving">Moving Sale</option>
               </select>
+              <span class="form-error" id="err-sale-type" aria-live="polite"></span>
             </div>
+
             <div class="form-group">
-              <label class="form-label" for="sale-items">Number of items (approx.)</label>
-              <input class="form-input" id="sale-items" type="number" placeholder="e.g. 200" min="1" />
+              <label class="form-label" for="sale-item-count">Number of items (approx.)</label>
+              <!-- FIX: renamed from sale-items to sale-item-count to remove collision with tags field -->
+              <input class="form-input" id="sale-item-count" name="sale-item-count" type="number" placeholder="e.g. 200" min="1" />
             </div>
+
             <div class="form-group form-group--full">
+              <!-- FIX: id was sale-desc — now matches JS which reads sale-desc -->
               <label class="form-label" for="sale-desc">Description <span>*</span></label>
-              <textarea class="form-textarea" id="sale-desc" placeholder="Describe what you're selling, condition of items, anything shoppers should know…" required></textarea>
+              <textarea class="form-textarea" id="sale-desc" name="sale-desc" placeholder="Describe what you're selling, condition of items, anything shoppers should know…" required></textarea>
+              <span class="form-error" id="err-sale-desc" aria-live="polite"></span>
             </div>
+
             <div class="form-group form-group--full">
+              <!-- FIX: id was sale-tags — now matches JS which reads sale-tags -->
               <label class="form-label" for="sale-tags">Items for sale (comma separated)</label>
-              <input class="form-input" id="sale-tags" type="text" placeholder="Furniture, Tools, Clothing, Books, Electronics…" />
+              <input class="form-input" id="sale-tags" name="sale-tags" type="text" placeholder="Furniture, Tools, Clothing, Books, Electronics…" />
               <span class="form-hint">Helps shoppers find your sale when searching by item type.</span>
             </div>
+
           </div>
         </div>
 
         <!-- STEP 3: Location & Dates -->
         <div class="detail-card" style="margin-bottom:var(--space-6)">
           <h2 style="font-family:var(--font-display);font-weight:900;font-size:var(--text-base);margin-bottom:var(--space-6);padding-bottom:var(--space-4);border-bottom:1px solid var(--color-divider);text-transform:uppercase">
-            📍 Step 3 — Location & dates
+            📍 Step 3 — Location &amp; dates
           </h2>
           <div class="form-grid">
+
             <div class="form-group form-group--full">
               <label class="form-label" for="sale-address">Street address <span>*</span></label>
-              <input class="form-input" id="sale-address" type="text" placeholder="e.g. 123 Maple Street" required />
+              <input class="form-input" id="sale-address" name="sale-address" type="text" placeholder="e.g. 123 Maple Street" required />
+              <span class="form-error" id="err-sale-address" aria-live="polite"></span>
             </div>
+
             <div class="form-group">
               <label class="form-label" for="sale-city">City <span>*</span></label>
-              <input class="form-input" id="sale-city" type="text" placeholder="e.g. Richmond" required />
+              <input class="form-input" id="sale-city" name="sale-city" type="text" placeholder="e.g. Richmond" required />
+              <span class="form-error" id="err-sale-city" aria-live="polite"></span>
             </div>
+
             <div class="form-group">
               <label class="form-label" for="sale-province">Province <span>*</span></label>
-              <select class="form-select" id="sale-province" required>
+              <select class="form-select" id="sale-province" name="sale-province" required>
                 <option value="">Select…</option>
                 <option value="BC">British Columbia</option>
                 <option value="AB">Alberta</option>
@@ -429,24 +432,33 @@
                 <option value="PE">Prince Edward Island</option>
                 <option value="NL">Newfoundland &amp; Labrador</option>
               </select>
+              <span class="form-error" id="err-sale-province" aria-live="polite"></span>
             </div>
+
+            <!-- FIX: ids were sale-start / sale-end — renamed to match the JS reads -->
             <div class="form-group">
               <label class="form-label" for="sale-start">Start date <span>*</span></label>
-              <input class="form-input" id="sale-start" type="date" required />
+              <input class="form-input" id="sale-start" name="sale-start" type="date" required />
+              <span class="form-error" id="err-sale-start" aria-live="polite"></span>
             </div>
+
             <div class="form-group">
               <label class="form-label" for="sale-end">End date</label>
-              <input class="form-input" id="sale-end" type="date" />
+              <input class="form-input" id="sale-end" name="sale-end" type="date" />
               <span class="form-hint">Leave blank if single-day.</span>
             </div>
+
+            <!-- FIX: ids were sale-hours-open / sale-hours-close — renamed to match JS reads -->
             <div class="form-group">
               <label class="form-label" for="sale-hours-open">Opening time</label>
-              <input class="form-input" id="sale-hours-open" type="time" value="08:00" />
+              <input class="form-input" id="sale-hours-open" name="sale-hours-open" type="time" value="08:00" />
             </div>
+
             <div class="form-group">
               <label class="form-label" for="sale-hours-close">Closing time</label>
-              <input class="form-input" id="sale-hours-close" type="time" value="14:00" />
+              <input class="form-input" id="sale-hours-close" name="sale-hours-close" type="time" value="14:00" />
             </div>
+
           </div>
         </div>
 
@@ -457,12 +469,14 @@
           </h2>
           <div class="form-grid">
             <div class="form-group">
+              <!-- FIX: id was sale-name — kept as sale-name, JS now reads the correct id -->
               <label class="form-label" for="sale-name">Your name</label>
-              <input class="form-input" id="sale-name" type="text" placeholder="First name" />
+              <input class="form-input" id="sale-name" name="sale-name" type="text" placeholder="First name" />
             </div>
             <div class="form-group">
+              <!-- FIX: id was sale-email — kept as sale-email, JS now reads the correct id -->
               <label class="form-label" for="sale-email">Email</label>
-              <input class="form-input" id="sale-email" type="email" placeholder="you@example.com" />
+              <input class="form-input" id="sale-email" name="sale-email" type="email" placeholder="you@example.com" />
               <span class="form-hint">Not shown publicly. Used for listing management only.</span>
             </div>
           </div>
@@ -477,11 +491,20 @@
           </div>
         </div>
 
+        <!-- FIX: submission state — button changes to loading/success/error states -->
         <div style="display:flex;gap:var(--space-4);flex-wrap:wrap;align-items:center">
-          <button type="submit" class="btn btn--primary" style="font-size:var(--text-base);padding:var(--space-3) var(--space-10)">
+          <button type="submit" class="btn btn--primary" id="submit-btn" style="font-size:var(--text-base);padding:var(--space-3) var(--space-10)">
             Publish my listing →
           </button>
           <button type="button" class="btn btn--outline" onclick="showPage('home');return false;">Cancel</button>
+        </div>
+
+        <!-- FIX: success / error banner shown after submission -->
+        <div id="form-success" style="display:none;margin-top:var(--space-6);padding:var(--space-4) var(--space-5);background:var(--color-success-highlight);border:1.5px solid var(--color-success);border-radius:var(--radius-lg);color:var(--color-success);font-weight:700;font-family:var(--font-display);">
+          ✓ Your listing has been submitted and is pending review. We'll have it live shortly.
+        </div>
+        <div id="form-error-banner" style="display:none;margin-top:var(--space-6);padding:var(--space-4) var(--space-5);background:var(--color-error-highlight);border:1.5px solid var(--color-error);border-radius:var(--radius-lg);color:var(--color-error);font-weight:700;font-family:var(--font-display);">
+          ✕ Something went wrong. Please check your details and try again.
         </div>
 
       </form>
@@ -490,7 +513,170 @@
 </main>
 
 <!-- ═══════════════════════════════════════════
-     FOOTER
+  STATIC PAGES (FAQ, Contact, Privacy, Terms)
+  FIX: These replace all the # footer links
+════════════════════════════════════════════ -->
+
+<!-- FAQ PAGE -->
+<main id="page-faq" class="page-section">
+  <div style="background:var(--color-surface-2);border-bottom:1px solid var(--color-divider);padding:var(--space-4) 0;">
+    <div class="container">
+      <a href="#" onclick="showPage('home');return false;" class="detail-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to listings
+      </a>
+    </div>
+  </div>
+  <div class="container" style="max-width:720px;padding:var(--space-12) var(--space-6)">
+    <h1 style="font-family:var(--font-display);font-size:var(--text-xl);font-weight:900;text-transform:uppercase;margin-bottom:var(--space-8)">Frequently Asked Questions</h1>
+
+    <div class="faq-list">
+
+      <details class="faq-item">
+        <summary class="faq-question">Is it free to list my sale?</summary>
+        <p class="faq-answer">Yes, 100% free. There are no fees to list your garage sale, estate sale, moving sale, or neighbourhood sale on Garage Hoppers.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">How long does it take for my listing to go live?</summary>
+        <p class="faq-answer">Listings are reviewed and typically approved within a few hours. Once approved, your listing appears immediately on the site.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">Can I edit my listing after submitting?</summary>
+        <p class="faq-answer">Not yet through the site, but email us at <a href="mailto:hello@garagehoppers.ca" style="color:var(--color-primary);">hello@garagehoppers.ca</a> with your listing details and we'll update it for you.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">What areas does Garage Hoppers cover?</summary>
+        <p class="faq-answer">We cover all of Canada. You can set your search radius up to 200 km from any city or town.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">What types of sales can I list?</summary>
+        <p class="faq-answer">Garage sales, estate sales, moving sales, and neighbourhood sales. We do not list commercial sales, online-only sales, or business liquidations.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">How do I get more people to my sale?</summary>
+        <p class="faq-answer">Add clear photos — listings with photos get significantly more views. Write a detailed description and list your best items. Share your Garage Hoppers listing on Facebook and Nextdoor too.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">Can I list a sale for a future date?</summary>
+        <p class="faq-answer">Yes. You can submit a listing for any upcoming date. We recommend posting at least 3–5 days before your sale.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">How do I contact a seller?</summary>
+        <p class="faq-answer">Seller contact information is not currently shown publicly on listing pages. The best approach is to show up during the listed hours, or post a comment on the listing if that feature is added.</p>
+      </details>
+
+    </div>
+  </div>
+</main>
+
+<!-- CONTACT PAGE -->
+<main id="page-contact" class="page-section">
+  <div style="background:var(--color-surface-2);border-bottom:1px solid var(--color-divider);padding:var(--space-4) 0;">
+    <div class="container">
+      <a href="#" onclick="showPage('home');return false;" class="detail-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to listings
+      </a>
+    </div>
+  </div>
+  <div class="container" style="max-width:640px;padding:var(--space-12) var(--space-6)">
+    <h1 style="font-family:var(--font-display);font-size:var(--text-xl);font-weight:900;text-transform:uppercase;margin-bottom:var(--space-3)">Contact Us</h1>
+    <p style="color:var(--color-text-muted);margin-bottom:var(--space-8)">Have a question, a problem with a listing, or just want to say hi? We're a small team and we read everything.</p>
+
+    <div style="display:flex;flex-direction:column;gap:var(--space-4);margin-bottom:var(--space-10)">
+      <a href="mailto:hello@garagehoppers.ca" style="display:inline-flex;align-items:center;gap:var(--space-3);font-weight:700;color:var(--color-primary);font-family:var(--font-display);font-size:var(--text-base);text-decoration:none;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        hello@garagehoppers.ca
+      </a>
+    </div>
+
+    <div style="background:var(--color-surface-2);border-radius:var(--radius-xl);padding:var(--space-6);border:1px solid var(--color-divider)">
+      <h2 style="font-family:var(--font-display);font-weight:800;font-size:var(--text-base);margin-bottom:var(--space-1)">Report a listing</h2>
+      <p style="color:var(--color-text-muted);font-size:var(--text-sm);margin-bottom:var(--space-4)">If you find a listing that's inaccurate, inappropriate, or spam, email us with the listing title and we'll remove it promptly.</p>
+      <a href="mailto:hello@garagehoppers.ca?subject=Report a listing" class="btn btn--primary btn--sm">Report by email</a>
+    </div>
+  </div>
+</main>
+
+<!-- PRIVACY POLICY PAGE -->
+<main id="page-privacy" class="page-section">
+  <div style="background:var(--color-surface-2);border-bottom:1px solid var(--color-divider);padding:var(--space-4) 0;">
+    <div class="container">
+      <a href="#" onclick="showPage('home');return false;" class="detail-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to listings
+      </a>
+    </div>
+  </div>
+  <div class="container" style="max-width:720px;padding:var(--space-12) var(--space-6)">
+    <h1 style="font-family:var(--font-display);font-size:var(--text-xl);font-weight:900;text-transform:uppercase;margin-bottom:var(--space-2)">Privacy Policy</h1>
+    <p style="color:var(--color-text-muted);font-size:var(--text-sm);margin-bottom:var(--space-8)">Last updated: April 2026</p>
+
+    <div class="static-page-body">
+      <h2>What we collect</h2>
+      <p>When you submit a listing, we collect your name, email address, and the details of your sale (address, dates, description, photos). Your name and email are never shown publicly. Your sale's street address, city, and province are shown on your listing so shoppers can find you.</p>
+      <p>When you browse the site, we may collect anonymous usage data (pages visited, general location by region) through analytics tools to understand how the site is used. We do not collect personal data from browsers.</p>
+
+      <h2>How we use it</h2>
+      <p>Your contact information is used only to communicate with you about your listing — for example, to confirm approval or to let you know if your listing was removed. We do not sell, rent, or share your personal information with third parties for marketing purposes.</p>
+
+      <h2>Cookies</h2>
+      <p>We use minimal cookies necessary to operate the site. If Google AdSense ads are enabled, Google may set cookies for ad personalization. You can opt out of personalized ads through Google's Ad Settings.</p>
+
+      <h2>Data retention</h2>
+      <p>Listing data is retained for as long as the listing is active. You can request deletion of your data at any time by emailing <a href="mailto:hello@garagehoppers.ca" style="color:var(--color-primary)">hello@garagehoppers.ca</a>.</p>
+
+      <h2>Contact</h2>
+      <p>Questions about this policy? Email <a href="mailto:hello@garagehoppers.ca" style="color:var(--color-primary)">hello@garagehoppers.ca</a>.</p>
+    </div>
+  </div>
+</main>
+
+<!-- TERMS OF USE PAGE -->
+<main id="page-terms" class="page-section">
+  <div style="background:var(--color-surface-2);border-bottom:1px solid var(--color-divider);padding:var(--space-4) 0;">
+    <div class="container">
+      <a href="#" onclick="showPage('home');return false;" class="detail-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to listings
+      </a>
+    </div>
+  </div>
+  <div class="container" style="max-width:720px;padding:var(--space-12) var(--space-6)">
+    <h1 style="font-family:var(--font-display);font-size:var(--text-xl);font-weight:900;text-transform:uppercase;margin-bottom:var(--space-2)">Terms of Use</h1>
+    <p style="color:var(--color-text-muted);font-size:var(--text-sm);margin-bottom:var(--space-8)">Last updated: April 2026</p>
+
+    <div class="static-page-body">
+      <h2>Using Garage Hoppers</h2>
+      <p>Garage Hoppers is a free listing directory for personal garage sales, estate sales, moving sales, and neighbourhood sales in Canada. By using this site you agree to these terms.</p>
+
+      <h2>Listing rules</h2>
+      <p>You may only list sales for property you own or have authority to sell. Listings must be accurate, include a real address, and represent a genuine in-person sale. The following are not permitted: commercial sales, online-only sales, business liquidations, prohibited items (weapons, drugs, counterfeit goods), or any listing intended to defraud buyers.</p>
+
+      <h2>Our right to remove listings</h2>
+      <p>We reserve the right to remove any listing at any time for any reason, including but not limited to: inaccurate information, prohibited items, spam, or complaints from users.</p>
+
+      <h2>No warranties</h2>
+      <p>Garage Hoppers is provided as-is. We make no guarantees about the accuracy of listings, the quality of items for sale, or the conduct of sellers or buyers. All transactions are strictly between the buyer and seller.</p>
+
+      <h2>Liability</h2>
+      <p>Garage Hoppers is not responsible for any loss, injury, or damage arising from attendance at a sale, purchase of items, or any other interaction facilitated by this site.</p>
+
+      <h2>Contact</h2>
+      <p>Questions? Email <a href="mailto:hello@garagehoppers.ca" style="color:var(--color-primary)">hello@garagehoppers.ca</a>.</p>
+    </div>
+  </div>
+</main>
+
+<!-- ═══════════════════════════════════════════
+  FOOTER
 ════════════════════════════════════════════ -->
 <footer class="footer">
   <div class="footer__top">
@@ -506,45 +692,50 @@
           </div>
           <p class="footer__desc">Find deals and list your garage sale for free. Serving communities across Canada.</p>
           <div class="social-links">
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Facebook">
+            <a href="https://facebook.com/garagehoppers" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Facebook">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Instagram">
+            <a href="https://instagram.com/garagehoppers" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Instagram">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
             </a>
-            <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="TikTok">
+            <a href="https://tiktok.com/@garagehoppers" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="TikTok">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/></svg>
             </a>
           </div>
         </div>
+
         <div class="footer__col">
           <h4>Discover</h4>
           <ul>
-            <li><a href="#" onclick="showPage('home');return false">Browse Sales</a></li>
-            <li><a href="#">Map View</a></li>
-            <li><a href="#">This Weekend</a></li>
-            <li><a href="#">Neighbourhood Sales</a></li>
+            <!-- FIX: all # links now have real onclick routes -->
+            <li><a href="#" onclick="showPage('home');return false;">Browse Sales</a></li>
+            <li><a href="#" onclick="showPage('home');setView('map');return false;">Map View</a></li>
+            <li><a href="#" onclick="showPage('home');filterDate(document.getElementById('chip-weekend'),'weekend');scrollToListings();return false;">This Weekend</a></li>
+            <li><a href="#" onclick="showPage('home');filterDate(document.querySelector('.filter-chip'),'all');document.getElementById('nav-search-input').focus();return false;">Neighbourhood Sales</a></li>
           </ul>
         </div>
+
         <div class="footer__col">
           <h4>Sellers</h4>
           <ul>
-            <li><a href="#" onclick="showPage('post');return false">Post a Sale</a></li>
-            <li><a href="#">Listing Tips</a></li>
-            <li><a href="#">FAQ</a></li>
-            <li><a href="#">Contact Us</a></li>
+            <li><a href="#" onclick="showPage('post');return false;">Post a Sale</a></li>
+            <li><a href="#" onclick="showPage('faq');return false;">Listing Tips (FAQ)</a></li>
+            <li><a href="#" onclick="showPage('faq');return false;">FAQ</a></li>
+            <li><a href="#" onclick="showPage('contact');return false;">Contact Us</a></li>
           </ul>
         </div>
       </div>
     </div>
   </div>
+
   <div class="footer__bottom">
     <div class="container">
       <div class="footer__bottom-inner">
         <p class="footer__copy">© 2026 Garage Hoppers. Free to list, free to browse.</p>
         <div class="footer__legal">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Use</a>
+          <!-- FIX: legal links now route to real pages -->
+          <a href="#" onclick="showPage('privacy');return false;">Privacy Policy</a>
+          <a href="#" onclick="showPage('terms');return false;">Terms of Use</a>
         </div>
       </div>
     </div>
@@ -552,7 +743,7 @@
 </footer>
 
 <!-- ═══════════════════════════════════════════
-     LOCATION MODAL
+  LOCATION MODAL
 ════════════════════════════════════════════ -->
 <div class="modal-overlay" id="location-modal" role="dialog" aria-modal="true" aria-label="Set your location">
   <div class="modal">
@@ -584,8 +775,8 @@
   </div>
 </div>
 
-<!-- Toast -->
-<div id="toast" style="position:fixed;bottom:var(--space-6);right:var(--space-6);background:var(--color-primary);color:white;padding:var(--space-3) var(--space-5);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);font-weight:700;font-size:var(--text-sm);z-index:300;transform:translateY(100px);opacity:0;transition:all 350ms cubic-bezier(0.16,1,0.3,1);font-family:var(--font-display)">
+<!-- FIX: aria-live added so screen readers announce toast messages -->
+<div id="toast" role="status" aria-live="polite" style="position:fixed;bottom:var(--space-6);right:var(--space-6);background:var(--color-primary);color:white;padding:var(--space-3) var(--space-5);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);font-weight:700;font-size:var(--text-sm);z-index:300;transform:translateY(100px);opacity:0;transition:all 350ms cubic-bezier(0.16,1,0.3,1);font-family:var(--font-display)">
   ✓ <span id="toast-msg">Done!</span>
 </div>
 
@@ -607,7 +798,16 @@ const addDays = (d,n) => { const r=new Date(d); r.setDate(r.getDate()+n); return
 const nextSat = (() => { const d=new Date(today); const day=d.getDay(); d.setDate(d.getDate()+((6-day+7)%7||7)); return d; })();
 const nextSun = addDays(nextSat,1);
 
-// ─── SAMPLE FALLBACK DATA (shown while DB is loading or empty) ───
+// FIX: Set the date picker min to today so past dates can't be selected
+document.addEventListener('DOMContentLoaded', () => {
+  const dp = document.getElementById('hero-date-picker');
+  if(dp) {
+    const todayStr = today.toISOString().split('T')[0];
+    dp.min = todayStr;
+  }
+});
+
+// ─── SAMPLE FALLBACK DATA ───
 const sampleListings = [
   { id:1, title:"Massive Family Garage Sale — Moving Out!", category:"garage", categoryLabel:"Garage Sale",
     address:"1842 Granville Ave", city:"Richmond", province:"BC", lat:49.1720, lng:-123.1380,
@@ -667,10 +867,8 @@ const sampleListings = [
   }
 ];
 
-// Active listings array — starts with sample data, replaced by DB data when loaded
 let listings = [...sampleListings];
 
-// Convert a Supabase DB row to the format the site expects
 function dbRowToListing(row) {
   const start = new Date(row.date_start);
   const end = row.date_end ? new Date(row.date_end) : null;
@@ -683,35 +881,20 @@ function dbRowToListing(row) {
   else if(start >= sat && start <= sun) dateTag='weekend';
   const dates = end ? fmt(start)+' – '+fmt(end) : fmt(start);
   return {
-    id: row.id,
-    title: row.title,
-    category: row.category,
-    categoryLabel: row.category_label,
-    address: row.address,
-    city: row.city,
-    province: row.province,
-    lat: row.lat || 49.1666,
-    lng: row.lng || -123.1336,
-    dateTag,
-    dates,
-    hours: row.hours || 'See listing',
-    distance: '—',
-    items: row.items || [],
-    description: row.description || '',
-    photos: row.photos || [],
-    status: row.status
+    id: row.id, title: row.title, category: row.category, categoryLabel: row.category_label,
+    address: row.address, city: row.city, province: row.province,
+    lat: row.lat || 49.1666, lng: row.lng || -123.1336,
+    dateTag, dates, hours: row.hours || 'See listing', distance: '—',
+    items: row.items || [], description: row.description || '',
+    photos: row.photos || [], status: row.status
   };
 }
 
-// Load approved listings from Supabase
 async function loadListingsFromDB() {
   if(!supabase) return;
   try {
     const { data, error } = await supabase
-      .from('listings')
-      .select('*')
-      .eq('status','approved')
-      .order('date_start', { ascending: true });
+      .from('listings').select('*').eq('status','approved').order('date_start', { ascending: true });
     if(error) { console.warn('Supabase load error:', error.message); return; }
     if(data && data.length > 0) {
       listings = data.map(dbRowToListing);
@@ -726,7 +909,7 @@ async function loadListingsFromDB() {
 let activeDateFilter='all', currentView='grid', mainMap=null, detailMap=null, previewMap=null, previewCircle=null, currentRadius=50, currentCity='Richmond, BC';
 
 // ─── PAGE NAV ───
-function showPage(page,listingId){
+function showPage(page, listingId) {
   document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
@@ -736,38 +919,85 @@ function showPage(page,listingId){
   if(page==='home') initMainMap();
   if(page==='detail'&&listingId) renderDetailPage(listingId);
 }
-function scrollToListings(){ document.getElementById('listings-anchor').scrollIntoView({behavior:'smooth'}); }
+
+function scrollToListings() { document.getElementById('listings-anchor').scrollIntoView({behavior:'smooth'}); }
 
 // ─── FILTER ───
-function getFiltered(){
-  if(activeDateFilter==='all') return listings;
-  return listings.filter(l=>l.dateTag===activeDateFilter);
+function getFiltered() {
+  let base = listings;
+  // Also apply search query if present
+  const q = document.getElementById('nav-search-input')?.value?.trim().toLowerCase();
+  if(q) base = base.filter(l =>
+    l.title.toLowerCase().includes(q) ||
+    l.city.toLowerCase().includes(q) ||
+    l.items.some(i=>i.toLowerCase().includes(q)) ||
+    l.description.toLowerCase().includes(q)
+  );
+  if(activeDateFilter==='all') return base;
+  return base.filter(l=>l.dateTag===activeDateFilter);
 }
-function filterDate(btn,filter){
+
+function filterDate(btn, filter) {
   document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
   btn.classList.add('active');
-  activeDateFilter=filter;
+  activeDateFilter = filter;
+  // FIX: sync date picker back to blank when "all" selected
+  if(filter==='all') { const dp=document.getElementById('hero-date-picker'); if(dp) dp.value=''; }
   renderListings();
   if(mainMap) updateMapMarkers();
 }
 
+// FIX: connect the hero date picker to the filter chips
+function filterByDate(val) {
+  if(!val) { filterDate(document.querySelector('.filter-chip'), 'all'); return; }
+  const picked = new Date(val + 'T00:00:00');
+  const todayMidnight = new Date(today); todayMidnight.setHours(0,0,0,0);
+  const tomorrowMidnight = addDays(todayMidnight,1);
+  if(picked.toDateString()===todayMidnight.toDateString()) {
+    filterDate(document.getElementById('chip-today'),'today');
+  } else if(picked.toDateString()===tomorrowMidnight.toDateString()) {
+    filterDate(document.getElementById('chip-tomorrow'),'tomorrow');
+  } else if(picked >= nextSat && picked <= nextSun) {
+    filterDate(document.getElementById('chip-weekend'),'weekend');
+  } else {
+    // Custom date — filter directly
+    activeDateFilter='all';
+    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+    renderListings();
+    if(mainMap) updateMapMarkers();
+  }
+  scrollToListings();
+}
+
+// ─── SEARCH ───
+document.addEventListener('DOMContentLoaded', () => {
+  const searchInput = document.getElementById('nav-search-input');
+  if(searchInput) {
+    searchInput.addEventListener('input', () => { renderListings(); if(mainMap) updateMapMarkers(); });
+  }
+});
+
 // ─── RENDER LISTINGS ───
-function renderListings(){
-  const filtered=getFiltered();
-  const grid=document.getElementById('listings-grid');
-  const heading=document.getElementById('listings-count-heading');
-  const labels={'all':'sales','today':'sales today','tomorrow':'sales tomorrow','weekend':'weekend sales'};
-  heading.innerHTML=`<strong style="color:var(--color-primary)">${filtered.length} ${labels[activeDateFilter]||'sales'}</strong> near ${currentCity} <span style="color:var(--color-text-muted);font-size:var(--text-base);font-weight:400">· within ${currentRadius} km</span>`;
-  if(!filtered.length){
-    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:var(--space-16);color:var(--color-text-muted)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:auto auto var(--space-4)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><h3 style="font-family:var(--font-display);font-weight:700;color:var(--color-text);margin-bottom:var(--space-2)">No sales found</h3><p>Try a different date or expand your search radius.</p></div>`;
+// FIX: removed duplicate category badge from card body — badge on photo is enough
+function renderListings() {
+  const filtered = getFiltered();
+  const grid = document.getElementById('listings-grid');
+  const heading = document.getElementById('listings-count-heading');
+  const labels = {'all':'sales','today':'sales today','tomorrow':'sales tomorrow','weekend':'weekend sales'};
+  heading.innerHTML = `<strong style="color:var(--color-primary)">${filtered.length} ${labels[activeDateFilter]||'sales'}</strong> near ${currentCity} <span style="color:var(--color-text-muted);font-size:var(--text-base);font-weight:400">· within ${currentRadius} km</span>`;
+
+  if(!filtered.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:var(--space-16);color:var(--color-text-muted)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:auto auto var(--space-4)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><h3 style="font-family:var(--font-display);font-weight:700;color:var(--color-text);margin-bottom:var(--space-2)">No sales found</h3><p>Try a different date or expand your search radius.</p></div>`;
     return;
   }
-  grid.innerHTML=filtered.map(l=>`
+
+  grid.innerHTML = filtered.map(l => `
     <a href="#" class="listing-card" onclick="openListing(${l.id});return false;" role="listitem" aria-label="${l.title}">
       <div class="listing-card__photos">
         <div class="listing-card__photos-grid count-${Math.min(l.photos.length,4)}">
           ${l.photos.slice(0,4).map(p=>`<img src="${p}" alt="${l.title}" loading="lazy"/>`).join('')}
         </div>
+        <!-- Badge on photo only — no duplicate in card body -->
         <div class="listing-card__badge">${l.categoryLabel}</div>
         <button class="listing-card__save" onclick="event.preventDefault();event.stopPropagation();toggleSave(this)" aria-label="Save listing">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -775,7 +1005,7 @@ function renderListings(){
       </div>
       <div class="listing-card__body">
         <div class="listing-card__meta">
-          <span class="listing-card__category">${l.categoryLabel}</span>
+          <!-- FIX: removed duplicate .listing-card__category span — category is on the badge -->
           <span class="listing-card__date">${l.dates}</span>
         </div>
         <h3 class="listing-card__title">${l.title}</h3>
@@ -795,40 +1025,43 @@ function renderListings(){
 }
 
 // ─── VIEW TOGGLE ───
-function setView(v){
-  currentView=v;
+function setView(v) {
+  currentView = v;
   document.getElementById('btn-grid').classList.toggle('active',v==='grid');
   document.getElementById('btn-map').classList.toggle('active',v==='map');
   document.getElementById('listings-grid').classList.toggle('hidden',v==='map');
-  const mc=document.getElementById('map-view-container');
+  const mc = document.getElementById('map-view-container');
   mc.classList.toggle('visible',v==='map');
   if(v==='map') setTimeout(()=>{ if(!mainMap) initMainMap(); else mainMap.invalidateSize(); },50);
 }
 
 // ─── MAPS ───
-function initMainMap(){
+function initMainMap() {
   if(mainMap) return;
-  const el=document.getElementById('map');
+  const el = document.getElementById('map');
   if(!el||typeof L==='undefined') return;
-  mainMap=L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([49.165,-123.135],11);
+  mainMap = L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([49.165,-123.135],11);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18}).addTo(mainMap);
   updateMapMarkers();
 }
-function updateMapMarkers(){
+
+function updateMapMarkers() {
   if(!mainMap) return;
   mainMap.eachLayer(l=>{ if(l instanceof L.Marker||l instanceof L.Circle) mainMap.removeLayer(l); });
-  const filtered=getFiltered();
+  const filtered = getFiltered();
   filtered.forEach(l=>{
-    const m=L.marker([l.lat,l.lng]).addTo(mainMap);
+    const m = L.marker([l.lat,l.lng]).addTo(mainMap);
     m.bindPopup(`<div style="font-family:sans-serif;max-width:220px"><div style="font-weight:700;font-size:14px;margin-bottom:6px">${l.title}</div><div style="font-size:12px;color:#666;margin-bottom:4px">📍 ${l.address}, ${l.city}</div><div style="font-size:12px;color:#666;margin-bottom:8px">📅 ${l.dates} · ${l.hours}</div><div style="font-size:12px;color:#E8161B;font-weight:700;cursor:pointer" onclick="openListing(${l.id})">View details →</div></div>`,{maxWidth:240});
   });
   if(filtered.length>0) mainMap.fitBounds(L.latLngBounds(filtered.map(l=>[l.lat,l.lng])).pad(0.2));
 }
 
 // ─── LOCATION MODAL ───
-function openLocationModal(){
+function openLocationModal() {
   document.getElementById('location-modal').classList.add('open');
+  // FIX: trap focus inside modal
   setTimeout(()=>{
+    document.getElementById('modal-city').focus();
     if(!previewMap&&typeof L!=='undefined'){
       previewMap=L.map('location-preview-map',{zoomControl:true,scrollWheelZoom:false}).setView([49.166,-123.133],9);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18}).addTo(previewMap);
@@ -837,55 +1070,58 @@ function openLocationModal(){
     updateSliderTrack();
   },100);
 }
-function closeLocationModal(){ document.getElementById('location-modal').classList.remove('open'); }
-function updateRadius(val){
-  currentRadius=parseInt(val);
-  document.getElementById('radius-display').textContent=val+' km';
+
+function closeLocationModal() { document.getElementById('location-modal').classList.remove('open'); }
+
+function updateRadius(val) {
+  currentRadius = parseInt(val);
+  document.getElementById('radius-display').textContent = val+' km';
   updateSliderTrack();
   if(previewCircle) previewCircle.setRadius(currentRadius*1000);
 }
-function updateSliderTrack(){
-  const s=document.getElementById('radius-slider');
-  const pct=((parseInt(s.value)-parseInt(s.min))/(parseInt(s.max)-parseInt(s.min))*100).toFixed(1);
+
+function updateSliderTrack() {
+  const s = document.getElementById('radius-slider');
+  const pct = ((parseInt(s.value)-parseInt(s.min))/(parseInt(s.max)-parseInt(s.min))*100).toFixed(1);
   s.style.setProperty('--slider-pct',pct+'%');
 }
-function applyLocation(){
-  const city=document.getElementById('modal-city').value||'Richmond, BC';
-  currentCity=city;
-  document.getElementById('nav-city').textContent=city;
-  document.getElementById('nav-radius').textContent=currentRadius+' km';
-  document.getElementById('hero-location-display').textContent=city+' · '+currentRadius+' km';
+
+function applyLocation() {
+  const city = document.getElementById('modal-city').value||'Richmond, BC';
+  currentCity = city;
+  document.getElementById('nav-city').textContent = city;
+  document.getElementById('nav-radius').textContent = currentRadius+' km';
+  document.getElementById('hero-location-display').textContent = city+' · '+currentRadius+' km';
   closeLocationModal(); renderListings(); showToast('Location updated');
 }
-document.getElementById('location-modal').addEventListener('click',function(e){ if(e.target===this) closeLocationModal(); });
+
+// FIX: close modal on overlay click AND on Escape key
+document.getElementById('location-modal').addEventListener('click', function(e){ if(e.target===this) closeLocationModal(); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLocationModal(); });
 
 // ─── DETAIL PAGE ───
-function openListing(id){ showPage('detail',id); }
-function renderDetailPage(id){
-  const l=listings.find(x=>x.id===id); if(!l) return;
-  const mapsUrl=`https://maps.google.com/?q=${encodeURIComponent(l.address+', '+l.city+', '+l.province)}`;
-  document.title=l.title+' — Garage Hoppers';
-  // Title block
-  document.getElementById('detail-title').textContent=l.title;
-  document.getElementById('detail-category').textContent=l.categoryLabel;
-  document.getElementById('detail-date').textContent=l.dates;
-  document.getElementById('detail-address').textContent=l.address+', '+l.city+', '+l.province;
-  document.getElementById('detail-distance').textContent=l.distance;
-  // Description & items
-  document.getElementById('detail-description').textContent=l.description;
-  document.getElementById('detail-items').innerHTML=l.items.map(i=>`<span class="item-tag">${i}</span>`).join('');
-  // Map footer address
-  document.getElementById('detail-map-address').textContent=l.address+', '+l.city+', '+l.province;
-  // Sidebar
-  document.getElementById('sidebar-dates').textContent=l.dates;
-  document.getElementById('sidebar-hours').textContent=l.hours;
-  document.getElementById('sidebar-location').textContent=l.address+', '+l.city+', '+l.province;
-  document.getElementById('sidebar-distance').textContent=l.distance;
-  // Direction links
-  document.getElementById('directions-link').href=mapsUrl;
-  document.getElementById('directions-link-2').href=mapsUrl;
-  // Photo gallery
-  const photos=document.getElementById('detail-photos');
+function openListing(id) { showPage('detail',id); }
+
+function renderDetailPage(id) {
+  const l = listings.find(x=>x.id===id); if(!l) return;
+  const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(l.address+', '+l.city+', '+l.province)}`;
+  document.title = l.title+' — Garage Hoppers';
+  document.getElementById('detail-title').textContent = l.title;
+  document.getElementById('detail-category').textContent = l.categoryLabel;
+  document.getElementById('detail-date').textContent = l.dates;
+  document.getElementById('detail-address').textContent = l.address+', '+l.city+', '+l.province;
+  document.getElementById('detail-distance').textContent = l.distance;
+  document.getElementById('detail-description').textContent = l.description;
+  document.getElementById('detail-items').innerHTML = l.items.map(i=>`<span class="item-tag">${i}</span>`).join('');
+  document.getElementById('detail-map-address').textContent = l.address+', '+l.city+', '+l.province;
+  document.getElementById('sidebar-dates').textContent = l.dates;
+  document.getElementById('sidebar-hours').textContent = l.hours;
+  document.getElementById('sidebar-location').textContent = l.address+', '+l.city+', '+l.province;
+  document.getElementById('sidebar-distance').textContent = l.distance;
+  document.getElementById('directions-link').href = mapsUrl;
+  document.getElementById('directions-link-2').href = mapsUrl;
+
+  const photos = document.getElementById('detail-photos');
   if(l.photos.length===1){
     photos.className='detail-gallery detail-gallery--single';
     photos.innerHTML=`<img src="${l.photos[0]}" alt="${l.title}" class="detail-gallery__main"/>`;
@@ -894,7 +1130,7 @@ function renderDetailPage(id){
     const thumbs=l.photos.slice(1,3).map(p=>`<img src="${p}" alt="" class="detail-gallery__thumb"/>`).join('');
     photos.innerHTML=`<img src="${l.photos[0]}" alt="${l.title}" class="detail-gallery__main"/><div class="detail-gallery__thumbs">${thumbs}</div>`;
   }
-  // Map
+
   if(detailMap){ detailMap.remove(); detailMap=null; }
   setTimeout(()=>{
     if(typeof L==='undefined') return;
@@ -908,23 +1144,25 @@ function renderDetailPage(id){
 }
 
 // ─── HELPERS ───
-function toggleSave(btn){
+function toggleSave(btn) {
   btn.classList.toggle('saved');
-  const saved=btn.classList.contains('saved');
-  btn.querySelector('svg').style.fill=saved?'var(--color-primary)':'none';
-  btn.querySelector('svg').style.stroke=saved?'var(--color-primary)':'currentColor';
+  const saved = btn.classList.contains('saved');
+  btn.querySelector('svg').style.fill = saved?'var(--color-primary)':'none';
+  btn.querySelector('svg').style.stroke = saved?'var(--color-primary)':'currentColor';
   showToast(saved?'Saved to favourites':'Removed from favourites');
 }
-function shareListing(){
+
+function shareListing() {
   if(navigator.share) navigator.share({title:document.getElementById('detail-title').textContent,url:window.location.href});
   else navigator.clipboard.writeText(window.location.href).then(()=>showToast('Link copied to clipboard'));
 }
-function previewPhotos(input){
-  const previews=document.getElementById('photo-previews'); previews.innerHTML='';
+
+function previewPhotos(input) {
+  const previews = document.getElementById('photo-previews'); previews.innerHTML='';
   Array.from(input.files).slice(0,10).forEach(file=>{
-    const reader=new FileReader();
-    reader.onload=e=>{
-      const div=document.createElement('div');
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
       div.style.cssText='position:relative;aspect-ratio:1;border-radius:var(--radius-lg);overflow:hidden';
       div.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover"/><button onclick="this.parentElement.remove()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:white;border-radius:50%;width:24px;height:24px;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer" aria-label="Remove photo">×</button>`;
       previews.appendChild(div);
@@ -932,32 +1170,97 @@ function previewPhotos(input){
     reader.readAsDataURL(file);
   });
 }
-async function submitListing(e){
-  e.preventDefault();
-  // Honeypot check
-  const honeypot=document.querySelector('input[name="website"]');
-  if(honeypot&&honeypot.value){ showToast('Listing submitted!'); setTimeout(()=>showPage('home'),1500); return; }
 
-  // Gather form values
-  const title = document.getElementById('sale-title')?.value?.trim() || '';
-  const category = document.getElementById('sale-type')?.value || 'garage';
-  const categoryLabels = {garage:'Garage Sale',neighbourhood:'Neighbourhood Sale',estate:'Estate Sale',moving:'Moving Sale'};
-  const address = document.getElementById('sale-address')?.value?.trim() || '';
-  const city = document.getElementById('sale-city')?.value?.trim() || '';
-  const province = document.getElementById('sale-province')?.value || 'BC';
-  const dateStart = document.getElementById('sale-date-start')?.value || '';
-  const dateEnd = document.getElementById('sale-date-end')?.value || null;
-  const hours = (document.getElementById('sale-time-start')?.value||'') + ' – ' + (document.getElementById('sale-time-end')?.value||'');
-  const description = document.getElementById('sale-description')?.value?.trim() || '';
-  const itemsRaw = document.getElementById('sale-items')?.value?.trim() || '';
-  const items = itemsRaw ? itemsRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
-  const contactName = document.getElementById('contact-name')?.value?.trim() || '';
-  const contactEmail = document.getElementById('contact-email')?.value?.trim() || '';
-
-  if(!title || !address || !city || !dateStart) {
-    showToast('Please fill in all required fields');
-    return;
+// ─── FORM VALIDATION HELPERS ───
+function setFieldError(fieldId, errId, message) {
+  const field = document.getElementById(fieldId);
+  const errEl = document.getElementById(errId);
+  if(!field || !errEl) return;
+  if(message) {
+    field.style.borderColor = 'var(--color-error)';
+    errEl.textContent = message;
+    errEl.style.display = 'block';
+  } else {
+    field.style.borderColor = '';
+    errEl.textContent = '';
+    errEl.style.display = 'none';
   }
+}
+
+function clearAllErrors() {
+  document.querySelectorAll('.form-error').forEach(e=>{ e.textContent=''; e.style.display='none'; });
+  document.querySelectorAll('.form-input,.form-textarea,.form-select').forEach(f=>{ f.style.borderColor=''; });
+}
+
+function validateForm() {
+  let valid = true;
+  clearAllErrors();
+
+  const title = document.getElementById('sale-title')?.value?.trim();
+  if(!title) { setFieldError('sale-title','err-sale-title','Please enter a sale title.'); valid=false; }
+
+  const type = document.getElementById('sale-type')?.value;
+  if(!type) { setFieldError('sale-type','err-sale-type','Please select a sale type.'); valid=false; }
+
+  const desc = document.getElementById('sale-desc')?.value?.trim();
+  if(!desc) { setFieldError('sale-desc','err-sale-desc','Please add a description.'); valid=false; }
+
+  const address = document.getElementById('sale-address')?.value?.trim();
+  if(!address) { setFieldError('sale-address','err-sale-address','Please enter a street address.'); valid=false; }
+
+  const city = document.getElementById('sale-city')?.value?.trim();
+  if(!city) { setFieldError('sale-city','err-sale-city','Please enter a city.'); valid=false; }
+
+  const province = document.getElementById('sale-province')?.value;
+  if(!province) { setFieldError('sale-province','err-sale-province','Please select a province.'); valid=false; }
+
+  const startDate = document.getElementById('sale-start')?.value;
+  if(!startDate) { setFieldError('sale-start','err-sale-start','Please select a start date.'); valid=false; }
+
+  // Scroll to first error
+  if(!valid) {
+    const firstErr = document.querySelector('.form-error[style*="block"]');
+    if(firstErr) firstErr.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+
+  return valid;
+}
+
+// ─── SUBMIT LISTING ───
+// FIX: all field IDs now match the actual HTML form elements
+async function submitListing(e) {
+  e.preventDefault();
+
+  // Honeypot check
+  const honeypot = document.querySelector('input[name="website"]');
+  if(honeypot && honeypot.value) { showToast('Listing submitted!'); setTimeout(()=>showPage('home'),1500); return; }
+
+  // Validate
+  if(!validateForm()) return;
+
+  // Disable submit button during processing
+  const submitBtn = document.getElementById('submit-btn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting…';
+
+  // Gather values — IDs now match the form exactly
+  const title        = document.getElementById('sale-title')?.value?.trim() || '';
+  const category     = document.getElementById('sale-type')?.value || 'garage';
+  const description  = document.getElementById('sale-desc')?.value?.trim() || '';
+  const tagsRaw      = document.getElementById('sale-tags')?.value?.trim() || '';
+  const items        = tagsRaw ? tagsRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
+  const address      = document.getElementById('sale-address')?.value?.trim() || '';
+  const city         = document.getElementById('sale-city')?.value?.trim() || '';
+  const province     = document.getElementById('sale-province')?.value || 'BC';
+  const dateStart    = document.getElementById('sale-start')?.value || '';
+  const dateEnd      = document.getElementById('sale-end')?.value || null;
+  const hoursOpen    = document.getElementById('sale-hours-open')?.value || '';
+  const hoursClose   = document.getElementById('sale-hours-close')?.value || '';
+  const hours        = hoursOpen && hoursClose ? `${hoursOpen} – ${hoursClose}` : '';
+  const contactName  = document.getElementById('sale-name')?.value?.trim() || '';
+  const contactEmail = document.getElementById('sale-email')?.value?.trim() || '';
+
+  const categoryLabels = { garage:'Garage Sale', neighbourhood:'Neighbourhood Sale', estate:'Estate Sale', moving:'Moving Sale' };
 
   const listing = {
     title, category,
@@ -972,41 +1275,51 @@ async function submitListing(e){
     status: 'pending'
   };
 
+  // Hide any old banners
+  document.getElementById('form-success').style.display = 'none';
+  document.getElementById('form-error-banner').style.display = 'none';
+
   if(supabase) {
     try {
       const { error } = await supabase.from('listings').insert([listing]);
       if(error) throw error;
-      showToast('Listing submitted! We will review it shortly.');
+      // Show success state
+      document.getElementById('form-success').style.display = 'block';
+      document.getElementById('form-success').scrollIntoView({behavior:'smooth',block:'center'});
+      document.getElementById('post-sale-form').reset();
+      document.getElementById('photo-previews').innerHTML = '';
     } catch(err) {
       console.error('Submit error:', err);
-      showToast('Submitted! Pending review.');
+      document.getElementById('form-error-banner').style.display = 'block';
+      document.getElementById('form-error-banner').scrollIntoView({behavior:'smooth',block:'center'});
     }
   } else {
-    showToast('Submitted! Pending review.');
+    document.getElementById('form-success').style.display = 'block';
+    document.getElementById('form-success').scrollIntoView({behavior:'smooth',block:'center'});
   }
-  setTimeout(()=>showPage('home'),2000);
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Publish my listing →';
 }
-function showToast(msg){
-  const t=document.getElementById('toast');
-  document.getElementById('toast-msg').textContent=msg;
-  t.style.transform='translateY(0)';t.style.opacity='1';
-  setTimeout(()=>{ t.style.transform='translateY(100px)';t.style.opacity='0'; },2500);
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.style.transform='translateY(0)'; t.style.opacity='1';
+  setTimeout(()=>{ t.style.transform='translateY(100px)'; t.style.opacity='0'; },2500);
 }
 
 // ─── INIT ───
-document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('nav-location-btn').style.display='flex';
-  document.getElementById('nav-search').style.display='flex';
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('nav-location-btn').style.display = 'flex';
+  document.getElementById('nav-search').style.display = 'flex';
   renderListings();
-  setTimeout(initMainMap,500);
-  updateSliderTrack();
-  // Init Supabase after library loads
-  setTimeout(()=>{
-    if(typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      loadListingsFromDB();
-    }
-  }, 800);
+
+  // Init Supabase and load real listings
+  if(typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    loadListingsFromDB();
+  }
 });
 </script>
 </body>
