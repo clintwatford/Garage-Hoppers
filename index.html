@@ -994,8 +994,11 @@ function renderListings() {
   grid.innerHTML = filtered.map(l => `
     <a href="#" class="listing-card" onclick="openListing(${l.id});return false;" role="listitem" aria-label="${l.title}">
       <div class="listing-card__photos">
-        <div class="listing-card__photos-grid count-${Math.min(l.photos.length,4)}">
-          ${l.photos.slice(0,4).map(p=>`<img src="${p}" alt="${l.title}" loading="lazy"/>`).join('')}
+        <div class="listing-card__photos-grid count-${l.photos && l.photos.length > 0 ? Math.min(l.photos.length,4) : 1}">
+          ${l.photos && l.photos.length > 0
+            ? l.photos.slice(0,4).map(p=>`<img src="${p}" alt="${l.title}" loading="lazy" onerror="this.src='./no-photo.svg'"/>`).join('')
+            : `<img src="./no-photo.svg" alt="No photo available" loading="lazy" style="width:100%;height:100%;object-fit:cover"/>`
+          }
         </div>
         <!-- Badge on photo only — no duplicate in card body -->
         <div class="listing-card__badge">${l.categoryLabel}</div>
@@ -1122,13 +1125,16 @@ function renderDetailPage(id) {
   document.getElementById('directions-link-2').href = mapsUrl;
 
   const photos = document.getElementById('detail-photos');
-  if(l.photos.length===1){
+  if(!l.photos || l.photos.length===0){
     photos.className='detail-gallery detail-gallery--single';
-    photos.innerHTML=`<img src="${l.photos[0]}" alt="${l.title}" class="detail-gallery__main"/>`;
+    photos.innerHTML=`<img src="./no-photo.svg" alt="No photo available" class="detail-gallery__main" style="object-fit:contain;background:#f5f5f7"/>`;
+  } else if(l.photos.length===1){
+    photos.className='detail-gallery detail-gallery--single';
+    photos.innerHTML=`<img src="${l.photos[0]}" alt="${l.title}" class="detail-gallery__main" onerror="this.src='./no-photo.svg';this.style.objectFit='contain'"/>`;
   } else {
     photos.className='detail-gallery detail-gallery--multi';
-    const thumbs=l.photos.slice(1,3).map(p=>`<img src="${p}" alt="" class="detail-gallery__thumb"/>`).join('');
-    photos.innerHTML=`<img src="${l.photos[0]}" alt="${l.title}" class="detail-gallery__main"/><div class="detail-gallery__thumbs">${thumbs}</div>`;
+    const thumbs=l.photos.slice(1,3).map(p=>`<img src="${p}" alt="" class="detail-gallery__thumb" onerror="this.src='./no-photo.svg'"/>`).join('');
+    photos.innerHTML=`<img src="${l.photos[0]}" alt="${l.title}" class="detail-gallery__main" onerror="this.src='./no-photo.svg'"/><div class="detail-gallery__thumbs">${thumbs}</div>`;
   }
 
   if(detailMap){ detailMap.remove(); detailMap=null; }
