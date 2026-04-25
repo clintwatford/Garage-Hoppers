@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f5f5f7"/>
+  
+  <!-- Sign background - red rounded rectangle -->
+  <rect x="60" y="60" width="680" height="480" rx="32" ry="32" fill="#E8161B"/>
+  
+  <!-- White border inside -->
+  <rect x="76" y="76" width="648" height="448" rx="24" ry="24" fill="none" stroke="white" stroke-width="6"/>
+  
+  <!-- GARAGE text -->
+  <text x="400" y="210" 
+    font-family="Arial Black, Arial, sans-serif" 
+    font-weight="900" 
+    font-size="118" 
+    fill="white" 
+    text-anchor="middle" 
+    letter-spacing="-2">GARAGE</text>
+  
+  <!-- HOPPERS text with circle cutout area -->
+  <text x="400" y="330" 
+    font-family="Arial Black, Arial, sans-serif" 
+    font-weight="900" 
+    font-size="118" 
+    fill="white" 
+    text-anchor="middle"
+    letter-spacing="-2">HOPPERS</text>
+
+  <!-- White bottom panel -->
+  <rect x="100" y="370" width="600" height="130" rx="16" ry="16" fill="white"/>
+  
+  <!-- No photo text in panel -->
+  <text x="400" y="418" 
+    font-family="Arial Black, Arial, sans-serif" 
+    font-weight="900" 
+    font-size="28" 
+    fill="#E8161B" 
+    text-anchor="middle"
+    letter-spacing="1">NO PHOTO UPLOADED</text>
+    
+  <text x="400" y="462" 
+    font-family="Arial, sans-serif" 
+    font-weight="600" 
+    font-size="22" 
+    fill="#666666" 
+    text-anchor="middle">Garage Sale Listing</text>
+</svg>
