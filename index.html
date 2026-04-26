@@ -108,6 +108,7 @@
         <button class="filter-chip" onclick="filterDate(this,'today')" role="listitem" id="chip-today">📅 Today</button>
         <button class="filter-chip" onclick="filterDate(this,'tomorrow')" role="listitem" id="chip-tomorrow">🌅 Tomorrow</button>
         <button class="filter-chip" onclick="filterDate(this,'weekend')" role="listitem" id="chip-weekend">🎉 This Weekend</button>
+        <button class="filter-chip" onclick="filterDate(this,'saved')" role="listitem" id="chip-saved">❤️ Saved Sales</button>
       </div>
 
       <!-- Map view -->
@@ -183,11 +184,15 @@
 <main id="page-detail" class="page-section">
 
   <div class="detail-breadcrumb">
-    <div class="container">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;">
       <a href="#" onclick="showPage('home');return false;" class="detail-back">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         Back to all listings
       </a>
+      <div style="display:flex;gap:8px">
+        <button id="btn-prev" onclick="navigateListing(-1)" style="display:none;padding:4px 12px;border:1.5px solid #e0e0e0;border-radius:999px;background:white;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display)">← Prev</button>
+        <button id="btn-next" onclick="navigateListing(1)" style="display:none;padding:4px 12px;border:1.5px solid #e0e0e0;border-radius:999px;background:white;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display)">Next →</button>
+      </div>
     </div>
   </div>
 
@@ -934,6 +939,7 @@ function getFiltered() {
     l.description.toLowerCase().includes(q)
   );
   if(activeDateFilter==='all') return base;
+  if(activeDateFilter==='saved') { const s=getSavedIds(); return base.filter(l=>s.includes(String(l.id))); }
   return base.filter(l=>l.dateTag===activeDateFilter);
 }
 
@@ -983,7 +989,7 @@ function renderListings() {
   const filtered = getFiltered();
   const grid = document.getElementById('listings-grid');
   const heading = document.getElementById('listings-count-heading');
-  const labels = {'all':'sales','today':'sales today','tomorrow':'sales tomorrow','weekend':'weekend sales'};
+  const labels = {'all':'sales','today':'sales today','tomorrow':'sales tomorrow','weekend':'weekend sales','saved':'saved sales'};
   heading.innerHTML = `<strong style="color:var(--color-primary)">${filtered.length} ${labels[activeDateFilter]||'sales'}</strong> near ${currentCity} <span style="color:var(--color-text-muted);font-size:var(--text-base);font-weight:400">· within ${currentRadius} km</span>`;
 
   if(!filtered.length) {
@@ -992,7 +998,7 @@ function renderListings() {
   }
 
   grid.innerHTML = filtered.map(l => `
-    <a href="#" class="listing-card" onclick="openListing(${l.id});return false;" role="listitem" aria-label="${l.title}">
+    <div class="listing-card" onclick="openListing('${l.id}')" role="listitem" aria-label="${l.title}" tabindex="0" onkeydown="if(event.key==='Enter')openListing('${l.id}')" style="cursor:pointer">
       <div class="listing-card__photos">
         <div class="listing-card__photos-grid count-${l.photos && l.photos.length > 0 ? Math.min(l.photos.length,4) : 1}">
           ${l.photos && l.photos.length > 0
@@ -1014,7 +1020,7 @@ function renderListings() {
         <h3 class="listing-card__title">${l.title}</h3>
         <div class="listing-card__location">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          ${l.address}, ${l.city}, ${l.province}
+          <a href="https://maps.google.com/?q=${encodeURIComponent(l.address+', '+l.city+', '+l.province)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;font-size:inherit" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='inherit'">${l.address}, ${l.city}, ${l.province}</a>
         </div>
       </div>
       <div class="listing-card__footer">
@@ -1024,7 +1030,8 @@ function renderListings() {
         </div>
         <span class="listing-card__distance">${l.distance}</span>
       </div>
-    </a>`).join('');
+    </div>`).join('');
+  restoreSavedStates();
 }
 
 // ─── VIEW TOGGLE ───
@@ -1103,10 +1110,25 @@ document.getElementById('location-modal').addEventListener('click', function(e){
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLocationModal(); });
 
 // ─── DETAIL PAGE ───
-function openListing(id) { showPage('detail',id); }
+let _currentDetailId = null;
+function openListing(id) { _currentDetailId = id; showPage('detail', id); }
+function navigateListing(dir) {
+  const f = getFiltered();
+  const idx = f.findIndex(l => String(l.id) === String(_currentDetailId));
+  if(idx === -1) return;
+  const n = idx + dir;
+  if(n < 0 || n >= f.length) return;
+  openListing(f[n].id);
+}
 
 function renderDetailPage(id) {
-  const l = listings.find(x=>x.id===id); if(!l) return;
+  const l = listings.find(x=>String(x.id)===String(id)); if(!l) return;
+  const f = getFiltered();
+  const idx = f.findIndex(x=>String(x.id)===String(id));
+  const prev = document.getElementById('btn-prev');
+  const next = document.getElementById('btn-next');
+  if(prev) prev.style.display = idx > 0 ? 'block' : 'none';
+  if(next) next.style.display = idx < f.length-1 ? 'block' : 'none';
   const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(l.address+', '+l.city+', '+l.province)}`;
   document.title = l.title+' — Garage Hoppers';
   document.getElementById('detail-title').textContent = l.title;
@@ -1150,12 +1172,35 @@ function renderDetailPage(id) {
 }
 
 // ─── HELPERS ───
+function getSavedIds() { try { return JSON.parse(localStorage.getItem('gh_saved')||'[]'); } catch(e) { return []; } }
+function setSavedIds(ids) { try { localStorage.setItem('gh_saved', JSON.stringify(ids)); } catch(e) {} }
+function restoreSavedStates() {
+  const saved = getSavedIds();
+  document.querySelectorAll('.listing-card').forEach(card => {
+    const m = card.getAttribute('onclick')?.match(/'([^']+)'/);
+    if(m && saved.includes(m[1])) {
+      const btn = card.querySelector('.listing-card__save');
+      if(btn) { btn.classList.add('saved'); btn.querySelector('svg').style.fill='var(--color-primary)'; btn.querySelector('svg').style.stroke='var(--color-primary)'; }
+    }
+  });
+}
 function toggleSave(btn) {
-  btn.classList.toggle('saved');
-  const saved = btn.classList.contains('saved');
-  btn.querySelector('svg').style.fill = saved?'var(--color-primary)':'none';
-  btn.querySelector('svg').style.stroke = saved?'var(--color-primary)':'currentColor';
-  showToast(saved?'Saved to favourites':'Removed from favourites');
+  const card = btn.closest('.listing-card');
+  const m = card?.getAttribute('onclick')?.match(/'([^']+)'/);
+  if(!m) return;
+  const id = m[1];
+  const saved = getSavedIds();
+  const isSaved = saved.includes(id);
+  if(isSaved) {
+    setSavedIds(saved.filter(x=>x!==id));
+    btn.classList.remove('saved'); btn.querySelector('svg').style.fill='none'; btn.querySelector('svg').style.stroke='currentColor';
+    showToast('Removed from saved sales');
+  } else {
+    setSavedIds([...saved,id]);
+    btn.classList.add('saved'); btn.querySelector('svg').style.fill='var(--color-primary)'; btn.querySelector('svg').style.stroke='var(--color-primary)';
+    showToast('Saved! Tap Saved Sales to see all ❤️');
+  }
+  if(activeDateFilter==='saved') renderListings();
 }
 
 function shareListing() {
