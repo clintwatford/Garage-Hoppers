@@ -20,8 +20,15 @@
 <body>
 <style>
 /* ─── MOBILE OVERFLOW FIX ─── */
-/* Bunny logo size increase */
-.navbar__logo-img { height: 60px !important; width: 60px !important; }
+/* Bunny logo size increase — bigger bunny, taller navbar */
+.navbar__logo-img { height: 72px !important; width: 72px !important; }
+.navbar__inner { height: 80px !important; }
+.navbar__logo-text { font-size: 1.1rem !important; letter-spacing: -0.01em; }
+@media (max-width: 640px) {
+  .navbar__logo-img { height: 56px !important; width: 56px !important; }
+  .navbar__inner { height: 68px !important; }
+  .navbar__logo-text { font-size: 0.95rem !important; }
+}
 html, body { overflow-x: hidden; max-width: 100vw; }
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -35,9 +42,9 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   .navbar__logo-text span { display: none; }
   .navbar__logo-img { height: 48px; width: 48px; }
   .navbar__logo-text { font-size: 0.9rem; }
-  /* Hide search bar on mobile — hero search handles location */
-  #nav-search { display: none !important; }
-  .navbar__actions { margin-left: auto; }
+  /* Search bar stays visible on mobile */
+  #nav-search { display: flex !important; flex: 1; min-width: 0; }
+  .navbar__actions { display: none; }
   .btn--primary.btn--sm { 
     padding: var(--space-2) var(--space-4); 
     font-size: 13px;
@@ -113,9 +120,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       <input type="search" id="nav-search-input" placeholder="Search sales, items, cities…" aria-label="Search listings" />
     </div>
 
-    <div class="navbar__actions">
-      <a href="#" class="btn btn--primary btn--sm" onclick="showPage('post'); return false;">+ Post a Sale</a>
-    </div>
+    <div class="navbar__actions"></div>
   </div>
 </header>
 
