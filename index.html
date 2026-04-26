@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Garage Hoppers — Find Garage Sales Near You</title>
-<meta name="description" content="Discover garage sales, estate sales, and neighbourhood sales near you. Free listings, map search, and radius filtering across Canada." />
+<meta name="description" content="Discover garage sales, estate sales, and neighbourhood sales near you across Canada and the USA. Free listings, map search, and radius filtering." />
 
 <!-- Google AdSense — add your publisher ID below when approved -->
 <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="./base.css" />
 <link rel="stylesheet" href="./style.css" />
 </head>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Garage Hoppers","url":"https://garagehoppers.com","description":"Find and list garage sales, estate sales, moving sales, and neighbourhood sales across Canada and the USA."}</script>
 <body>
 <style>
 /* ─── MOBILE OVERFLOW FIX ─── */
@@ -116,7 +117,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       <img src="./bunny.jpg" alt="Garage Hoppers bunny logo" class="navbar__logo-img" />
       <div class="navbar__logo-text">
         Garage Hoppers
-        <span>Canada's Garage Sale Directory</span>
+        <span>Canada & USA Garage Sale Directory</span>
       </div>
     </a>
 
@@ -125,7 +126,11 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       <input type="search" id="nav-search-input" placeholder="Search sales, items, cities…" aria-label="Search listings" />
     </div>
 
-    <div class="navbar__actions"></div>
+    <nav style="display:flex;align-items:center;gap:4px;margin-left:auto;">
+      <a href="#" onclick="showPage('home');scrollToListings();return false;" style="font-size:13px;font-weight:700;color:#767676;text-decoration:none;padding:4px 8px;border-radius:6px;white-space:nowrap;" onmouseover="this.style.color='#E8161B'" onmouseout="this.style.color='#767676'">Browse</a>
+      <a href="#" onclick="showPage('faq');return false;" style="font-size:13px;font-weight:700;color:#767676;text-decoration:none;padding:4px 8px;border-radius:6px;white-space:nowrap;" onmouseover="this.style.color='#E8161B'" onmouseout="this.style.color='#767676'">FAQ</a>
+      <a href="#" onclick="showPage('contact');return false;" style="font-size:13px;font-weight:700;color:#767676;text-decoration:none;padding:4px 8px;border-radius:6px;white-space:nowrap;" onmouseover="this.style.color='#E8161B'" onmouseout="this.style.color='#767676'">Contact</a>
+    </nav>
   </div>
 </header>
 
@@ -138,7 +143,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   <section class="hero">
     <div class="hero__content">
       <h1 class="hero__title">Find <em>great deals</em> at sales near you</h1>
-      <p class="hero__subtitle">Browse garage sales, estate sales, and neighbourhood sales in your area. Free to list, free to browse.</p>
+      <p class="hero__subtitle">Browse garage sales, estate sales, and neighbourhood sales near you across Canada and the USA. Free to list, free to browse.</p>
       <div class="hero-search">
         <div class="hero-search__row">
           <div class="hero-search__field" onclick="openLocationModal()" style="cursor:pointer">
@@ -277,6 +282,14 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   </div>
 
   <div class="detail-gallery" id="detail-photos"></div>
+  <div id="detail-date-strip" style="background:#f5f5f7;border-bottom:1px solid #e0e0e0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:#111;display:flex;align-items:center;gap:8px;">
+      <span>📅</span><span id="detail-date-strip-text"></span>
+    </div>
+    <button onclick="addToCalendar()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:white;border:1.5px solid #d0d0d0;border-radius:999px;font-family:var(--font-display);font-size:0.75rem;font-weight:700;cursor:pointer;color:#111;white-space:nowrap;" onmouseover="this.style.borderColor='#E8161B';this.style.color='#E8161B'" onmouseout="this.style.borderColor='#d0d0d0';this.style.color='#111'">
+      + Add to Calendar
+    </button>
+  </div>
 
   <div class="container">
     <div class="detail-layout">
@@ -502,19 +515,17 @@ html, body { overflow-x: hidden; max-width: 100vw; }
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="sale-province">Province <span>*</span></label>
+              <label class="form-label" for="sale-country">Country <span>*</span></label>
+              <select class="form-select" id="sale-country" name="sale-country" required onchange="updateRegions()">
+                <option value="CA">Canada</option>
+                <option value="US">United States</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="sale-province" id="region-label">Province <span>*</span></label>
               <select class="form-select" id="sale-province" name="sale-province" required>
                 <option value="">Select…</option>
-                <option value="BC">British Columbia</option>
-                <option value="AB">Alberta</option>
-                <option value="SK">Saskatchewan</option>
-                <option value="MB">Manitoba</option>
-                <option value="ON">Ontario</option>
-                <option value="QC">Quebec</option>
-                <option value="NB">New Brunswick</option>
-                <option value="NS">Nova Scotia</option>
-                <option value="PE">Prince Edward Island</option>
-                <option value="NL">Newfoundland &amp; Labrador</option>
+                <option value="BC">British Columbia</option><option value="AB">Alberta</option><option value="SK">Saskatchewan</option><option value="MB">Manitoba</option><option value="ON">Ontario</option><option value="QC">Quebec</option><option value="NB">New Brunswick</option><option value="NS">Nova Scotia</option><option value="PE">Prince Edward Island</option><option value="NL">Newfoundland &amp; Labrador</option><option value="NT">Northwest Territories</option><option value="YT">Yukon</option><option value="NU">Nunavut</option>
               </select>
               <span class="form-error" id="err-sale-province" aria-live="polite"></span>
             </div>
@@ -575,6 +586,15 @@ html, body { overflow-x: hidden; max-width: 100vw; }
           </div>
         </div>
 
+        <!-- Terms & Conditions required -->
+        <div style="background:#f5f5f7;border:1.5px solid #e0e0e0;border-radius:0.5rem;padding:1rem;margin-bottom:1rem;display:flex;gap:0.75rem;align-items:flex-start">
+          <input type="checkbox" id="terms-agree" style="margin-top:2px;width:18px;height:18px;accent-color:#E8161B;flex-shrink:0;cursor:pointer" />
+          <label for="terms-agree" style="font-size:0.875rem;color:#111;cursor:pointer;line-height:1.5">
+            I agree to the <a href="#" onclick="showPage('terms');return false;" style="color:#E8161B;font-weight:700;">Terms of Use</a> and confirm this is a legitimate personal sale. I understand spam or commercial listings will be removed.
+          </label>
+        </div>
+        <div id="err-terms" style="display:none;color:#dc2626;font-size:0.75rem;font-weight:600;margin-bottom:0.75rem;"></div>
+
         <!-- FIX: submission state — button changes to loading/success/error states -->
         <div style="display:flex;gap:var(--space-4);flex-wrap:wrap;align-items:center">
           <button type="submit" class="btn btn--primary" id="submit-btn" style="font-size:var(--text-base);padding:var(--space-3) var(--space-10)">
@@ -633,7 +653,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 
       <details class="faq-item">
         <summary class="faq-question">What areas does Garage Hoppers cover?</summary>
-        <p class="faq-answer">We cover all of Canada. You can set your search radius up to 200 km from any city or town.</p>
+        <p class="faq-answer">We cover all of Canada and the United States. Set your location and choose a radius to find nearby sales. You can set your search radius up to 200 km from any city or town.</p>
       </details>
 
       <details class="faq-item">
@@ -774,7 +794,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
               <div class="footer__logo-sub">Canada's Free Garage Sale Directory</div>
             </div>
           </div>
-          <p class="footer__desc">Find deals and list your garage sale for free. Serving communities across Canada.</p>
+          <p class="footer__desc">Find deals and list your garage sale for free. Serving communities across Canada and the United States.</p>
           <div class="social-links">
             <a href="https://facebook.com/garagehoppers" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Facebook">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
@@ -1024,7 +1044,7 @@ function getFiltered() {
     l.description.toLowerCase().includes(q)
   );
   if(activeDateFilter==='all') return base;
-  if(activeDateFilter==='saved') { const s=getSavedIds(); return base.filter(l=>s.includes(String(l.id))); }
+  if(activeDateFilter==='saved') { const s=getSavedIds(); return base.filter(l=>s.includes(String(l.id))).sort((a,b)=>new Date(a.date_start||0)-new Date(b.date_start||0)); }
   return base.filter(l=>l.dateTag===activeDateFilter);
 }
 
@@ -1156,7 +1176,8 @@ function updateMapMarkers() {
   const filtered = getFiltered();
   filtered.forEach(l=>{
     const m = L.marker([l.lat,l.lng]).addTo(mainMap);
-    m.bindPopup(`<div style="font-family:sans-serif;max-width:220px"><div style="font-weight:700;font-size:14px;margin-bottom:6px">${l.title}</div><div style="font-size:12px;color:#666;margin-bottom:4px">📍 ${l.address}, ${l.city}</div><div style="font-size:12px;color:#666;margin-bottom:8px">📅 ${l.dates} · ${l.hours}</div><div style="font-size:12px;color:#E8161B;font-weight:700;cursor:pointer" onclick="openListing(${l.id})">View details →</div></div>`,{maxWidth:240});
+    const mUrl='https://maps.google.com/?q='+encodeURIComponent(l.address+', '+l.city+', '+l.province);
+    m.bindPopup('<div style="font-family:sans-serif;max-width:220px"><div style="font-weight:700;font-size:14px;margin-bottom:6px">'+l.title+'</div><a href="'+mUrl+'" target="_blank" style="font-size:12px;color:#E8161B;display:block;margin-bottom:4px;text-decoration:none">📍 '+l.address+', '+l.city+'</a><div style="font-size:12px;color:#666;margin-bottom:8px">📅 '+l.dates+' · '+l.hours+'</div><button onclick="openListing(''+l.id+'')" style="background:#E8161B;color:white;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;width:100%">View details →</button></div>',{maxWidth:240});
   });
   if(filtered.length>0) mainMap.fitBounds(L.latLngBounds(filtered.map(l=>[l.lat,l.lng])).pad(0.2));
 }
@@ -1206,7 +1227,22 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLoca
 
 // ─── DETAIL PAGE ───
 let _currentDetailId = null;
-function openListing(id) { _currentDetailId = id; showPage('detail', id); }
+function openListing(id) {
+  _currentDetailId = id;
+  history.pushState(null, '', '#listing/' + id);
+  showPage('detail', id);
+}
+function navigateToHash() {
+  const hash = window.location.hash;
+  if(hash.startsWith('#listing/')) {
+    window._pendingListingId = hash.replace('#listing/', '');
+  }
+}
+window.addEventListener('popstate', function() {
+  const hash = window.location.hash;
+  if(hash.startsWith('#listing/')) openListing(hash.replace('#listing/', ''));
+  else showPage('home');
+});
 function navigateListing(dir) {
   const f = getFiltered();
   const idx = f.findIndex(l => String(l.id) === String(_currentDetailId));
@@ -1227,6 +1263,8 @@ function renderDetailPage(id) {
   const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(l.address+', '+l.city+', '+l.province)}`;
   document.title = l.title+' — Garage Hoppers';
   document.getElementById('detail-title').textContent = l.title;
+  const stripEl = document.getElementById('detail-date-strip-text');
+  if(stripEl) { let t=l.dates||''; if(l.hours&&l.hours!=='TBD')t+=' · '+l.hours; stripEl.textContent=t; }
   document.getElementById('detail-category').textContent = l.categoryLabel;
   document.getElementById('detail-date').textContent = l.dates;
   const addrEl = document.getElementById('detail-address');
@@ -1288,6 +1326,20 @@ function renderDetailPage(id) {
 }
 
 // ─── HELPERS ───
+const US_STATES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',DC:'Washington DC',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
+function updateRegions() {
+  const country = document.getElementById('sale-country')?.value;
+  const sel = document.getElementById('sale-province');
+  const lbl = document.getElementById('region-label');
+  if(!sel) return;
+  if(country === 'US') {
+    if(lbl) lbl.innerHTML = 'State <span style="color:var(--color-error)">*</span>';
+    sel.innerHTML = '<option value="">Select state…</option>' + Object.entries(US_STATES).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');
+  } else {
+    if(lbl) lbl.innerHTML = 'Province <span style="color:var(--color-error)">*</span>';
+    sel.innerHTML = '<option value="">Select…</option><option value="BC">British Columbia</option><option value="AB">Alberta</option><option value="SK">Saskatchewan</option><option value="MB">Manitoba</option><option value="ON">Ontario</option><option value="QC">Quebec</option><option value="NB">New Brunswick</option><option value="NS">Nova Scotia</option><option value="PE">Prince Edward Island</option><option value="NL">Newfoundland & Labrador</option><option value="NT">Northwest Territories</option><option value="YT">Yukon</option><option value="NU">Nunavut</option>';
+  }
+}
 function getSavedIds() { try { return JSON.parse(localStorage.getItem('gh_saved')||'[]'); } catch(e) { return []; } }
 function setSavedIds(ids) { try { localStorage.setItem('gh_saved', JSON.stringify(ids)); } catch(e) {} }
 function restoreSavedStates() {
@@ -1334,6 +1386,45 @@ function shareCard(title, address) {
   }
 }
 
+function addToCalendar() {
+  const l = listings.find(x=>String(x.id)===String(_currentDetailId));
+  if(!l) return;
+  const sd = (l.date_start||'').replace(/-/g,'');
+  const ed = (l.date_end||l.date_start||'').replace(/-/g,'');
+  let st='T090000', et='T140000';
+  if(l.hours) {
+    const tm = l.hours.match(/(d+):(d+)s*(AM|PM).*?(d+):(d+)s*(AM|PM)/i);
+    if(tm) {
+      let sh=parseInt(tm[1]),sm=parseInt(tm[2]),sa=tm[3].toUpperCase();
+      let eh=parseInt(tm[4]),em=parseInt(tm[5]),ea=tm[6].toUpperCase();
+      if(sa==='PM'&&sh!==12)sh+=12;if(sa==='AM'&&sh===12)sh=0;
+      if(ea==='PM'&&eh!==12)eh+=12;if(ea==='AM'&&eh===12)eh=0;
+      st='T'+String(sh).padStart(2,'0')+String(sm).padStart(2,'0')+'00';
+      et='T'+String(eh).padStart(2,'0')+String(em).padStart(2,'0')+'00';
+    }
+  }
+  const title=encodeURIComponent(l.title);
+  const loc=encodeURIComponent(l.address+', '+l.city+', '+l.province);
+  const desc=encodeURIComponent(l.description||'Garage sale on Garage Hoppers');
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  if(isIOS) {
+    const ics='BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+SUMMARY:'+l.title+'
+LOCATION:'+l.address+', '+l.city+', '+l.province+'
+DESCRIPTION:'+(l.description||'')+'
+DTSTART:'+sd+st+'
+DTEND:'+ed+et+'
+END:VEVENT
+END:VCALENDAR';
+    const blob=new Blob([ics],{type:'text/calendar'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='garage-sale.ics';a.click();URL.revokeObjectURL(url);
+  } else {
+    window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+title+'&dates='+sd+st+'/'+ed+et+'&location='+loc+'&details='+desc,'_blank');
+  }
+}
 function shareListing() {
   const title = document.getElementById('detail-title')?.textContent || 'Garage Sale';
   const address = document.getElementById('detail-address')?.textContent || '';
@@ -1411,6 +1502,13 @@ function validateForm() {
 
   const startDate = document.getElementById('sale-start')?.value;
   if(!startDate) { setFieldError('sale-start','err-sale-start','Please select a start date.'); valid=false; }
+
+  const termsOk = document.getElementById('terms-agree')?.checked;
+  if(!termsOk) {
+    const e=document.getElementById('err-terms');
+    if(e){e.textContent='Please agree to the Terms of Use to continue.';e.style.display='block';}
+    valid=false;
+  }
 
   // Scroll to first error
   if(!valid) {
@@ -1519,6 +1617,7 @@ function initApp() {
   }
 
   renderListings();
+  if(window._pendingListingId && listings.length > 0) { const pid=window._pendingListingId; window._pendingListingId=null; setTimeout(()=>openListing(pid),100); }
 
   if(sbClient) {
     loadListingsFromDB();
@@ -1527,6 +1626,10 @@ function initApp() {
 
 window.onload = function() {
   document.getElementById('nav-search').style.display = 'flex';
+  // Check for shared listing URL on page load
+  if(window.location.hash.startsWith('#listing/')) {
+    window._pendingListingId = window.location.hash.replace('#listing/','');
+  }
   try {
     if(window.supabase && window.supabase.createClient) {
       sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
