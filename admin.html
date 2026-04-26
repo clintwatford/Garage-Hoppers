@@ -33,21 +33,35 @@
     .admin-nav__logo { width: 40px; height: 40px; border-radius: 50%; border: 2.5px solid var(--red); object-fit: cover; }
     .admin-nav__title { font-family: var(--font-display); font-weight: 900; font-size: 1rem; color: var(--black); text-transform: uppercase; }
     .admin-nav__badge { background: var(--red); color: white; font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .admin-nav__actions { display: flex; align-items: center; gap: 1rem; }
     .admin-nav__back { font-size: 0.875rem; color: var(--muted); text-decoration: none; font-weight: 600; transition: color 0.15s; }
     .admin-nav__back:hover { color: var(--red); }
+    .btn-signout { font-size: 0.8rem; color: var(--muted); background: none; border: 1.5px solid var(--border); border-radius: 0.5rem; padding: 0.375rem 0.75rem; cursor: pointer; font-family: var(--font-body); font-weight: 600; transition: all 0.15s; display: none; }
+    .btn-signout:hover { border-color: var(--red); color: var(--red); }
 
-    /* LOGIN */
+    /* LOGIN — magic link version */
     .login-wrap { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 64px); padding: 2rem; }
-    .login-card { background: white; border: 1px solid var(--border); border-radius: 1rem; padding: 2.5rem; width: 100%; max-width: 400px; box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
+    .login-card { background: white; border: 1px solid var(--border); border-radius: 1rem; padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
+    .login-card__icon { font-size: 2.5rem; margin-bottom: 1rem; }
     .login-card h2 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; }
-    .login-card p { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
+    .login-card p { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem; line-height: 1.6; }
     .form-group { display: flex; flex-direction: column; gap: 0.375rem; margin-bottom: 1rem; }
     .form-group label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
     .form-group input { padding: 0.75rem 1rem; border: 1.5px solid var(--border); border-radius: 0.5rem; font-size: 0.9rem; font-family: var(--font-body); outline: none; transition: border-color 0.15s; }
     .form-group input:focus { border-color: var(--red); }
     .btn-login { width: 100%; padding: 0.875rem; background: var(--red); color: white; border: none; border-radius: 0.5rem; font-family: var(--font-display); font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: background 0.15s; }
     .btn-login:hover { background: #c0121b; }
-    .login-error { color: var(--red); font-size: 0.8rem; margin-top: 0.5rem; display: none; }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+    .login-message { margin-top: 0.75rem; font-size: 0.8rem; text-align: center; display: none; }
+    .login-message--success { color: #16a34a; }
+    .login-message--error { color: var(--red); }
+
+    /* Success state after sending magic link */
+    .sent-state { display: none; text-align: center; }
+    .sent-state__icon { font-size: 3rem; margin-bottom: 1rem; }
+    .sent-state h3 { font-family: var(--font-display); font-weight: 900; font-size: 1.25rem; margin-bottom: 0.5rem; }
+    .sent-state p { color: var(--muted); font-size: 0.875rem; line-height: 1.6; margin-bottom: 1.5rem; }
+    .btn-resend { background: none; border: none; color: var(--red); font-size: 0.875rem; font-weight: 700; cursor: pointer; font-family: var(--font-body); text-decoration: underline; }
 
     /* MAIN ADMIN */
     .admin-main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
@@ -102,24 +116,39 @@
     <span class="admin-nav__title">Garage Hoppers</span>
     <span class="admin-nav__badge">Admin</span>
   </div>
-  <a href="./index.html" class="admin-nav__back">← Back to site</a>
+  <div class="admin-nav__actions">
+    <button class="btn-signout" id="btn-signout" onclick="signOut()">Sign out</button>
+    <a href="./index.html" class="admin-nav__back">← Back to site</a>
+  </div>
 </nav>
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN SCREEN — magic link -->
 <div class="login-wrap" id="login-screen">
   <div class="login-card">
-    <h2>Admin Login</h2>
-    <p>Sign in with your Supabase account to manage listings.</p>
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" id="login-email" placeholder="your@email.com" />
+
+    <!-- Step 1: Enter email -->
+    <div id="email-step">
+      <div class="login-card__icon">🔐</div>
+      <h2>Admin Login</h2>
+      <p>Enter your admin email and we'll send you a secure sign-in link. No password needed.</p>
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" id="login-email" placeholder="garagehoppersadmin@gmail.com" value="garagehoppersadmin@gmail.com" />
+      </div>
+      <button class="btn-login" id="magic-link-btn" onclick="sendMagicLink()">Send sign-in link</button>
+      <div class="login-message login-message--error" id="login-error"></div>
     </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="login-password" placeholder="••••••••" />
+
+    <!-- Step 2: Check your email -->
+    <div class="sent-state" id="sent-step">
+      <div class="sent-state__icon">📬</div>
+      <h3>Check your email</h3>
+      <p>We sent a sign-in link to <strong id="sent-email-display"></strong>. Click the link in that email to access the admin panel.</p>
+      <p style="margin-top:0.5rem;font-size:0.8rem;color:var(--muted)">The link expires in 1 hour. Check your spam folder if you don't see it.</p>
+      <br/>
+      <button class="btn-resend" onclick="resetToEmailStep()">Use a different email</button>
     </div>
-    <div class="login-error" id="login-error">Incorrect email or password.</div>
-    <button class="btn-login" onclick="adminLogin()">Sign In</button>
+
   </div>
 </div>
 
@@ -151,30 +180,77 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let allListings = [];
 let currentTab = 'pending';
 
-// ─── AUTH ───
-async function adminLogin() {
+// ─── AUTH — Magic Link ───
+async function sendMagicLink() {
   const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
   const errEl = document.getElementById('login-error');
-  errEl.style.display = 'none';
+  const btn = document.getElementById('magic-link-btn');
 
-  const { error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) {
+  if (!email) {
+    errEl.textContent = 'Please enter your email address.';
     errEl.style.display = 'block';
-    errEl.textContent = error.message;
     return;
   }
-  showDashboard();
+
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: window.location.href
+    }
+  });
+
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Send sign-in link';
+    return;
+  }
+
+  // Show sent state
+  document.getElementById('sent-email-display').textContent = email;
+  document.getElementById('email-step').style.display = 'none';
+  document.getElementById('sent-step').style.display = 'block';
+}
+
+function resetToEmailStep() {
+  document.getElementById('email-step').style.display = 'block';
+  document.getElementById('sent-step').style.display = 'none';
+  const btn = document.getElementById('magic-link-btn');
+  btn.disabled = false;
+  btn.textContent = 'Send sign-in link';
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+  document.getElementById('admin-dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('btn-signout').style.display = 'none';
+  resetToEmailStep();
 }
 
 async function checkSession() {
+  // Handle magic link callback — Supabase puts tokens in the URL hash
   const { data: { session } } = await sb.auth.getSession();
-  if (session) showDashboard();
+  if (session) {
+    showDashboard();
+    return;
+  }
+
+  // Listen for auth state changes (fires when magic link is clicked)
+  sb.auth.onAuthStateChange((event, session) => {
+    if (session) showDashboard();
+  });
 }
 
 function showDashboard() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('admin-dashboard').style.display = 'block';
+  document.getElementById('btn-signout').style.display = 'block';
   loadAllListings();
 }
 
