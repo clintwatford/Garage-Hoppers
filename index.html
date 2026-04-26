@@ -13,7 +13,7 @@
 <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="./base.css" />
 <link rel="stylesheet" href="./style.css" />
 </head>
@@ -1319,24 +1319,24 @@ function showToast(msg) {
 function initApp() {
   document.getElementById('nav-location-btn').style.display = 'flex';
   document.getElementById('nav-search').style.display = 'flex';
+
+  // Init Supabase — since script loads synchronously, it's available now
+  try {
+    if(window.supabase && window.supabase.createClient) {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+  } catch(e) {
+    console.warn('Supabase init failed:', e);
+  }
+
   renderListings();
 
-  // Init Supabase and load real listings
-  if(typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  if(supabase) {
     loadListingsFromDB();
   }
 }
 
-// Wait for both DOM and deferred scripts to be ready
-if(document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    // Give deferred scripts a moment to execute
-    setTimeout(initApp, 100);
-  });
-} else {
-  setTimeout(initApp, 100);
-}
+document.addEventListener('DOMContentLoaded', initApp);
 </script>
 </body>
 </html>
