@@ -789,7 +789,7 @@
 // ─── SUPABASE CONFIG ───
 const SUPABASE_URL = 'https://mpgnkvpfgmqegljycedf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_a5HoXVXgwIYz3Pu249XxUQ_NCFA-tbW';
-let supabase = null;
+let sbClient = null;
 
 // ─── DATE HELPERS ───
 const today = new Date();
@@ -891,9 +891,9 @@ function dbRowToListing(row) {
 }
 
 async function loadListingsFromDB() {
-  if(!supabase) return;
+  if(!sbClient) return;
   try {
-    const { data, error } = await supabase
+    const { data, error } = await sbClient
       .from('listings').select('*').eq('status','approved').order('date_start', { ascending: true });
     if(error) { console.warn('Supabase load error:', error.message); return; }
     if(data && data.length > 0) {
@@ -1285,9 +1285,9 @@ async function submitListing(e) {
   document.getElementById('form-success').style.display = 'none';
   document.getElementById('form-error-banner').style.display = 'none';
 
-  if(supabase) {
+  if(sbClient) {
     try {
-      const { error } = await supabase.from('listings').insert([listing]);
+      const { error } = await sbClient.from('listings').insert([listing]);
       if(error) throw error;
       // Show success state
       document.getElementById('form-success').style.display = 'block';
@@ -1323,7 +1323,7 @@ function initApp() {
   // Init Supabase — since script loads synchronously, it's available now
   try {
     if(window.supabase && window.supabase.createClient) {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
   } catch(e) {
     console.warn('Supabase init failed:', e);
@@ -1331,7 +1331,7 @@ function initApp() {
 
   renderListings();
 
-  if(supabase) {
+  if(sbClient) {
     loadListingsFromDB();
   }
 }
@@ -1341,11 +1341,11 @@ window.onload = function() {
   document.getElementById('nav-search').style.display = 'flex';
   try {
     if(window.supabase && window.supabase.createClient) {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
   } catch(e) { console.warn('Supabase init failed:', e); }
   renderListings();
-  if(supabase) loadListingsFromDB();
+  if(sbClient) loadListingsFromDB();
   const searchInput = document.getElementById('nav-search-input');
   if(searchInput) searchInput.addEventListener('input', () => { renderListings(); if(mainMap) updateMapMarkers(); });
   const dp = document.getElementById('hero-date-picker');
