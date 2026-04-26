@@ -289,9 +289,8 @@ html, body { overflow-x: hidden; max-width: 100vw; }
           <h1 class="detail-title" id="detail-title"></h1>
           <div class="detail-address-row">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span id="detail-address"></span>
-            &nbsp;·&nbsp;
-            <span class="detail-distance-inline" id="detail-distance"></span>
+            <a id="detail-address" href="#" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;border-bottom:1px solid var(--color-border);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='inherit'"></a>
+            <span id="detail-distance-wrap" style="display:none">&nbsp;·&nbsp;<span class="detail-distance-inline" id="detail-distance"></span></span>
           </div>
         </div>
 
@@ -313,7 +312,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
           <div class="detail-map-footer">
             <div class="detail-map-address-text">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span id="detail-map-address"></span>
+              <a id="detail-map-address" href="#" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;font-weight:600;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='inherit'"></a>
             </div>
             <a href="#" class="detail-directions-btn" target="_blank" rel="noopener noreferrer" id="directions-link">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
@@ -351,7 +350,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
             </div>
             <div class="detail-info-content">
               <div class="detail-info-label">Location</div>
-              <div class="detail-info-value" id="sidebar-location"></div>
+              <a class="detail-info-value" id="sidebar-location" href="#" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;display:block;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='inherit'"></a>
             </div>
           </div>
           <div class="detail-info-divider"></div>
@@ -361,7 +360,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
             </div>
             <div class="detail-info-content">
               <div class="detail-info-label">Distance</div>
-              <div class="detail-info-value" id="sidebar-distance"></div>
+              <div class="detail-info-value" id="sidebar-distance" style="color:var(--color-text-muted)">Calculating...</div>
             </div>
           </div>
           <div class="detail-info-actions">
@@ -1230,15 +1229,36 @@ function renderDetailPage(id) {
   document.getElementById('detail-title').textContent = l.title;
   document.getElementById('detail-category').textContent = l.categoryLabel;
   document.getElementById('detail-date').textContent = l.dates;
-  document.getElementById('detail-address').textContent = l.address+', '+l.city+', '+l.province;
-  document.getElementById('detail-distance').textContent = l.distance;
+  const addrEl = document.getElementById('detail-address');
+  addrEl.textContent = l.address+', '+l.city+', '+l.province;
+  addrEl.href = mapsUrl;
+  
+  const distWrap = document.getElementById('detail-distance-wrap');
+  const distEl = document.getElementById('detail-distance');
+  if(l.distance && l.distance !== '—') {
+    distEl.textContent = l.distance;
+    if(distWrap) distWrap.style.display = 'inline';
+  } else {
+    if(distWrap) distWrap.style.display = 'none';
+  }
   document.getElementById('detail-description').textContent = l.description;
   document.getElementById('detail-items').innerHTML = l.items.map(i=>`<span class="item-tag">${i}</span>`).join('');
-  document.getElementById('detail-map-address').textContent = l.address+', '+l.city+', '+l.province;
+  const mapAddrEl = document.getElementById('detail-map-address');
+  mapAddrEl.textContent = l.address+', '+l.city+', '+l.province;
+  mapAddrEl.href = mapsUrl;
   document.getElementById('sidebar-dates').textContent = l.dates;
   document.getElementById('sidebar-hours').textContent = l.hours;
-  document.getElementById('sidebar-location').textContent = l.address+', '+l.city+', '+l.province;
-  document.getElementById('sidebar-distance').textContent = l.distance;
+  const sideLocEl = document.getElementById('sidebar-location');
+  sideLocEl.textContent = l.address+', '+l.city+', '+l.province;
+  sideLocEl.href = mapsUrl;
+  const sideDistEl = document.getElementById('sidebar-distance');
+  if(l.distance && l.distance !== '—') {
+    sideDistEl.textContent = l.distance;
+    sideDistEl.style.color = 'var(--color-black)';
+  } else {
+    sideDistEl.textContent = 'Not available';
+    sideDistEl.style.color = 'var(--color-text-muted)';
+  }
   document.getElementById('directions-link').href = mapsUrl;
   document.getElementById('directions-link-2').href = mapsUrl;
 
