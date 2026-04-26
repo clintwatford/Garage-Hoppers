@@ -800,7 +800,13 @@ let sbClient = null;
 const today = new Date();
 const fmt = d => d.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'});
 const addDays = (d,n) => { const r=new Date(d); r.setDate(r.getDate()+n); return r; };
-const nextSat = (() => { const d=new Date(today); const day=d.getDay(); d.setDate(d.getDate()+((6-day+7)%7||7)); return d; })();
+const nextSat = (() => { 
+  const d=new Date(today); const day=d.getDay(); 
+  if(day===0) d.setDate(d.getDate()-1); // Sunday → use yesterday (Saturday)
+  else if(day===6) {} // Saturday → use today
+  else d.setDate(d.getDate()+((6-day+7)%7)); // Weekday → next Saturday
+  d.setHours(0,0,0,0); return d; 
+})();
 const nextSun = addDays(nextSat,1);
 
 // FIX: Set the date picker min to today so past dates can't be selected
@@ -1042,7 +1048,12 @@ function setView(v) {
   document.getElementById('listings-grid').classList.toggle('hidden',v==='map');
   const mc = document.getElementById('map-view-container');
   mc.classList.toggle('visible',v==='map');
-  if(v==='map') setTimeout(()=>{ if(!mainMap) initMainMap(); else mainMap.invalidateSize(); },50);
+  if(v==='map') {
+    setTimeout(()=>{ 
+      if(!mainMap) initMainMap(); 
+      else { mainMap.invalidateSize(); updateMapMarkers(); }
+    },100);
+  }
 }
 
 // ─── MAPS ───
