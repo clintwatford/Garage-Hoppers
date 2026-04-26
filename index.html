@@ -1094,9 +1094,14 @@ function renderListings() {
         </div>
         <!-- Badge on photo only — no duplicate in card body -->
         <div class="listing-card__badge">${l.categoryLabel}</div>
-        <button class="listing-card__save" onclick="event.preventDefault();event.stopPropagation();toggleSave(this)" aria-label="Save listing">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        </button>
+        <div style="display:flex;gap:6px;position:absolute;top:var(--space-3);right:var(--space-3)">
+          <button class="listing-card__save" onclick="event.preventDefault();event.stopPropagation();toggleSave(this)" aria-label="Save listing" style="position:static">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <button class="listing-card__save" onclick="event.preventDefault();event.stopPropagation();shareCard('${l.title}','${l.address}, ${l.city}, ${l.province}')" aria-label="Share listing" style="position:static">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </button>
+        </div>
       </div>
       <div class="listing-card__body">
         <div class="listing-card__meta">
@@ -1294,9 +1299,37 @@ function toggleSave(btn) {
   if(activeDateFilter==='saved') renderListings();
 }
 
+function shareCard(title, address) {
+  const shareData = {
+    title: title,
+    text: 'Check out this sale on Garage Hoppers: ' + title + ' — ' + address,
+    url: 'https://garagehoppers.com'
+  };
+  if(navigator.share) {
+    navigator.share(shareData).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(shareData.text + ' ' + shareData.url)
+      .then(() => showToast('Copied to clipboard!'))
+      .catch(() => showToast('garagehoppers.com'));
+  }
+}
+
 function shareListing() {
-  if(navigator.share) navigator.share({title:document.getElementById('detail-title').textContent,url:window.location.href});
-  else navigator.clipboard.writeText(window.location.href).then(()=>showToast('Link copied to clipboard'));
+  const title = document.getElementById('detail-title')?.textContent || 'Garage Sale';
+  const address = document.getElementById('detail-address')?.textContent || '';
+  const shareData = {
+    title: title,
+    text: 'Check out this sale on Garage Hoppers: ' + title + (address ? ' — ' + address : ''),
+    url: 'https://garagehoppers.com'
+  };
+  if(navigator.share) {
+    navigator.share(shareData).catch(() => {});
+  } else {
+    // Fallback for desktop — copy to clipboard
+    navigator.clipboard.writeText(shareData.text + ' ' + shareData.url)
+      .then(() => showToast('Copied to clipboard!'))
+      .catch(() => showToast('garagehoppers.com'));
+  }
 }
 
 function previewPhotos(input) {
