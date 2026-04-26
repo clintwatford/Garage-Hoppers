@@ -18,6 +18,83 @@
 <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
+<style>
+/* ─── MOBILE OVERFLOW FIX ─── */
+html, body { overflow-x: hidden; max-width: 100vw; }
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Navbar mobile — single row, no overflow */
+@media (max-width: 640px) {
+  .navbar__inner { 
+    padding-inline: var(--space-3); 
+    gap: var(--space-2);
+    height: 56px;
+  }
+  .navbar__logo-text span { display: none; }
+  .navbar__logo-img { height: 40px; width: 40px; }
+  .navbar__logo-text { font-size: 0.875rem; }
+  .search-bar { 
+    flex: 1; 
+    min-width: 0;
+    padding: 0 var(--space-2);
+  }
+  .search-bar input { font-size: 14px; }
+  .btn--primary.btn--sm { 
+    padding: var(--space-1) var(--space-3); 
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  
+  /* Hero — prevent overflow */
+  .hero { padding: var(--space-8) var(--space-3) var(--space-6); }
+  .hero-search { margin: 0; border-radius: var(--radius-xl); }
+  .hero-search__row { flex-direction: column; gap: var(--space-2); }
+  .hero-search__field { 
+    border: 1.5px solid var(--color-border) !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--color-surface-2) !important;
+  }
+  .hero-search__field + .hero-search__field { border-left: 1.5px solid var(--color-border) !important; }
+  .hero__title { font-size: clamp(1.5rem, 6vw, 2.25rem); }
+  
+  /* Listings — prevent card overflow */
+  .listings-grid { grid-template-columns: 1fr; gap: var(--space-4); }
+  .container { padding-inline: var(--space-3); }
+  
+  /* Filter chips — wrap and scroll */
+  .filters-bar { flex-wrap: wrap; gap: var(--space-2); }
+  .filter-chip { font-size: 12px; padding: var(--space-1) var(--space-3); }
+  
+  /* Detail page mobile */
+  .detail-layout { grid-template-columns: 1fr; gap: var(--space-4); padding: var(--space-4) 0 var(--space-10); }
+  .detail-sidebar { position: static; }
+  .detail-title { font-size: clamp(1.25rem, 5vw, 2rem); }
+  
+  /* Form mobile */
+  .form-grid { grid-template-columns: 1fr; }
+  .form-group--full { grid-column: 1; }
+  .upload-zone { padding: var(--space-6); }
+  
+  /* Footer mobile */
+  .footer__grid { grid-template-columns: 1fr; gap: var(--space-6); }
+  .footer__brand { grid-column: 1; }
+  
+  /* FAB */
+  .fab-post { 
+    bottom: var(--space-4); right: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    font-size: 12px;
+  }
+  
+  /* Modal full screen on mobile */
+  .modal { 
+    margin: var(--space-4);
+    padding: var(--space-5);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+</style>
 
 <!-- ═══════════════════════════════════════════
   NAVBAR
@@ -32,15 +109,9 @@
       </div>
     </a>
 
-    <button class="location-pill" id="nav-location-btn" style="display:none" onclick="openLocationModal()" aria-label="Change location">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      <span class="location-pill__city" id="nav-city">Richmond, BC</span>
-      <span class="location-pill__radius" id="nav-radius">50 km</span>
-    </button>
-
-    <div class="search-bar" id="nav-search" style="display:none">
+    <div class="search-bar" id="nav-search" style="display:none;flex:1;max-width:480px;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="search" id="nav-search-input" placeholder="Search garage sales…" aria-label="Search listings" />
+      <input type="search" id="nav-search-input" placeholder="Search sales, items, cities…" aria-label="Search listings" />
     </div>
 
     <div class="navbar__actions">
@@ -925,7 +996,7 @@ function showPage(page, listingId) {
   document.getElementById('page-'+page).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
   const showNav = page==='home';
-  document.getElementById('nav-location-btn').style.display=showNav?'flex':'none';
+  
   document.getElementById('nav-search').style.display=showNav?'flex':'none';
   if(page==='home') initMainMap();
   if(page==='detail'&&listingId) renderDetailPage(listingId);
@@ -1110,8 +1181,8 @@ function updateSliderTrack() {
 function applyLocation() {
   const city = document.getElementById('modal-city').value||'Richmond, BC';
   currentCity = city;
-  document.getElementById('nav-city').textContent = city;
-  document.getElementById('nav-radius').textContent = currentRadius+' km';
+  // nav-city removed
+  // nav-radius removed
   document.getElementById('hero-location-display').textContent = city+' · '+currentRadius+' km';
   closeLocationModal(); renderListings(); showToast('Location updated');
 }
@@ -1373,7 +1444,7 @@ function showToast(msg) {
 
 // ─── INIT ───
 function initApp() {
-  document.getElementById('nav-location-btn').style.display = 'flex';
+  // location pill removed from nav
   document.getElementById('nav-search').style.display = 'flex';
 
   // Init Supabase — since script loads synchronously, it's available now
@@ -1393,7 +1464,6 @@ function initApp() {
 }
 
 window.onload = function() {
-  document.getElementById('nav-location-btn').style.display = 'flex';
   document.getElementById('nav-search').style.display = 'flex';
   try {
     if(window.supabase && window.supabase.createClient) {
