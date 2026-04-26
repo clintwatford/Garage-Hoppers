@@ -1176,8 +1176,17 @@ function updateMapMarkers() {
   const filtered = getFiltered();
   filtered.forEach(l=>{
     const m = L.marker([l.lat,l.lng]).addTo(mainMap);
-    const mUrl='https://maps.google.com/?q='+encodeURIComponent(l.address+', '+l.city+', '+l.province);
-    m.bindPopup('<div style="font-family:sans-serif;max-width:220px"><div style="font-weight:700;font-size:14px;margin-bottom:6px">'+l.title+'</div><a href="'+mUrl+'" target="_blank" style="font-size:12px;color:#E8161B;display:block;margin-bottom:4px;text-decoration:none">📍 '+l.address+', '+l.city+'</a><div style="font-size:12px;color:#666;margin-bottom:8px">📅 '+l.dates+' · '+l.hours+'</div><button onclick="openListing(''+l.id+'')" style="background:#E8161B;color:white;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;width:100%">View details →</button></div>',{maxWidth:240});
+    const mUrl = encodeURIComponent(l.address + ', ' + l.city + ', ' + l.province);
+    const lid = l.id;
+    m.bindPopup(
+      `<div style="font-family:sans-serif;max-width:220px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:6px">${l.title}</div>
+        <a href="https://maps.google.com/?q=${mUrl}" target="_blank" style="font-size:12px;color:#E8161B;display:block;margin-bottom:4px;text-decoration:none">📍 ${l.address}, ${l.city}</a>
+        <div style="font-size:12px;color:#666;margin-bottom:8px">📅 ${l.dates} · ${l.hours}</div>
+        <button onclick="openListing('${lid}')" style="background:#E8161B;color:white;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;width:100%">View details →</button>
+      </div>`,
+      {maxWidth:240}
+    );
   });
   if(filtered.length>0) mainMap.fitBounds(L.latLngBounds(filtered.map(l=>[l.lat,l.lng])).pad(0.2));
 }
