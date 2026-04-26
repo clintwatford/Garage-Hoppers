@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Garage Hoppers â Find Garage Sales Near You</title>
+<title>Garage Hoppers — Find Garage Sales Near You</title>
 <meta name="description" content="Discover garage sales, estate sales, and neighbourhood sales near you. Free listings, map search, and radius filtering across Canada." />
 
-<!-- Google AdSense â add your publisher ID below when approved -->
+<!-- Google AdSense — add your publisher ID below when approved -->
 <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
 
 <link rel="preconnect" href="https://api.fontshare.com" />
@@ -19,9 +19,9 @@
 </head>
 <body>
 
-<!-- âââââââââââââââââââââââââââââââââââââââââââ
+<!-- ═══════════════════════════════════════════
   NAVBAR
-ââââââââââââââââââââââââââââââââââââââââââââ -->
+════════════════════════════════════════════ -->
 <header class="navbar">
   <div class="navbar__inner">
     <a href="#" class="navbar__logo" onclick="showPage('home'); return false;" aria-label="Garage Hoppers home">
@@ -40,7 +40,7 @@
 
     <div class="search-bar" id="nav-search" style="display:none">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="search" id="nav-search-input" placeholder="Search garage salesâ¦" aria-label="Search listings" />
+      <input type="search" id="nav-search-input" placeholder="Search garage sales…" aria-label="Search listings" />
     </div>
 
     <div class="navbar__actions">
@@ -49,9 +49,9 @@
   </div>
 </header>
 
-<!-- âââââââââââââââââââââââââââââââââââââââââââ
+<!-- ═══════════════════════════════════════════
   HOME PAGE
-ââââââââââââââââââââââââââââââââââââââââââââ -->
+════════════════════════════════════════════ -->
 <main id="page-home" class="page-section active">
 
   <!-- HERO -->
@@ -65,7 +65,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             <div style="text-align:left">
               <span class="hero-search__label">Location</span>
-              <div style="font-weight:700;font-size:var(--text-sm);color:var(--color-text)" id="hero-location-display">Richmond, BC Â· 50 km</div>
+              <div style="font-weight:700;font-size:var(--text-sm);color:var(--color-text)" id="hero-location-display">Richmond, BC · 50 km</div>
             </div>
           </div>
           <div class="hero-search__field">
@@ -89,7 +89,7 @@
   <section class="listings-section" id="listings-anchor">
     <div class="container">
       <div class="listings-header">
-        <h2 id="listings-count-heading">Loading sales near youâ¦</h2>
+        <h2 id="listings-count-heading">Loading sales near you…</h2>
         <div class="view-toggle">
           <button class="toggle-btn active" id="btn-grid" onclick="setView('grid')" aria-label="Grid view">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -105,9 +105,9 @@
       <!-- Date filters -->
       <div class="filters-bar" role="list" aria-label="Date filters">
         <button class="filter-chip active" onclick="filterDate(this,'all')" role="listitem">All Sales</button>
-        <button class="filter-chip" onclick="filterDate(this,'today')" role="listitem" id="chip-today">ð Today</button>
-        <button class="filter-chip" onclick="filterDate(this,'tomorrow')" role="listitem" id="chip-tomorrow">ð Tomorrow</button>
-        <button class="filter-chip" onclick="filterDate(this,'weekend')" role="listitem" id="chip-weekend">ð This Weekend</button>
+        <button class="filter-chip" onclick="filterDate(this,'today')" role="listitem" id="chip-today">📅 Today</button>
+        <button class="filter-chip" onclick="filterDate(this,'tomorrow')" role="listitem" id="chip-tomorrow">🌅 Tomorrow</button>
+        <button class="filter-chip" onclick="filterDate(this,'weekend')" role="listitem" id="chip-weekend">🎉 This Weekend</button>
       </div>
 
       <!-- Map view -->
@@ -147,8 +147,8 @@
           <div><h3 class="step__title">Visit and save</h3><p class="step__desc">Get directions, save favourites, and show up ready to find deals.</p></div>
         </div>
         <div class="step">
-          <div class="step__icon">â</div>
-          <div><h3 class="step__title">List your sale</h3><p class="step__desc">Posting your garage sale is 100% free â takes less than 3 minutes.</p></div>
+          <div class="step__icon">★</div>
+          <div><h3 class="step__title">List your sale</h3><p class="step__desc">Posting your garage sale is 100% free — takes less than 3 minutes.</p></div>
         </div>
       </div>
     </div>
@@ -160,9 +160,9 @@
       <div class="cta-banner__inner">
         <div class="cta-banner__eyebrow">It's 100% Free</div>
         <h2>Ready to host your garage sale?</h2>
-        <p>List your sale and reach thousands of local shoppers â takes less than 3 minutes.</p>
+        <p>List your sale and reach thousands of local shoppers — takes less than 3 minutes.</p>
         <a href="#" class="cta-banner__btn" onclick="showPage('post'); return false;">
-          Post Your Sale â It's Free
+          Post Your Sale — It's Free
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
       </div>
@@ -172,14 +172,14 @@
   <!-- Floating Post Your Sale button -->
   <a href="#" class="fab-post" onclick="showPage('post');return false;" aria-label="Post your sale">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    Post Your Sale â It's Free
+    Post Your Sale — It's Free
   </a>
 
 </main>
 
-<!-- âââââââââââââââââââââââââââââââââââââââââââ
+<!-- ═══════════════════════════════════════════
   LISTING DETAIL PAGE
-ââââââââââââââââââââââââââââââââââââââââââââ -->
+════════════════════════════════════════════ -->
 <main id="page-detail" class="page-section">
 
   <div class="detail-breadcrumb">
@@ -205,7 +205,7 @@
           <div class="detail-address-row">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             <span id="detail-address"></span>
-            &nbsp;Â·&nbsp;
+            &nbsp;·&nbsp;
             <span class="detail-distance-inline" id="detail-distance"></span>
           </div>
         </div>
@@ -292,9 +292,9 @@
         </div>
 
         <div class="detail-post-card">
-          <div class="detail-post-card__emoji">ð·ï¸</div>
+          <div class="detail-post-card__emoji">🏷️</div>
           <div class="detail-post-card__title">Hosting a sale?</div>
-          <p class="detail-post-card__desc">List your garage sale free â reach local shoppers in minutes.</p>
+          <p class="detail-post-card__desc">List your garage sale free — reach local shoppers in minutes.</p>
           <a href="#" class="detail-post-card__btn" onclick="showPage('post');return false;">
             Post a Free Listing
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -305,9 +305,9 @@
   </div>
 </main>
 
-<!-- âââââââââââââââââââââââââââââââââââââââââââ
+<!-- ═══════════════════════════════════════════
   POST A SALE PAGE
-ââââââââââââââââââââââââââââââââââââââââââââ -->
+════════════════════════════════════════════ -->
 <main id="page-post" class="page-section">
   <div style="background:var(--color-surface-2);border-bottom:1px solid var(--color-divider);padding:var(--space-4) 0;">
     <div class="container">
@@ -336,13 +336,13 @@
         <!-- STEP 1: Photos -->
         <div class="detail-card" style="margin-bottom:var(--space-6)">
           <h2 style="font-family:var(--font-display);font-weight:900;font-size:var(--text-base);margin-bottom:var(--space-2);padding-bottom:var(--space-4);border-bottom:1px solid var(--color-divider);text-transform:uppercase">
-            ð¸ Step 1 â Add photos
+            📸 Step 1 — Add photos
           </h2>
           <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-5)">Great photos get way more visitors. Add up to 10 photos of your items.</p>
           <div class="upload-zone" onclick="document.getElementById('photo-input').click()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('photo-input').click()">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
             <p><strong>Click to upload photos</strong> or drag and drop</p>
-            <p style="margin-top:var(--space-1);font-size:var(--text-xs)">PNG, JPG up to 10MB each Â· Up to 10 photos</p>
+            <p style="margin-top:var(--space-1);font-size:var(--text-xs)">PNG, JPG up to 10MB each · Up to 10 photos</p>
             <input type="file" id="photo-input" multiple accept="image/*" style="display:none" onchange="previewPhotos(this)" />
           </div>
           <div id="photo-previews" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:var(--space-3);margin-top:var(--space-4)"></div>
@@ -351,14 +351,14 @@
         <!-- STEP 2: Basic Info -->
         <div class="detail-card" style="margin-bottom:var(--space-6)">
           <h2 style="font-family:var(--font-display);font-weight:900;font-size:var(--text-base);margin-bottom:var(--space-6);padding-bottom:var(--space-4);border-bottom:1px solid var(--color-divider);text-transform:uppercase">
-            ð Step 2 â Basic information
+            📋 Step 2 — Basic information
           </h2>
           <div class="form-grid">
 
             <div class="form-group form-group--full">
               <label class="form-label" for="sale-title">Sale title <span>*</span></label>
-              <input class="form-input" id="sale-title" name="sale-title" type="text" placeholder="e.g. Big Family Garage Sale â Furniture, Tools & More" required />
-              <span class="form-hint">Be descriptive â this is what shoppers see first.</span>
+              <input class="form-input" id="sale-title" name="sale-title" type="text" placeholder="e.g. Big Family Garage Sale — Furniture, Tools & More" required />
+              <span class="form-hint">Be descriptive — this is what shoppers see first.</span>
               <!-- FIX: inline error element for each required field -->
               <span class="form-error" id="err-sale-title" aria-live="polite"></span>
             </div>
@@ -366,7 +366,7 @@
             <div class="form-group">
               <label class="form-label" for="sale-type">Sale type <span>*</span></label>
               <select class="form-select" id="sale-type" name="sale-type" required>
-                <option value="">Select typeâ¦</option>
+                <option value="">Select type…</option>
                 <option value="garage">Garage Sale</option>
                 <option value="neighbourhood">Neighbourhood Sale</option>
                 <option value="estate">Estate Sale</option>
@@ -382,16 +382,16 @@
             </div>
 
             <div class="form-group form-group--full">
-              <!-- FIX: id was sale-desc â now matches JS which reads sale-desc -->
+              <!-- FIX: id was sale-desc — now matches JS which reads sale-desc -->
               <label class="form-label" for="sale-desc">Description <span>*</span></label>
-              <textarea class="form-textarea" id="sale-desc" name="sale-desc" placeholder="Describe what you're selling, condition of items, anything shoppers should knowâ¦" required></textarea>
+              <textarea class="form-textarea" id="sale-desc" name="sale-desc" placeholder="Describe what you're selling, condition of items, anything shoppers should know…" required></textarea>
               <span class="form-error" id="err-sale-desc" aria-live="polite"></span>
             </div>
 
             <div class="form-group form-group--full">
-              <!-- FIX: id was sale-tags â now matches JS which reads sale-tags -->
+              <!-- FIX: id was sale-tags — now matches JS which reads sale-tags -->
               <label class="form-label" for="sale-tags">Items for sale (comma separated)</label>
-              <input class="form-input" id="sale-tags" name="sale-tags" type="text" placeholder="Furniture, Tools, Clothing, Books, Electronicsâ¦" />
+              <input class="form-input" id="sale-tags" name="sale-tags" type="text" placeholder="Furniture, Tools, Clothing, Books, Electronics…" />
               <span class="form-hint">Helps shoppers find your sale when searching by item type.</span>
             </div>
 
@@ -401,7 +401,7 @@
         <!-- STEP 3: Location & Dates -->
         <div class="detail-card" style="margin-bottom:var(--space-6)">
           <h2 style="font-family:var(--font-display);font-weight:900;font-size:var(--text-base);margin-bottom:var(--space-6);padding-bottom:var(--space-4);border-bottom:1px solid var(--color-divider);text-transform:uppercase">
-            ð Step 3 â Location &amp; dates
+            📍 Step 3 — Location &amp; dates
           </h2>
           <div class="form-grid">
 
@@ -420,7 +420,7 @@
             <div class="form-group">
               <label class="form-label" for="sale-province">Province <span>*</span></label>
               <select class="form-select" id="sale-province" name="sale-province" required>
-                <option value="">Selectâ¦</option>
+                <option value="">Select…</option>
                 <option value="BC">British Columbia</option>
                 <option value="AB">Alberta</option>
                 <option value="SK">Saskatchewan</option>
@@ -435,7 +435,7 @@
               <span class="form-error" id="err-sale-province" aria-live="polite"></span>
             </div>
 
-            <!-- FIX: ids were sale-start / sale-end â renamed to match the JS reads -->
+            <!-- FIX: ids were sale-start / sale-end — renamed to match the JS reads -->
             <div class="form-group">
               <label class="form-label" for="sale-start">Start date <span>*</span></label>
               <input class="form-input" id="sale-start" name="sale-start" type="date" required />
@@ -448,7 +448,7 @@
               <span class="form-hint">Leave blank if single-day.</span>
             </div>
 
-            <!-- FIX: ids were sale-hours-open / sale-hours-close â renamed to match JS reads -->
+            <!-- FIX: ids were sale-hours-open / sale-hours-close — renamed to match JS reads -->
             <div class="form-group">
               <label class="form-label" for="sale-hours-open">Opening time</label>
               <input class="form-input" id="sale-hours-open" name="sale-hours-open" type="time" value="08:00" />
@@ -465,16 +465,16 @@
         <!-- STEP 4: Contact -->
         <div class="detail-card" style="margin-bottom:var(--space-6)">
           <h2 style="font-family:var(--font-display);font-weight:900;font-size:var(--text-base);margin-bottom:var(--space-6);padding-bottom:var(--space-4);border-bottom:1px solid var(--color-divider);text-transform:uppercase">
-            ð¬ Step 4 â Contact (optional)
+            📬 Step 4 — Contact (optional)
           </h2>
           <div class="form-grid">
             <div class="form-group">
-              <!-- FIX: id was sale-name â kept as sale-name, JS now reads the correct id -->
+              <!-- FIX: id was sale-name — kept as sale-name, JS now reads the correct id -->
               <label class="form-label" for="sale-name">Your name</label>
               <input class="form-input" id="sale-name" name="sale-name" type="text" placeholder="First name" />
             </div>
             <div class="form-group">
-              <!-- FIX: id was sale-email â kept as sale-email, JS now reads the correct id -->
+              <!-- FIX: id was sale-email — kept as sale-email, JS now reads the correct id -->
               <label class="form-label" for="sale-email">Email</label>
               <input class="form-input" id="sale-email" name="sale-email" type="email" placeholder="you@example.com" />
               <span class="form-hint">Not shown publicly. Used for listing management only.</span>
@@ -491,20 +491,20 @@
           </div>
         </div>
 
-        <!-- FIX: submission state â button changes to loading/success/error states -->
+        <!-- FIX: submission state — button changes to loading/success/error states -->
         <div style="display:flex;gap:var(--space-4);flex-wrap:wrap;align-items:center">
           <button type="submit" class="btn btn--primary" id="submit-btn" style="font-size:var(--text-base);padding:var(--space-3) var(--space-10)">
-            Publish my listing â
+            Publish my listing →
           </button>
           <button type="button" class="btn btn--outline" onclick="showPage('home');return false;">Cancel</button>
         </div>
 
         <!-- FIX: success / error banner shown after submission -->
         <div id="form-success" style="display:none;margin-top:var(--space-6);padding:var(--space-4) var(--space-5);background:var(--color-success-highlight);border:1.5px solid var(--color-success);border-radius:var(--radius-lg);color:var(--color-success);font-weight:700;font-family:var(--font-display);">
-          â Your listing has been submitted and is pending review. We'll have it live shortly.
+          ✓ Your listing has been submitted and is pending review. We'll have it live shortly.
         </div>
         <div id="form-error-banner" style="display:none;margin-top:var(--space-6);padding:var(--space-4) var(--space-5);background:var(--color-error-highlight);border:1.5px solid var(--color-error);border-radius:var(--radius-lg);color:var(--color-error);font-weight:700;font-family:var(--font-display);">
-          â Something went wrong. Please check your details and try again.
+          ✕ Something went wrong. Please check your details and try again.
         </div>
 
       </form>
@@ -512,10 +512,10 @@
   </div>
 </main>
 
-<!-- âââââââââââââââââââââââââââââââââââââââââââ
+<!-- ═══════════════════════════════════════════
   STATIC PAGES (FAQ, Contact, Privacy, Terms)
   FIX: These replace all the # footer links
-ââââââââââââââââââââââââââââââââââââââââââââ -->
+════════════════════════════════════════════ -->
 
 <!-- FAQ PAGE -->
 <main id="page-faq" class="page-section">
@@ -559,12 +559,12 @@
 
       <details class="faq-item">
         <summary class="faq-question">How do I get more people to my sale?</summary>
-        <p class="faq-answer">Add clear photos â listings with photos get significantly more views. Write a detailed description and list your best items. Share your Garage Hoppers listing on Facebook and Nextdoor too.</p>
+        <p class="faq-answer">Add clear photos — listings with photos get significantly more views. Write a detailed description and list your best items. Share your Garage Hoppers listing on Facebook and Nextdoor too.</p>
       </details>
 
       <details class="faq-item">
         <summary class="faq-question">Can I list a sale for a future date?</summary>
-        <p class="faq-answer">Yes. You can submit a listing for any upcoming date. We recommend posting at least 3â5 days before your sale.</p>
+        <p class="faq-answer">Yes. You can submit a listing for any upcoming date. We recommend posting at least 3–5 days before your sale.</p>
       </details>
 
       <details class="faq-item">
@@ -625,7 +625,7 @@
       <p>When you browse the site, we may collect anonymous usage data (pages visited, general location by region) through analytics tools to understand how the site is used. We do not collect personal data from browsers.</p>
 
       <h2>How we use it</h2>
-      <p>Your contact information is used only to communicate with you about your listing â for example, to confirm approval or to let you know if your listing was removed. We do not sell, rent, or share your personal information with third parties for marketing purposes.</p>
+      <p>Your contact information is used only to communicate with you about your listing — for example, to confirm approval or to let you know if your listing was removed. We do not sell, rent, or share your personal information with third parties for marketing purposes.</p>
 
       <h2>Cookies</h2>
       <p>We use minimal cookies necessary to operate the site. If Google AdSense ads are enabled, Google may set cookies for ad personalization. You can opt out of personalized ads through Google's Ad Settings.</p>
@@ -675,9 +675,9 @@
   </div>
 </main>
 
-<!-- âââââââââââââââââââââââââââââââââââââââââââ
+<!-- ═══════════════════════════════════════════
   FOOTER
-ââââââââââââââââââââââââââââââââââââââââââââ -->
+════════════════════════════════════════════ -->
 <footer class="footer">
   <div class="footer__top">
     <div class="container">
@@ -731,7 +731,7 @@
   <div class="footer__bottom">
     <div class="container">
       <div class="footer__bottom-inner">
-        <p class="footer__copy">Â© 2026 Garage Hoppers. Free to list, free to browse.</p>
+        <p class="footer__copy">© 2026 Garage Hoppers. Free to list, free to browse.</p>
         <div class="footer__legal">
           <!-- FIX: legal links now route to real pages -->
           <a href="#" onclick="showPage('privacy');return false;">Privacy Policy</a>
@@ -742,9 +742,9 @@
   </div>
 </footer>
 
-<!-- âââââââââââââââââââââââââââââââââââââââââââ
+<!-- ═══════════════════════════════════════════
   LOCATION MODAL
-ââââââââââââââââââââââââââââââââââââââââââââ -->
+════════════════════════════════════════════ -->
 <div class="modal-overlay" id="location-modal" role="dialog" aria-modal="true" aria-label="Set your location">
   <div class="modal">
     <div class="modal__header">
@@ -777,21 +777,21 @@
 
 <!-- FIX: aria-live added so screen readers announce toast messages -->
 <div id="toast" role="status" aria-live="polite" style="position:fixed;bottom:var(--space-6);right:var(--space-6);background:var(--color-primary);color:white;padding:var(--space-3) var(--space-5);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);font-weight:700;font-size:var(--text-sm);z-index:300;transform:translateY(100px);opacity:0;transition:all 350ms cubic-bezier(0.16,1,0.3,1);font-family:var(--font-display)">
-  â <span id="toast-msg">Done!</span>
+  ✓ <span id="toast-msg">Done!</span>
 </div>
 
 <script>
-// âââ THEME âââ (always light mode)
+// ─── THEME ─── (always light mode)
 (function(){
   document.documentElement.setAttribute('data-theme','light');
 })();
 
-// âââ SUPABASE CONFIG âââ
+// ─── SUPABASE CONFIG ───
 const SUPABASE_URL = 'https://mpgnkvpfgmqegljycedf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_a5HoXVXgwIYz3Pu249XxUQ_NCFA-tbW';
 let supabase = null;
 
-// âââ DATE HELPERS âââ
+// ─── DATE HELPERS ───
 const today = new Date();
 const fmt = d => d.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'});
 const addDays = (d,n) => { const r=new Date(d); r.setDate(r.getDate()+n); return r; };
@@ -807,60 +807,60 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// âââ SAMPLE FALLBACK DATA âââ
+// ─── SAMPLE FALLBACK DATA ───
 const sampleListings = [
-  { id:1, title:"Massive Family Garage Sale â Moving Out!", category:"garage", categoryLabel:"Garage Sale",
+  { id:1, title:"Massive Family Garage Sale — Moving Out!", category:"garage", categoryLabel:"Garage Sale",
     address:"1842 Granville Ave", city:"Richmond", province:"BC", lat:49.1720, lng:-123.1380,
-    dateTag:"today", dates:fmt(today), hours:"8:00 AM â 2:00 PM", distance:"2.3 km away",
+    dateTag:"today", dates:fmt(today), hours:"8:00 AM – 2:00 PM", distance:"2.3 km away",
     items:["Furniture","Appliances","Kids toys","Clothing","Books","Tools"],
     description:"We're moving after 12 years and everything must go! Solid wood dining table, patio set, kids bikes, tonnes of clothing and housewares. All priced to sell fast. Cash only please.",
     photos:["https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80","https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&q=80","https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&q=80"]
   },
-  { id:2, title:"Estate Sale â Quality Antiques & Collectibles", category:"estate", categoryLabel:"Estate Sale",
+  { id:2, title:"Estate Sale — Quality Antiques & Collectibles", category:"estate", categoryLabel:"Estate Sale",
     address:"4521 Williams Rd", city:"Richmond", province:"BC", lat:49.1650, lng:-123.1450,
-    dateTag:"today", dates:fmt(today)+" â "+fmt(addDays(today,1)), hours:"9:00 AM â 4:00 PM", distance:"3.8 km away",
+    dateTag:"today", dates:fmt(today)+" – "+fmt(addDays(today,1)), hours:"9:00 AM – 4:00 PM", distance:"3.8 km away",
     items:["Antiques","Collectibles","Jewellery","China","Art","Vinyl records"],
     description:"Beautiful estate sale with over 40 years of collected treasures. Vintage furniture, original artwork, fine china sets, vinyl records, and jewellery. Everything professionally priced and tagged.",
     photos:["https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80","https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?w=300&q=80"]
   },
-  { id:3, title:"Neighbourhood Sale â Tools, Sports Gear & Garden", category:"neighbourhood", categoryLabel:"Neighbourhood Sale",
+  { id:3, title:"Neighbourhood Sale — Tools, Sports Gear & Garden", category:"neighbourhood", categoryLabel:"Neighbourhood Sale",
     address:"312 No. 2 Rd", city:"Richmond", province:"BC", lat:49.1800, lng:-123.1300,
-    dateTag:"tomorrow", dates:fmt(addDays(today,1)), hours:"7:00 AM â 1:00 PM", distance:"4.1 km away",
+    dateTag:"tomorrow", dates:fmt(addDays(today,1)), hours:"7:00 AM – 1:00 PM", distance:"4.1 km away",
     items:["Tools","Power tools","Garden equipment","Sports gear","Bikes"],
-    description:"Huge selection of tools â power and hand tools, garden equipment, two bikes, camping gear, and sports equipment. Great prices, everything is in excellent working condition.",
+    description:"Huge selection of tools — power and hand tools, garden equipment, two bikes, camping gear, and sports equipment. Great prices, everything is in excellent working condition.",
     photos:["https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=600&q=80","https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=300&q=80"]
   },
-  { id:4, title:"Moving Sale â Appliances, Electronics & More", category:"moving", categoryLabel:"Moving Sale",
+  { id:4, title:"Moving Sale — Appliances, Electronics & More", category:"moving", categoryLabel:"Moving Sale",
     address:"789 Steveston Hwy", city:"Richmond", province:"BC", lat:49.1580, lng:-123.1600,
-    dateTag:"tomorrow", dates:fmt(addDays(today,1)), hours:"9:00 AM â 3:00 PM", distance:"5.2 km away",
+    dateTag:"tomorrow", dates:fmt(addDays(today,1)), hours:"9:00 AM – 3:00 PM", distance:"5.2 km away",
     items:["Appliances","Electronics","Furniture","Baby items","Kitchenware"],
-    description:"Relocating internationally! Selling everything â barely used appliances, electronics, a full bedroom set, baby gear, and quality kitchenware. Prices are negotiable, we need it gone!",
+    description:"Relocating internationally! Selling everything — barely used appliances, electronics, a full bedroom set, baby gear, and quality kitchenware. Prices are negotiable, we need it gone!",
     photos:["https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80","https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=300&q=80"]
   },
-  { id:5, title:"Weekend Garage Sale â Books, DÃ©cor & Clothing", category:"garage", categoryLabel:"Garage Sale",
+  { id:5, title:"Weekend Garage Sale — Books, Décor & Clothing", category:"garage", categoryLabel:"Garage Sale",
     address:"2201 Blundell Rd", city:"Richmond", province:"BC", lat:49.1690, lng:-123.1520,
-    dateTag:"weekend", dates:fmt(nextSat)+" & "+fmt(nextSun), hours:"8:00 AM â 12:00 PM", distance:"6.0 km away",
-    items:["Books","DÃ©cor","Clothing","Shoes","Handbags","Plants"],
+    dateTag:"weekend", dates:fmt(nextSat)+" & "+fmt(nextSun), hours:"8:00 AM – 12:00 PM", distance:"6.0 km away",
+    items:["Books","Décor","Clothing","Shoes","Handbags","Plants"],
     description:"A friendly neighbourhood sale with hundreds of books, decorative items, women's clothing sizes S-XL, shoes, handbags, and potted plants. Hot coffee available!",
     photos:["https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=80","https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=300&q=80"]
   },
-  { id:6, title:"Multi-Family Neighbourhood Sale â Something for Everyone", category:"neighbourhood", categoryLabel:"Neighbourhood Sale",
+  { id:6, title:"Multi-Family Neighbourhood Sale — Something for Everyone", category:"neighbourhood", categoryLabel:"Neighbourhood Sale",
     address:"5611 Minoru Blvd", city:"Richmond", province:"BC", lat:49.1760, lng:-123.1400,
-    dateTag:"weekend", dates:fmt(nextSat), hours:"7:30 AM â 2:00 PM", distance:"7.5 km away",
-    items:["Kids items","Clothing","Furniture","Kitchen","Holiday dÃ©cor","Games"],
+    dateTag:"weekend", dates:fmt(nextSat), hours:"7:30 AM – 2:00 PM", distance:"7.5 km away",
+    items:["Kids items","Clothing","Furniture","Kitchen","Holiday décor","Games"],
     description:"Three families combining for one mega sale! Thousands of items. Come early for best selection.",
     photos:["https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=600&q=80","https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=300&q=80"]
   },
-  { id:7, title:"Estate Sale â Mid-Century Modern Furniture", category:"estate", categoryLabel:"Estate Sale",
+  { id:7, title:"Estate Sale — Mid-Century Modern Furniture", category:"estate", categoryLabel:"Estate Sale",
     address:"1055 Loney Ave", city:"Delta", province:"BC", lat:49.1050, lng:-123.0650,
-    dateTag:"weekend", dates:fmt(nextSat)+" & "+fmt(nextSun), hours:"10:00 AM â 5:00 PM", distance:"12.4 km away",
+    dateTag:"weekend", dates:fmt(nextSat)+" & "+fmt(nextSun), hours:"10:00 AM – 5:00 PM", distance:"12.4 km away",
     items:["Mid-century furniture","Art","Lamps","Rugs","Ceramics"],
-    description:"Stunning collection of authentic mid-century modern furniture and dÃ©cor. Eames-era chairs, teak credenzas, original artwork, ceramic pieces, and quality rugs.",
+    description:"Stunning collection of authentic mid-century modern furniture and décor. Eames-era chairs, teak credenzas, original artwork, ceramic pieces, and quality rugs.",
     photos:["https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80"]
   },
-  { id:8, title:"Garage Sale â Sporting Goods & Outdoor Gear", category:"garage", categoryLabel:"Garage Sale",
+  { id:8, title:"Garage Sale — Sporting Goods & Outdoor Gear", category:"garage", categoryLabel:"Garage Sale",
     address:"777 Kingsway Ave", city:"Burnaby", province:"BC", lat:49.2350, lng:-122.9900,
-    dateTag:"weekend", dates:fmt(nextSun), hours:"8:00 AM â 1:00 PM", distance:"15.1 km away",
+    dateTag:"weekend", dates:fmt(nextSun), hours:"8:00 AM – 1:00 PM", distance:"15.1 km away",
     items:["Camping gear","Ski equipment","Bikes","Kayak","Fitness equipment"],
     description:"An athlete's treasure sale! Two mountain bikes, a kayak, ski/snowboard equipment, camping gear, weights, and more.",
     photos:["https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=600&q=80"]
@@ -879,12 +879,12 @@ function dbRowToListing(row) {
   if(start.toDateString()===todayDate.toDateString()) dateTag='today';
   else if(start.toDateString()===tomorrow.toDateString()) dateTag='tomorrow';
   else if(start >= sat && start <= sun) dateTag='weekend';
-  const dates = end ? fmt(start)+' â '+fmt(end) : fmt(start);
+  const dates = end ? fmt(start)+' – '+fmt(end) : fmt(start);
   return {
     id: row.id, title: row.title, category: row.category, categoryLabel: row.category_label,
     address: row.address, city: row.city, province: row.province,
     lat: row.lat || 49.1666, lng: row.lng || -123.1336,
-    dateTag, dates, hours: row.hours || 'See listing', distance: 'â',
+    dateTag, dates, hours: row.hours || 'See listing', distance: '—',
     items: row.items || [], description: row.description || '',
     photos: row.photos || [], status: row.status
   };
@@ -908,7 +908,7 @@ async function loadListingsFromDB() {
 
 let activeDateFilter='all', currentView='grid', mainMap=null, detailMap=null, previewMap=null, previewCircle=null, currentRadius=50, currentCity='Richmond, BC';
 
-// âââ PAGE NAV âââ
+// ─── PAGE NAV ───
 function showPage(page, listingId) {
   document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
@@ -922,7 +922,7 @@ function showPage(page, listingId) {
 
 function scrollToListings() { document.getElementById('listings-anchor').scrollIntoView({behavior:'smooth'}); }
 
-// âââ FILTER âââ
+// ─── FILTER ───
 function getFiltered() {
   let base = listings;
   // Also apply search query if present
@@ -960,7 +960,7 @@ function filterByDate(val) {
   } else if(picked >= nextSat && picked <= nextSun) {
     filterDate(document.getElementById('chip-weekend'),'weekend');
   } else {
-    // Custom date â filter directly
+    // Custom date — filter directly
     activeDateFilter='all';
     document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
     renderListings();
@@ -969,7 +969,7 @@ function filterByDate(val) {
   scrollToListings();
 }
 
-// âââ SEARCH âââ
+// ─── SEARCH ───
 document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('nav-search-input');
   if(searchInput) {
@@ -977,14 +977,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// âââ RENDER LISTINGS âââ
-// FIX: removed duplicate category badge from card body â badge on photo is enough
+// ─── RENDER LISTINGS ───
+// FIX: removed duplicate category badge from card body — badge on photo is enough
 function renderListings() {
   const filtered = getFiltered();
   const grid = document.getElementById('listings-grid');
   const heading = document.getElementById('listings-count-heading');
   const labels = {'all':'sales','today':'sales today','tomorrow':'sales tomorrow','weekend':'weekend sales'};
-  heading.innerHTML = `<strong style="color:var(--color-primary)">${filtered.length} ${labels[activeDateFilter]||'sales'}</strong> near ${currentCity} <span style="color:var(--color-text-muted);font-size:var(--text-base);font-weight:400">Â· within ${currentRadius} km</span>`;
+  heading.innerHTML = `<strong style="color:var(--color-primary)">${filtered.length} ${labels[activeDateFilter]||'sales'}</strong> near ${currentCity} <span style="color:var(--color-text-muted);font-size:var(--text-base);font-weight:400">· within ${currentRadius} km</span>`;
 
   if(!filtered.length) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:var(--space-16);color:var(--color-text-muted)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:auto auto var(--space-4)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><h3 style="font-family:var(--font-display);font-weight:700;color:var(--color-text);margin-bottom:var(--space-2)">No sales found</h3><p>Try a different date or expand your search radius.</p></div>`;
@@ -1000,7 +1000,7 @@ function renderListings() {
             : `<img src="./no-photo.svg" alt="No photo available" loading="lazy" style="width:100%;height:100%;object-fit:cover"/>`
           }
         </div>
-        <!-- Badge on photo only â no duplicate in card body -->
+        <!-- Badge on photo only — no duplicate in card body -->
         <div class="listing-card__badge">${l.categoryLabel}</div>
         <button class="listing-card__save" onclick="event.preventDefault();event.stopPropagation();toggleSave(this)" aria-label="Save listing">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -1008,7 +1008,7 @@ function renderListings() {
       </div>
       <div class="listing-card__body">
         <div class="listing-card__meta">
-          <!-- FIX: removed duplicate .listing-card__category span â category is on the badge -->
+          <!-- FIX: removed duplicate .listing-card__category span — category is on the badge -->
           <span class="listing-card__date">${l.dates}</span>
         </div>
         <h3 class="listing-card__title">${l.title}</h3>
@@ -1027,7 +1027,7 @@ function renderListings() {
     </a>`).join('');
 }
 
-// âââ VIEW TOGGLE âââ
+// ─── VIEW TOGGLE ───
 function setView(v) {
   currentView = v;
   document.getElementById('btn-grid').classList.toggle('active',v==='grid');
@@ -1038,13 +1038,13 @@ function setView(v) {
   if(v==='map') setTimeout(()=>{ if(!mainMap) initMainMap(); else mainMap.invalidateSize(); },50);
 }
 
-// âââ MAPS âââ
+// ─── MAPS ───
 function initMainMap() {
   if(mainMap) return;
   const el = document.getElementById('map');
   if(!el||typeof L==='undefined') return;
   mainMap = L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([49.165,-123.135],11);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'Â© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18}).addTo(mainMap);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18}).addTo(mainMap);
   updateMapMarkers();
 }
 
@@ -1054,12 +1054,12 @@ function updateMapMarkers() {
   const filtered = getFiltered();
   filtered.forEach(l=>{
     const m = L.marker([l.lat,l.lng]).addTo(mainMap);
-    m.bindPopup(`<div style="font-family:sans-serif;max-width:220px"><div style="font-weight:700;font-size:14px;margin-bottom:6px">${l.title}</div><div style="font-size:12px;color:#666;margin-bottom:4px">ð ${l.address}, ${l.city}</div><div style="font-size:12px;color:#666;margin-bottom:8px">ð ${l.dates} Â· ${l.hours}</div><div style="font-size:12px;color:#E8161B;font-weight:700;cursor:pointer" onclick="openListing(${l.id})">View details â</div></div>`,{maxWidth:240});
+    m.bindPopup(`<div style="font-family:sans-serif;max-width:220px"><div style="font-weight:700;font-size:14px;margin-bottom:6px">${l.title}</div><div style="font-size:12px;color:#666;margin-bottom:4px">📍 ${l.address}, ${l.city}</div><div style="font-size:12px;color:#666;margin-bottom:8px">📅 ${l.dates} · ${l.hours}</div><div style="font-size:12px;color:#E8161B;font-weight:700;cursor:pointer" onclick="openListing(${l.id})">View details →</div></div>`,{maxWidth:240});
   });
   if(filtered.length>0) mainMap.fitBounds(L.latLngBounds(filtered.map(l=>[l.lat,l.lng])).pad(0.2));
 }
 
-// âââ LOCATION MODAL âââ
+// ─── LOCATION MODAL ───
 function openLocationModal() {
   document.getElementById('location-modal').classList.add('open');
   // FIX: trap focus inside modal
@@ -1067,7 +1067,7 @@ function openLocationModal() {
     document.getElementById('modal-city').focus();
     if(!previewMap&&typeof L!=='undefined'){
       previewMap=L.map('location-preview-map',{zoomControl:true,scrollWheelZoom:false}).setView([49.166,-123.133],9);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'Â© OpenStreetMap',maxZoom:18}).addTo(previewMap);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18}).addTo(previewMap);
       previewCircle=L.circle([49.166,-123.133],{radius:currentRadius*1000,color:'#E8161B',fillColor:'#E8161B',fillOpacity:0.1,weight:2}).addTo(previewMap);
     } else if(previewMap) previewMap.invalidateSize();
     updateSliderTrack();
@@ -1094,7 +1094,7 @@ function applyLocation() {
   currentCity = city;
   document.getElementById('nav-city').textContent = city;
   document.getElementById('nav-radius').textContent = currentRadius+' km';
-  document.getElementById('hero-location-display').textContent = city+' Â· '+currentRadius+' km';
+  document.getElementById('hero-location-display').textContent = city+' · '+currentRadius+' km';
   closeLocationModal(); renderListings(); showToast('Location updated');
 }
 
@@ -1102,13 +1102,13 @@ function applyLocation() {
 document.getElementById('location-modal').addEventListener('click', function(e){ if(e.target===this) closeLocationModal(); });
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLocationModal(); });
 
-// âââ DETAIL PAGE âââ
+// ─── DETAIL PAGE ───
 function openListing(id) { showPage('detail',id); }
 
 function renderDetailPage(id) {
   const l = listings.find(x=>x.id===id); if(!l) return;
   const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(l.address+', '+l.city+', '+l.province)}`;
-  document.title = l.title+' â Garage Hoppers';
+  document.title = l.title+' — Garage Hoppers';
   document.getElementById('detail-title').textContent = l.title;
   document.getElementById('detail-category').textContent = l.categoryLabel;
   document.getElementById('detail-date').textContent = l.dates;
@@ -1141,7 +1141,7 @@ function renderDetailPage(id) {
   setTimeout(()=>{
     if(typeof L==='undefined') return;
     detailMap=L.map('detail-map',{zoomControl:true,scrollWheelZoom:false}).setView([l.lat,l.lng],15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'Â© OpenStreetMap',maxZoom:18}).addTo(detailMap);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18}).addTo(detailMap);
     const icon=L.divIcon({className:'',html:`<div style="width:36px;height:36px;background:var(--color-primary);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3)"></div>`,iconSize:[36,36],iconAnchor:[18,36]});
     L.marker([l.lat,l.lng],{icon}).addTo(detailMap)
       .bindPopup(`<div style="font-family:sans-serif;font-size:13px;font-weight:600;padding:2px 0">${l.address}, ${l.city}</div>`)
@@ -1149,7 +1149,7 @@ function renderDetailPage(id) {
   },200);
 }
 
-// âââ HELPERS âââ
+// ─── HELPERS ───
 function toggleSave(btn) {
   btn.classList.toggle('saved');
   const saved = btn.classList.contains('saved');
@@ -1170,14 +1170,14 @@ function previewPhotos(input) {
     reader.onload = e => {
       const div = document.createElement('div');
       div.style.cssText='position:relative;aspect-ratio:1;border-radius:var(--radius-lg);overflow:hidden';
-      div.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover"/><button onclick="this.parentElement.remove()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:white;border-radius:50%;width:24px;height:24px;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer" aria-label="Remove photo">Ã</button>`;
+      div.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover"/><button onclick="this.parentElement.remove()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:white;border-radius:50%;width:24px;height:24px;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer" aria-label="Remove photo">×</button>`;
       previews.appendChild(div);
     };
     reader.readAsDataURL(file);
   });
 }
 
-// âââ FORM VALIDATION HELPERS âââ
+// ─── FORM VALIDATION HELPERS ───
 function setFieldError(fieldId, errId, message) {
   const field = document.getElementById(fieldId);
   const errEl = document.getElementById(errId);
@@ -1232,7 +1232,7 @@ function validateForm() {
   return valid;
 }
 
-// âââ SUBMIT LISTING âââ
+// ─── SUBMIT LISTING ───
 // FIX: all field IDs now match the actual HTML form elements
 async function submitListing(e) {
   e.preventDefault();
@@ -1247,9 +1247,9 @@ async function submitListing(e) {
   // Disable submit button during processing
   const submitBtn = document.getElementById('submit-btn');
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Submittingâ¦';
+  submitBtn.textContent = 'Submitting…';
 
-  // Gather values â IDs now match the form exactly
+  // Gather values — IDs now match the form exactly
   const title        = document.getElementById('sale-title')?.value?.trim() || '';
   const category     = document.getElementById('sale-type')?.value || 'garage';
   const description  = document.getElementById('sale-desc')?.value?.trim() || '';
@@ -1262,7 +1262,7 @@ async function submitListing(e) {
   const dateEnd      = document.getElementById('sale-end')?.value || null;
   const hoursOpen    = document.getElementById('sale-hours-open')?.value || '';
   const hoursClose   = document.getElementById('sale-hours-close')?.value || '';
-  const hours        = hoursOpen && hoursClose ? `${hoursOpen} â ${hoursClose}` : '';
+  const hours        = hoursOpen && hoursClose ? `${hoursOpen} – ${hoursClose}` : '';
   const contactName  = document.getElementById('sale-name')?.value?.trim() || '';
   const contactEmail = document.getElementById('sale-email')?.value?.trim() || '';
 
@@ -1305,7 +1305,7 @@ async function submitListing(e) {
   }
 
   submitBtn.disabled = false;
-  submitBtn.textContent = 'Publish my listing â';
+  submitBtn.textContent = 'Publish my listing →';
 }
 
 function showToast(msg) {
@@ -1315,12 +1315,12 @@ function showToast(msg) {
   setTimeout(()=>{ t.style.transform='translateY(100px)'; t.style.opacity='0'; },2500);
 }
 
-// âââ INIT âââ
+// ─── INIT ───
 function initApp() {
   document.getElementById('nav-location-btn').style.display = 'flex';
   document.getElementById('nav-search').style.display = 'flex';
 
-  // Init Supabase â since script loads synchronously, it's available now
+  // Init Supabase — since script loads synchronously, it's available now
   try {
     if(window.supabase && window.supabase.createClient) {
       supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
