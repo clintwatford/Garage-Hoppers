@@ -1732,6 +1732,7 @@ async function submitListing(e) {
 
 // ─── SELLER AUTH ───
 let currentUser = null;
+let _dashboardData = [];
 
 async function initAuth() {
   if(!sbClient) return;
@@ -1846,6 +1847,7 @@ async function loadDashboard() {
     if(error) throw error;
 
     if(!data || data.length === 0) {
+      _dashboardData = [];
       container.innerHTML = `
         <div style="text-align:center;padding:var(--space-10);color:var(--color-text-muted)">
           <div style="font-size:2.5rem;margin-bottom:var(--space-3)">🏷️</div>
@@ -1857,6 +1859,7 @@ async function loadDashboard() {
     }
 
     container.innerHTML = data.map(l => {
+      _dashboardData = data;
       const statusColor = l.status === 'approved' ? '#16a34a' : l.status === 'rejected' ? '#dc2626' : '#d97706';
       const statusBg = l.status === 'approved' ? '#f0fff4' : l.status === 'rejected' ? '#fff0f0' : '#fffbeb';
       const dateStr = l.date_start ? new Date(l.date_start+'T12:00:00').toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'}) : 'No date';
@@ -1900,9 +1903,89 @@ async function cancelListing(id, btn) {
 }
 
 function editListing(id) {
-  // For now, show a toast directing to email
-  // Full edit form is Session 5 scope
-  showToast('To edit your listing, email garagehoppersadmin@gmail.com with your changes.');
+  // Find listing data
+  const existing = _dashboardData?.find(l => l.id === id);
+  if(!existing) { showToast('Could not load listing data.'); return; }
+
+  // Build edit modal
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.id = 'edit-listing-overlay';
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:560px;max-height:85vh;overflow-y:auto">
+      <div class="modal__header">
+        <h2 class="modal__title">Edit Listing</h2>
+        <button class="modal__close" onclick="document.getElementById('edit-listing-overlay').remove()" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <p style="font-size:13px;color:var(--color-text-muted);margin-bottom:var(--space-4)">Changes will be sent for review before going live.</p>
+
+      <div style="display:flex;flex-direction:column;gap:var(--space-4)">
+        <div>
+          <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Sale Title</label>
+          <input id="edit-title" class="form-input" type="text" value="${(existing.title||'').replace(/"/g,'&quot;')}" style="width:100%" />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)">
+          <div>
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Start Date</label>
+            <input id="edit-date-start" class="form-input" type="date" value="${existing.date_start||''}" style="width:100%" />
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">End Date</label>
+            <input id="edit-date-end" class="form-input" type="date" value="${existing.date_end||''}" style="width:100%" />
+          </div>
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Hours</label>
+          <input id="edit-hours" class="form-input" type="text" value="${(existing.hours||'').replace(/"/g,'&quot;')}" placeholder="e.g. 9:00 AM – 3:00 PM" style="width:100%" />
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Description</label>
+          <textarea id="edit-description" class="form-input" rows="4" style="width:100%;resize:vertical">${existing.description||''}</textarea>
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Address</label>
+          <input id="edit-address" class="form-input" type="text" value="${(existing.address||'').replace(/"/g,'&quot;')}" style="width:100%" />
+        </div>
+        <div id="edit-error" style="display:none;color:var(--color-error);font-size:13px;font-weight:600"></div>
+        <div style="display:flex;gap:var(--space-3)">
+          <button class="btn btn--primary" onclick="saveListingEdit('${id}')" style="flex:1;justify-content:center">Save changes</button>
+          <button class="btn btn--outline" onclick="document.getElementById('edit-listing-overlay').remove()" style="flex:1;justify-content:center">Cancel</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+async function saveListingEdit(id) {
+  const title = document.getElementById('edit-title')?.value?.trim();
+  const dateStart = document.getElementById('edit-date-start')?.value;
+  const dateEnd = document.getElementById('edit-date-end')?.value || null;
+  const hours = document.getElementById('edit-hours')?.value?.trim();
+  const description = document.getElementById('edit-description')?.value?.trim();
+  const address = document.getElementById('edit-address')?.value?.trim();
+  const errorEl = document.getElementById('edit-error');
+
+  if(!title) { errorEl.textContent = 'Title is required.'; errorEl.style.display='block'; return; }
+  if(!dateStart) { errorEl.textContent = 'Start date is required.'; errorEl.style.display='block'; return; }
+
+  const saveBtn = document.querySelector('#edit-listing-overlay .btn--primary');
+  if(saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
+
+  try {
+    const { error } = await sbClient.from('listings')
+      .update({ title, date_start: dateStart, date_end: dateEnd, hours, description, address, status: 'pending' })
+      .eq('id', id)
+      .eq('contact_email', currentUser.email);
+    if(error) throw error;
+    document.getElementById('edit-listing-overlay')?.remove();
+    showToast('Listing updated — pending review before going live.');
+    loadDashboard();
+  } catch(e) {
+    if(errorEl) { errorEl.textContent = 'Could not save changes. Please try again.'; errorEl.style.display='block'; }
+    if(saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save changes'; }
+  }
 }
 
 function showToast(msg) {
