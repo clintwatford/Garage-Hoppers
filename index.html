@@ -977,6 +977,7 @@ function dbRowToListing(row) {
     id: row.id, title: row.title, category: row.category, categoryLabel: row.category_label,
     address: row.address, city: row.city, province: row.province,
     lat: row.lat || 49.1666, lng: row.lng || -123.1336,
+    date_start: row.date_start || null, date_end: row.date_end || null,
     dateTag, dates, hours: row.hours || 'See listing', distance: calcDistance(row.lat, row.lng),
     items: row.items || [], description: row.description || '',
     photos: row.photos || [], status: row.status
@@ -1020,8 +1021,12 @@ function getFiltered() {
   const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
 
   // Auto-hide listings more than 1 day past their end date
+  // Skip filter if listing has no date (show it anyway)
   let base = listings.filter(l => {
-    const endDate = l.date_end ? new Date(l.date_end+'T23:59:59') : new Date(l.date_start+'T23:59:59');
+    if(!l.date_start) return true; // no date — show it
+    const endStr = l.date_end || l.date_start;
+    const endDate = new Date(endStr + 'T23:59:59');
+    if(isNaN(endDate.getTime())) return true; // invalid date — show it
     return endDate >= yesterday;
   });
 
