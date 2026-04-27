@@ -4,8 +4,21 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Garage Hoppers — Find Garage Sales Near You</title>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Garage Hoppers","url":"https://garagehoppers.com","description":"Free garage sale directory for Canada and the United States","potentialAction":{"@type":"SearchAction","target":"https://garagehoppers.com/","query-input":"required name=search_term_string"}}</script>
 <meta name="description" content="Find garage sales, estate sales, moving sales, and neighbourhood sales near you across Canada and the United States. Free to list, free to browse." />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Garage Hoppers",
+  "url": "https://garagehoppers.com",
+  "description": "Free garage sale directory for Canada and the United States",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://garagehoppers.com/#search={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
 
 <!-- Google AdSense — add your publisher ID below when approved -->
 <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
@@ -18,96 +31,7 @@
 <link rel="stylesheet" href="./base.css" />
 <link rel="stylesheet" href="./style.css" />
 </head>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Garage Hoppers","url":"https://garagehoppers.com","description":"Find and list garage sales, estate sales, moving sales, and neighbourhood sales across Canada and the USA."}</script>
 <body>
-<style>
-/* ─── MOBILE OVERFLOW FIX ─── */
-/* FAB — dark grey so it pops against red cards */
-.fab-post { background: #464646 !important; box-shadow: 0 4px 20px rgba(0,0,0,0.35) !important; }
-.fab-post:hover { background: #2e2e2e !important; box-shadow: 0 8px 28px rgba(0,0,0,0.4) !important; }
-
-/* Bunny logo size increase — bigger bunny, taller navbar */
-.navbar__logo-img { height: 72px !important; width: 72px !important; }
-.navbar__inner { height: 80px !important; }
-.navbar__logo-text { font-size: 1.1rem !important; letter-spacing: -0.01em; }
-@media (max-width: 640px) {
-  .navbar__logo-img { height: 56px !important; width: 56px !important; }
-  .navbar__inner { height: 68px !important; }
-  .navbar__logo-text { font-size: 0.95rem !important; }
-}
-html, body { overflow-x: hidden; max-width: 100vw; }
-*, *::before, *::after { box-sizing: border-box; }
-
-/* Navbar mobile — single row, no overflow */
-@media (max-width: 640px) {
-  .navbar__inner { 
-    padding-inline: var(--space-3); 
-    gap: var(--space-3);
-    height: 60px;
-  }
-  .navbar__logo-text span { display: none; }
-  .navbar__logo-img { height: 48px; width: 48px; }
-  .navbar__logo-text { font-size: 0.9rem; }
-  /* Search bar stays visible on mobile */
-  #nav-search { display: flex !important; flex: 1; min-width: 0; max-width: 100%; overflow: hidden; }
-  #nav-search input { min-width: 0; width: 100%; overflow: hidden; text-overflow: ellipsis; }
-  .navbar__actions { display: none; }
-  .btn--primary.btn--sm { 
-    padding: var(--space-2) var(--space-4); 
-    font-size: 13px;
-    white-space: nowrap;
-  }
-  
-  /* Hero — prevent overflow */
-  .hero { padding: var(--space-8) var(--space-3) var(--space-6); }
-  .hero-search { margin: 0; border-radius: var(--radius-xl); }
-  .hero-search__row { flex-direction: column; gap: var(--space-2); }
-  .hero-search__field { 
-    border: 1.5px solid var(--color-border) !important;
-    border-radius: var(--radius-lg) !important;
-    background: var(--color-surface-2) !important;
-  }
-  .hero-search__field + .hero-search__field { border-left: 1.5px solid var(--color-border) !important; }
-  .hero__title { font-size: clamp(1.5rem, 6vw, 2.25rem); }
-  
-  /* Listings — prevent card overflow */
-  .listings-grid { grid-template-columns: 1fr; gap: var(--space-4); }
-  .container { padding-inline: var(--space-3); }
-  
-  /* Filter chips — wrap and scroll */
-  .filters-bar { flex-wrap: wrap; gap: var(--space-2); }
-  .filter-chip { font-size: 12px; padding: var(--space-1) var(--space-3); }
-  
-  /* Detail page mobile */
-  .detail-layout { grid-template-columns: 1fr; gap: var(--space-4); padding: var(--space-4) 0 var(--space-10); }
-  .detail-sidebar { position: static; }
-  .detail-title { font-size: clamp(1.25rem, 5vw, 2rem); }
-  
-  /* Form mobile */
-  .form-grid { grid-template-columns: 1fr; }
-  .form-group--full { grid-column: 1; }
-  .upload-zone { padding: var(--space-6); }
-  
-  /* Footer mobile */
-  .footer__grid { grid-template-columns: 1fr; gap: var(--space-6); }
-  .footer__brand { grid-column: 1; }
-  
-  /* FAB */
-  .fab-post { 
-    bottom: var(--space-4); right: var(--space-3);
-    padding: var(--space-2) var(--space-4);
-    font-size: 12px;
-  }
-  
-  /* Modal full screen on mobile */
-  .modal { 
-    margin: var(--space-4);
-    padding: var(--space-5);
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-}
-</style>
 
 <!-- ═══════════════════════════════════════════
   NAVBAR
@@ -122,16 +46,23 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       </div>
     </a>
 
-    <div class="search-bar" id="nav-search" style="display:none;flex:1;max-width:480px;">
+    <button class="location-pill" id="nav-location-btn" style="display:none" onclick="openLocationModal()" aria-label="Change location">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span class="location-pill__city" id="nav-city">Richmond, BC</span>
+      <span class="location-pill__radius" id="nav-radius">50 km</span>
+    </button>
+
+    <div class="search-bar" id="nav-search" style="display:none">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="search" id="nav-search-input" placeholder="Search sales, items, cities…" aria-label="Search listings" />
     </div>
 
-    <nav style="display:flex;align-items:center;gap:4px;margin-left:auto;">
-      <a href="#" onclick="showPage('home');scrollToListings();return false;" style="font-size:13px;font-weight:700;color:#767676;text-decoration:none;padding:4px 8px;border-radius:6px;white-space:nowrap;" onmouseover="this.style.color='#E8161B'" onmouseout="this.style.color='#767676'">Browse</a>
-      <a href="#" onclick="showPage('faq');return false;" style="font-size:13px;font-weight:700;color:#767676;text-decoration:none;padding:4px 8px;border-radius:6px;white-space:nowrap;" onmouseover="this.style.color='#E8161B'" onmouseout="this.style.color='#767676'">FAQ</a>
-      <a href="#" onclick="showPage('contact');return false;" style="font-size:13px;font-weight:700;color:#767676;text-decoration:none;padding:4px 8px;border-radius:6px;white-space:nowrap;" onmouseover="this.style.color='#E8161B'" onmouseout="this.style.color='#767676'">Contact</a>
+    <nav class="navbar__nav" style="display:flex;gap:20px;align-items:center;margin-left:8px;">
+      <a href="#" onclick="showPage('faq');return false;" style="font-size:13px;font-weight:600;color:#444;text-decoration:none;white-space:nowrap;" onmouseover="this.style.color='#E8161B'" onmouseout="this.style.color='#444'">FAQ</a>
+      <a href="#" onclick="showPage('contact');return false;" style="font-size:13px;font-weight:600;color:#444;text-decoration:none;white-space:nowrap;" onmouseover="this.style.color='#E8161B'" onmouseout="this.style.color='#444'">Contact</a>
     </nav>
+
+    <div class="navbar__actions"></div>
   </div>
 </header>
 
@@ -144,7 +75,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   <section class="hero">
     <div class="hero__content">
       <h1 class="hero__title">Find <em>great deals</em> at sales near you</h1>
-      <p class="hero__subtitle">Browse garage sales, estate sales, and neighbourhood sales near you across Canada and the USA. Free to list, free to browse.</p>
+      <p class="hero__subtitle">Browse garage sales, estate sales, and neighbourhood sales in your area. Free to list, free to browse.</p>
       <div class="hero-search">
         <div class="hero-search__row">
           <div class="hero-search__field" onclick="openLocationModal()" style="cursor:pointer">
@@ -275,22 +206,16 @@ html, body { overflow-x: hidden; max-width: 100vw; }
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         Back to all listings
       </a>
-      <div style="display:flex;gap:8px">
-        <button id="btn-prev" onclick="navigateListing(-1)" style="display:none;padding:4px 12px;border:1.5px solid #e0e0e0;border-radius:999px;background:white;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display)">← Prev</button>
-        <button id="btn-next" onclick="navigateListing(1)" style="display:none;padding:4px 12px;border:1.5px solid #e0e0e0;border-radius:999px;background:white;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-display)">Next →</button>
+      <div style="display:flex;gap:var(--space-2)">
+        <button id="btn-prev-listing" onclick="navigateListing(-1)" style="display:none;padding:var(--space-1) var(--space-3);border:1.5px solid var(--color-border);border-radius:var(--radius-full);background:white;font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:var(--font-display)" onmouseover="this.style.borderColor='var(--color-primary)';this.style.color='var(--color-primary)'" onmouseout="this.style.borderColor='var(--color-border)';this.style.color='inherit'">← Prev</button>
+        <button id="btn-next-listing" onclick="navigateListing(1)" style="display:none;padding:var(--space-1) var(--space-3);border:1.5px solid var(--color-border);border-radius:var(--radius-full);background:white;font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:var(--font-display)" onmouseover="this.style.borderColor='var(--color-primary)';this.style.color='var(--color-primary)'" onmouseout="this.style.borderColor='var(--color-border)';this.style.color='inherit'">Next →</button>
       </div>
     </div>
   </div>
 
   <div class="detail-gallery" id="detail-photos"></div>
-  <div id="detail-date-strip" style="display:none;background:#f5f5f7;border-bottom:1px solid #e0e0e0;padding:14px 20px;text-align:center;"><span id="detail-strip-text" style="font-size:15px;font-weight:600;color:#111"></span></div>
-  <div id="detail-date-strip" style="background:#f5f5f7;border-bottom:1px solid #e0e0e0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-    <div style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:#111;display:flex;align-items:center;gap:8px;">
-      <span>📅</span><span id="detail-date-strip-text"></span>
-    </div>
-    <button onclick="addToCalendar()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:white;border:1.5px solid #d0d0d0;border-radius:999px;font-family:var(--font-display);font-size:0.75rem;font-weight:700;cursor:pointer;color:#111;white-space:nowrap;" onmouseover="this.style.borderColor='#E8161B';this.style.color='#E8161B'" onmouseout="this.style.borderColor='#d0d0d0';this.style.color='#111'">
-      + Add to Calendar
-    </button>
+  <div id="detail-date-strip" style="display:none;background:#f5f5f7;border-bottom:1px solid #e0e0e0;padding:14px 20px;text-align:center;">
+    <span id="detail-strip-text" style="font-size:15px;font-weight:600;color:#111;letter-spacing:-0.01em"></span>
   </div>
 
   <div class="container">
@@ -304,8 +229,9 @@ html, body { overflow-x: hidden; max-width: 100vw; }
           <h1 class="detail-title" id="detail-title"></h1>
           <div class="detail-address-row">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <a id="detail-address" href="#" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;border-bottom:1px solid var(--color-border);" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='inherit'"></a>
-            <span id="detail-distance-wrap" style="display:none">&nbsp;·&nbsp;<span class="detail-distance-inline" id="detail-distance"></span></span>
+            <span id="detail-address"></span>
+            &nbsp;·&nbsp;
+            <span class="detail-distance-inline" id="detail-distance"></span>
           </div>
         </div>
 
@@ -327,7 +253,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
           <div class="detail-map-footer">
             <div class="detail-map-address-text">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              <a id="detail-map-address" href="#" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;font-weight:600;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='inherit'"></a>
+              <span id="detail-map-address"></span>
             </div>
             <a href="#" class="detail-directions-btn" target="_blank" rel="noopener noreferrer" id="directions-link">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
@@ -365,7 +291,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
             </div>
             <div class="detail-info-content">
               <div class="detail-info-label">Location</div>
-              <a class="detail-info-value" id="sidebar-location" href="#" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;display:block;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='inherit'"></a>
+              <div class="detail-info-value" id="sidebar-location"></div>
             </div>
           </div>
           <div class="detail-info-divider"></div>
@@ -375,7 +301,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
             </div>
             <div class="detail-info-content">
               <div class="detail-info-label">Distance</div>
-              <div class="detail-info-value" id="sidebar-distance" style="color:var(--color-text-muted)">Calculating...</div>
+              <div class="detail-info-value" id="sidebar-distance"></div>
             </div>
           </div>
           <div class="detail-info-actions">
@@ -387,8 +313,8 @@ html, body { overflow-x: hidden; max-width: 100vw; }
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
               Share
             </button>
-            <button class="detail-btn-share" onclick="addToCalendar()" style="margin-top:8px">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <button class="detail-btn-share" onclick="addToCalendar()" style="margin-top:8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               Add to Calendar
             </button>
           </div>
@@ -523,15 +449,17 @@ html, body { overflow-x: hidden; max-width: 100vw; }
             <div class="form-group">
               <label class="form-label" for="sale-country">Country <span>*</span></label>
               <select class="form-select" id="sale-country" name="sale-country" required onchange="updateRegions()">
+                <option value="">Select country…</option>
                 <option value="CA">Canada</option>
                 <option value="US">United States</option>
               </select>
+              <span class="form-error" id="err-sale-country" aria-live="polite"></span>
             </div>
+
             <div class="form-group">
-              <label class="form-label" for="sale-province" id="region-label">Province <span>*</span></label>
+              <label class="form-label" for="sale-province">Province / State <span>*</span></label>
               <select class="form-select" id="sale-province" name="sale-province" required>
-                <option value="">Select…</option>
-                <option value="BC">British Columbia</option><option value="AB">Alberta</option><option value="SK">Saskatchewan</option><option value="MB">Manitoba</option><option value="ON">Ontario</option><option value="QC">Quebec</option><option value="NB">New Brunswick</option><option value="NS">Nova Scotia</option><option value="PE">Prince Edward Island</option><option value="NL">Newfoundland &amp; Labrador</option><option value="NT">Northwest Territories</option><option value="YT">Yukon</option><option value="NU">Nunavut</option>
+                <option value="">Select country first…</option>
               </select>
               <span class="form-error" id="err-sale-province" aria-live="polite"></span>
             </div>
@@ -584,6 +512,12 @@ html, body { overflow-x: hidden; max-width: 100vw; }
         </div>
 
         <!-- Spam notice -->
+        <div style="background:#f5f5f7;border:1.5px solid #e0e0e0;border-radius:12px;padding:16px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start">
+          <input type="checkbox" id="terms-agree" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:#E8161B;cursor:pointer" />
+          <label for="terms-agree" style="font-size:14px;color:#444;line-height:1.5;cursor:pointer">
+            I agree to the <a href="#" onclick="showPage('terms');return false;" style="color:#E8161B;font-weight:600;">Terms of Use</a> and confirm my listing is accurate. I understand that false, misleading, or spam listings will be removed.
+          </label>
+        </div>
         <div style="background:var(--color-surface-2);border:1px solid var(--color-divider);border-radius:var(--radius-lg);padding:var(--space-4);margin-bottom:var(--space-6);display:flex;gap:var(--space-3);align-items:flex-start">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="2" style="flex-shrink:0;margin-top:2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <div>
@@ -591,15 +525,6 @@ html, body { overflow-x: hidden; max-width: 100vw; }
             <p style="font-size:var(--text-xs);color:var(--color-text-muted);max-width:none">All listings are automatically screened for spam. Repeated or suspicious submissions are blocked. By submitting you agree to our listing guidelines.</p>
           </div>
         </div>
-
-        <!-- Terms & Conditions required -->
-        <div style="background:#f5f5f7;border:1.5px solid #e0e0e0;border-radius:0.5rem;padding:1rem;margin-bottom:1rem;display:flex;gap:0.75rem;align-items:flex-start">
-          <input type="checkbox" id="terms-agree" style="margin-top:2px;width:18px;height:18px;accent-color:#E8161B;flex-shrink:0;cursor:pointer" />
-          <label for="terms-agree" style="font-size:0.875rem;color:#111;cursor:pointer;line-height:1.5">
-            I agree to the <a href="#" onclick="showPage('terms');return false;" style="color:#E8161B;font-weight:700;">Terms of Use</a> and confirm this is a legitimate personal sale. I understand spam or commercial listings will be removed.
-          </label>
-        </div>
-        <div id="err-terms" style="display:none;color:#dc2626;font-size:0.75rem;font-weight:600;margin-bottom:0.75rem;"></div>
 
         <!-- FIX: submission state — button changes to loading/success/error states -->
         <div style="display:flex;gap:var(--space-4);flex-wrap:wrap;align-items:center">
@@ -659,7 +584,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 
       <details class="faq-item">
         <summary class="faq-question">What areas does Garage Hoppers cover?</summary>
-        <p class="faq-answer">We cover all of Canada and the United States. Set your location and choose a radius to find nearby sales. You can set your search radius up to 200 km from any city or town.</p>
+        <p class="faq-answer">We cover Canada and the United States. You can set your search radius up to 200 km from any city or town across both countries.</p>
       </details>
 
       <details class="faq-item">
@@ -899,29 +824,14 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 // ─── SUPABASE CONFIG ───
 const SUPABASE_URL = 'https://mpgnkvpfgmqegljycedf.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_a5HoXVXgwIYz3Pu249XxUQ_NCFA-tbW';
-let sbClient = null;
+let supabase = null;
 
 // ─── DATE HELPERS ───
 const today = new Date();
 const fmt = d => d.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'});
 const addDays = (d,n) => { const r=new Date(d); r.setDate(r.getDate()+n); return r; };
-const nextSat = (() => { 
-  const d=new Date(today); const day=d.getDay(); 
-  if(day===0) d.setDate(d.getDate()-1); // Sunday → use yesterday (Saturday)
-  else if(day===6) {} // Saturday → use today
-  else d.setDate(d.getDate()+((6-day+7)%7)); // Weekday → next Saturday
-  d.setHours(0,0,0,0); return d; 
-})();
+const nextSat = (() => { const d=new Date(today); const day=d.getDay(); d.setDate(d.getDate()+((6-day+7)%7||7)); return d; })();
 const nextSun = addDays(nextSat,1);
-
-// FIX: Set the date picker min to today so past dates can't be selected
-document.addEventListener('DOMContentLoaded', () => {
-  const dp = document.getElementById('hero-date-picker');
-  if(dp) {
-    const todayStr = today.toISOString().split('T')[0];
-    dp.min = todayStr;
-  }
-});
 
 // ─── SAMPLE FALLBACK DATA ───
 const sampleListings = [
@@ -1007,9 +917,9 @@ function dbRowToListing(row) {
 }
 
 async function loadListingsFromDB() {
-  if(!sbClient) return;
+  if(!supabase) return;
   try {
-    const { data, error } = await sbClient
+    const { data, error } = await supabase
       .from('listings').select('*').eq('status','approved').order('date_start', { ascending: true });
     if(error) { console.warn('Supabase load error:', error.message); return; }
     if(data && data.length > 0) {
@@ -1030,7 +940,7 @@ function showPage(page, listingId) {
   document.getElementById('page-'+page).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
   const showNav = page==='home';
-  
+  document.getElementById('nav-location-btn').style.display=showNav?'flex':'none';
   document.getElementById('nav-search').style.display=showNav?'flex':'none';
   if(page==='home') initMainMap();
   if(page==='detail'&&listingId) renderDetailPage(listingId);
@@ -1041,7 +951,6 @@ function scrollToListings() { document.getElementById('listings-anchor').scrollI
 // ─── FILTER ───
 function getFiltered() {
   let base = listings;
-  // Also apply search query if present
   const q = document.getElementById('nav-search-input')?.value?.trim().toLowerCase();
   if(q) base = base.filter(l =>
     l.title.toLowerCase().includes(q) ||
@@ -1050,7 +959,10 @@ function getFiltered() {
     l.description.toLowerCase().includes(q)
   );
   if(activeDateFilter==='all') return base;
-  if(activeDateFilter==='saved') { const s=getSavedIds(); return base.filter(l=>s.includes(String(l.id))).sort((a,b)=>new Date(a.date_start||0)-new Date(b.date_start||0)); }
+  if(activeDateFilter==='saved') {
+    const savedIds = getSavedIds();
+    return base.filter(l => savedIds.includes(String(l.id))).sort((a,b) => new Date(a.date_start) - new Date(b.date_start));
+  }
   return base.filter(l=>l.dateTag===activeDateFilter);
 }
 
@@ -1086,14 +998,6 @@ function filterByDate(val) {
   scrollToListings();
 }
 
-// ─── SEARCH ───
-document.addEventListener('DOMContentLoaded', () => {
-  const searchInput = document.getElementById('nav-search-input');
-  if(searchInput) {
-    searchInput.addEventListener('input', () => { renderListings(); if(mainMap) updateMapMarkers(); });
-  }
-});
-
 // ─── RENDER LISTINGS ───
 // FIX: removed duplicate category badge from card body — badge on photo is enough
 function renderListings() {
@@ -1119,14 +1023,9 @@ function renderListings() {
         </div>
         <!-- Badge on photo only — no duplicate in card body -->
         <div class="listing-card__badge">${l.categoryLabel}</div>
-        <div style="display:flex;gap:6px;position:absolute;top:var(--space-3);right:var(--space-3)">
-          <button class="listing-card__save" onclick="event.preventDefault();event.stopPropagation();toggleSave(this)" aria-label="Save listing" style="position:static">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          </button>
-          <button class="listing-card__save" onclick="event.preventDefault();event.stopPropagation();shareCard('${l.title}','${l.address}, ${l.city}, ${l.province}')" aria-label="Share listing" style="position:static">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          </button>
-        </div>
+        <button class="listing-card__save" onclick="event.preventDefault();event.stopPropagation();toggleSave(this)" aria-label="Save listing">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
       </div>
       <div class="listing-card__body">
         <div class="listing-card__meta">
@@ -1136,7 +1035,7 @@ function renderListings() {
         <h3 class="listing-card__title">${l.title}</h3>
         <div class="listing-card__location">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <a href="https://maps.google.com/?q=${encodeURIComponent(l.address+', '+l.city+', '+l.province)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;font-size:inherit" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='inherit'">${l.address}, ${l.city}, ${l.province}</a>
+          <a href="https://maps.google.com/?q=${encodeURIComponent(l.address+', '+l.city+', '+l.province)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='inherit'">${l.address}, ${l.city}, ${l.province}</a>
         </div>
       </div>
       <div class="listing-card__footer">
@@ -1158,12 +1057,7 @@ function setView(v) {
   document.getElementById('listings-grid').classList.toggle('hidden',v==='map');
   const mc = document.getElementById('map-view-container');
   mc.classList.toggle('visible',v==='map');
-  if(v==='map') {
-    setTimeout(()=>{ 
-      if(!mainMap) initMainMap(); 
-      else { mainMap.invalidateSize(); updateMapMarkers(); }
-    },100);
-  }
+  if(v==='map') setTimeout(()=>{ if(!mainMap) initMainMap(); else mainMap.invalidateSize(); },50);
 }
 
 // ─── MAPS ───
@@ -1182,17 +1076,7 @@ function updateMapMarkers() {
   const filtered = getFiltered();
   filtered.forEach(l=>{
     const m = L.marker([l.lat,l.lng]).addTo(mainMap);
-    const mUrl = encodeURIComponent(l.address + ', ' + l.city + ', ' + l.province);
-    const lid = l.id;
-    m.bindPopup(
-      `<div style="font-family:sans-serif;max-width:220px">
-        <div style="font-weight:700;font-size:14px;margin-bottom:6px">${l.title}</div>
-        <a href="https://maps.google.com/?q=${mUrl}" target="_blank" style="font-size:12px;color:#E8161B;display:block;margin-bottom:4px;text-decoration:none">📍 ${l.address}, ${l.city}</a>
-        <div style="font-size:12px;color:#666;margin-bottom:8px">📅 ${l.dates} · ${l.hours}</div>
-        <button onclick="openListing('${lid}')" style="background:#E8161B;color:white;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;width:100%">View details →</button>
-      </div>`,
-      {maxWidth:240}
-    );
+    m.bindPopup(`<div style="font-family:sans-serif;max-width:240px;padding:4px 0"><div style="font-weight:700;font-size:14px;margin-bottom:6px;line-height:1.3">${l.title}</div><a href="https://maps.google.com/?q=${encodeURIComponent(l.address+', '+l.city+', '+l.province)}" target="_blank" rel="noopener" style="font-size:12px;color:#666;display:block;margin-bottom:4px;text-decoration:none">📍 ${l.address}, ${l.city}</a><div style="font-size:12px;color:#666;margin-bottom:10px">📅 ${l.dates}${l.hours?' · '+l.hours:''}</div><button onclick="openListing('${l.id}')" style="width:100%;padding:7px 0;background:#E8161B;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">View Details →</button></div>`,{maxWidth:260});
   });
   if(filtered.length>0) mainMap.fitBounds(L.latLngBounds(filtered.map(l=>[l.lat,l.lng])).pad(0.2));
 }
@@ -1230,8 +1114,8 @@ function updateSliderTrack() {
 function applyLocation() {
   const city = document.getElementById('modal-city').value||'Richmond, BC';
   currentCity = city;
-  // nav-city removed
-  // nav-radius removed
+  document.getElementById('nav-city').textContent = city;
+  document.getElementById('nav-radius').textContent = currentRadius+' km';
   document.getElementById('hero-location-display').textContent = city+' · '+currentRadius+' km';
   closeLocationModal(); renderListings(); showToast('Location updated');
 }
@@ -1241,80 +1125,77 @@ document.getElementById('location-modal').addEventListener('click', function(e){
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLocationModal(); });
 
 // ─── DETAIL PAGE ───
-let _currentDetailId = null;
+let currentListingId = null;
+
 function openListing(id) {
-  _currentDetailId = id;
-  history.pushState(null, '', '#listing/' + id);
+  currentListingId = id;
+  history.pushState({listingId: id}, '', '#listing/' + id);
   showPage('detail', id);
 }
-function navigateToHash() {
-  const hash = window.location.hash;
-  if(hash.startsWith('#listing/')) {
-    window._pendingListingId = hash.replace('#listing/', '');
-  }
+
+function navigateListing(direction) {
+  const filtered = getFiltered();
+  const currentIndex = filtered.findIndex(l => String(l.id) === String(currentListingId));
+  if(currentIndex === -1) return;
+  const newIndex = currentIndex + direction;
+  if(newIndex < 0 || newIndex >= filtered.length) return;
+  openListing(filtered[newIndex].id);
 }
+
 window.addEventListener('popstate', function() {
   const hash = window.location.hash;
-  if(hash.startsWith('#listing/')) openListing(hash.replace('#listing/', ''));
-  else showPage('home');
+  if(hash.startsWith('#listing/')) {
+    const id = hash.replace('#listing/','');
+    currentListingId = id;
+    showPage('detail', id);
+  } else {
+    showPage('home');
+  }
 });
-function navigateListing(dir) {
-  const f = getFiltered();
-  const idx = f.findIndex(l => String(l.id) === String(_currentDetailId));
-  if(idx === -1) return;
-  const n = idx + dir;
-  if(n < 0 || n >= f.length) return;
-  openListing(f[n].id);
-}
 
 function renderDetailPage(id) {
   const l = listings.find(x=>String(x.id)===String(id)); if(!l) return;
-  const f = getFiltered();
-  const idx = f.findIndex(x=>String(x.id)===String(id));
-  const prev = document.getElementById('btn-prev');
-  const next = document.getElementById('btn-next');
-  if(prev) prev.style.display = idx > 0 ? 'block' : 'none';
-  if(next) next.style.display = idx < f.length-1 ? 'block' : 'none';
   const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(l.address+', '+l.city+', '+l.province)}`;
   document.title = l.title+' — Garage Hoppers';
+
+  // Show/hide prev/next buttons
+  const filtered = getFiltered();
+  const currentIndex = filtered.findIndex(x => String(x.id) === String(id));
+  const prevBtn = document.getElementById('btn-prev-listing');
+  const nextBtn = document.getElementById('btn-next-listing');
+  if(prevBtn) prevBtn.style.display = currentIndex > 0 ? 'block' : 'none';
+  if(nextBtn) nextBtn.style.display = currentIndex < filtered.length - 1 ? 'block' : 'none';
+
   document.getElementById('detail-title').textContent = l.title;
-  const _strip=document.getElementById('detail-date-strip');
-  const _stripTxt=document.getElementById('detail-strip-text');
-  if(_strip&&l.date_start){try{const _d=new Date(l.date_start+'T12:00:00');let _t='📅 '+_d.toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'});if(l.date_end&&l.date_end!==l.date_start){const _d2=new Date(l.date_end+'T12:00:00');_t+=' – '+_d2.toLocaleDateString('en-CA',{month:'short',day:'numeric'});}if(l.hours)_t+=' · '+l.hours;_stripTxt.textContent=_t;_strip.style.display='block';}catch(e){_strip.style.display='none';}}
-  const stripEl = document.getElementById('detail-date-strip-text');
-  if(stripEl) { let t=l.dates||''; if(l.hours&&l.hours!=='TBD')t+=' · '+l.hours; stripEl.textContent=t; }
+
+  // Date/time strip under photo (Option A1 — light grey)
+  const strip = document.getElementById('detail-date-strip');
+  const stripText = document.getElementById('detail-strip-text');
+  if(strip && l.date_start) {
+    try {
+      const d = new Date(l.date_start + 'T12:00:00');
+      const fmtOpts = {weekday:'long', month:'long', day:'numeric'};
+      let txt = '\u{1F4C5} ' + d.toLocaleDateString('en-CA', fmtOpts);
+      if(l.date_end && l.date_end !== l.date_start) {
+        const d2 = new Date(l.date_end + 'T12:00:00');
+        txt += ' \u2013 ' + d2.toLocaleDateString('en-CA', {month:'short', day:'numeric'});
+      }
+      if(l.hours) txt += ' \u00B7 ' + l.hours;
+      stripText.textContent = txt;
+      strip.style.display = 'block';
+    } catch(e) { strip.style.display = 'none'; }
+  }
   document.getElementById('detail-category').textContent = l.categoryLabel;
   document.getElementById('detail-date').textContent = l.dates;
-  const addrEl = document.getElementById('detail-address');
-  addrEl.textContent = l.address+', '+l.city+', '+l.province;
-  addrEl.href = mapsUrl;
-  
-  const distWrap = document.getElementById('detail-distance-wrap');
-  const distEl = document.getElementById('detail-distance');
-  if(l.distance && l.distance !== '—') {
-    distEl.textContent = l.distance;
-    if(distWrap) distWrap.style.display = 'inline';
-  } else {
-    if(distWrap) distWrap.style.display = 'none';
-  }
+  document.getElementById('detail-address').textContent = l.address+', '+l.city+', '+l.province;
+  document.getElementById('detail-distance').textContent = l.distance;
   document.getElementById('detail-description').textContent = l.description;
   document.getElementById('detail-items').innerHTML = l.items.map(i=>`<span class="item-tag">${i}</span>`).join('');
-  const mapAddrEl = document.getElementById('detail-map-address');
-  mapAddrEl.textContent = l.address+', '+l.city+', '+l.province;
-  mapAddrEl.href = mapsUrl;
+  document.getElementById('detail-map-address').textContent = l.address+', '+l.city+', '+l.province;
   document.getElementById('sidebar-dates').textContent = l.dates;
   document.getElementById('sidebar-hours').textContent = l.hours;
-  const sideLocEl = document.getElementById('sidebar-location');
-  sideLocEl.textContent = l.address+', '+l.city+', '+l.province;
-  sideLocEl.href = mapsUrl;
-  const sideDistEl = document.getElementById('sidebar-distance');
-  if(l.distance && l.distance !== '—') {
-    sideDistEl.textContent = l.distance;
-    sideDistEl.style.color = 'var(--color-black)';
-  } else {
-    sideDistEl.textContent = 'Not available';
-    sideDistEl.style.color = 'var(--color-text-muted)';
-  }
+  document.getElementById('sidebar-location').textContent = l.address+', '+l.city+', '+l.province;
+  document.getElementById('sidebar-distance').textContent = l.distance;
   document.getElementById('directions-link').href = mapsUrl;
   document.getElementById('directions-link-2').href = mapsUrl;
 
@@ -1343,138 +1224,86 @@ function renderDetailPage(id) {
   },200);
 }
 
-// ─── HELPERS ───
-const US_STATES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',DC:'Washington DC',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
-function updateRegions() {
-  const country = document.getElementById('sale-country')?.value;
-  const sel = document.getElementById('sale-province');
-  const lbl = document.getElementById('region-label');
-  if(!sel) return;
-  if(country === 'US') {
-    if(lbl) lbl.innerHTML = 'State <span style="color:var(--color-error)">*</span>';
-    sel.innerHTML = '<option value="">Select state…</option>' + Object.entries(US_STATES).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');
-  } else {
-    if(lbl) lbl.innerHTML = 'Province <span style="color:var(--color-error)">*</span>';
-    sel.innerHTML = '<option value="">Select…</option><option value="BC">British Columbia</option><option value="AB">Alberta</option><option value="SK">Saskatchewan</option><option value="MB">Manitoba</option><option value="ON">Ontario</option><option value="QC">Quebec</option><option value="NB">New Brunswick</option><option value="NS">Nova Scotia</option><option value="PE">Prince Edward Island</option><option value="NL">Newfoundland & Labrador</option><option value="NT">Northwest Territories</option><option value="YT">Yukon</option><option value="NU">Nunavut</option>';
-  }
+// ─── SAVED LISTINGS ───
+function getSavedIds() {
+  try { return JSON.parse(localStorage.getItem('gh_saved') || '[]'); } catch(e) { return []; }
 }
-function getSavedIds() { try { return JSON.parse(localStorage.getItem('gh_saved')||'[]'); } catch(e) { return []; } }
-function setSavedIds(ids) { try { localStorage.setItem('gh_saved', JSON.stringify(ids)); } catch(e) {} }
+
+function setSavedIds(ids) {
+  try { localStorage.setItem('gh_saved', JSON.stringify(ids)); } catch(e) {}
+}
+
+function toggleSave(btn) {
+  const card = btn.closest('.listing-card');
+  const listingId = card?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+  if(!listingId) return;
+
+  const saved = getSavedIds();
+  const isSaved = saved.includes(listingId);
+
+  if(isSaved) {
+    setSavedIds(saved.filter(id => id !== listingId));
+    btn.classList.remove('saved');
+    btn.querySelector('svg').style.fill = 'none';
+    btn.querySelector('svg').style.stroke = 'currentColor';
+    showToast('Removed from saved sales');
+  } else {
+    setSavedIds([...saved, listingId]);
+    btn.classList.add('saved');
+    btn.querySelector('svg').style.fill = 'var(--color-primary)';
+    btn.querySelector('svg').style.stroke = 'var(--color-primary)';
+    showToast('Saved! View in Saved Sales ❤️');
+  }
+
+  // If currently viewing saved, re-render
+  if(activeDateFilter === 'saved') renderListings();
+}
+
 function restoreSavedStates() {
   const saved = getSavedIds();
   document.querySelectorAll('.listing-card').forEach(card => {
-    const m = card.getAttribute('onclick')?.match(/'([^']+)'/);
-    if(m && saved.includes(m[1])) {
+    const id = card.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+    if(id && saved.includes(id)) {
       const btn = card.querySelector('.listing-card__save');
-      if(btn) { btn.classList.add('saved'); btn.querySelector('svg').style.fill='var(--color-primary)'; btn.querySelector('svg').style.stroke='var(--color-primary)'; }
+      if(btn) {
+        btn.classList.add('saved');
+        btn.querySelector('svg').style.fill = 'var(--color-primary)';
+        btn.querySelector('svg').style.stroke = 'var(--color-primary)';
+      }
     }
   });
 }
-function toggleSave(btn) {
-  const card = btn.closest('.listing-card');
-  const m = card?.getAttribute('onclick')?.match(/'([^']+)'/);
-  if(!m) return;
-  const id = m[1];
-  const saved = getSavedIds();
-  const isSaved = saved.includes(id);
-  if(isSaved) {
-    setSavedIds(saved.filter(x=>x!==id));
-    btn.classList.remove('saved'); btn.querySelector('svg').style.fill='none'; btn.querySelector('svg').style.stroke='currentColor';
-    showToast('Removed from saved sales');
-  } else {
-    setSavedIds([...saved,id]);
-    btn.classList.add('saved'); btn.querySelector('svg').style.fill='var(--color-primary)'; btn.querySelector('svg').style.stroke='var(--color-primary)';
-    showToast('Saved! Tap Saved Sales to see all ❤️');
-  }
-  if(activeDateFilter==='saved') renderListings();
-}
 
-function shareCard(title, address) {
+function shareListing() {
+  const title = document.getElementById('detail-title')?.textContent || 'Garage Sale';
+  const l = listings.find(x => String(x.id) === String(currentListingId));
+  const addr = l ? l.address + ', ' + l.city : '';
+  const shareUrl = 'https://garagehoppers.com/#listing/' + (currentListingId || '');
   const shareData = {
     title: title,
-    text: 'Check out this sale on Garage Hoppers: ' + title + ' — ' + address,
-    url: 'https://garagehoppers.com'
+    text: 'Check out this sale on Garage Hoppers: ' + title + (addr ? ' — ' + addr : ''),
+    url: shareUrl
   };
-  if(navigator.share) {
-    navigator.share(shareData).catch(() => {});
-  } else {
-    navigator.clipboard.writeText(shareData.text + ' ' + shareData.url)
-      .then(() => showToast('Copied to clipboard!'))
-      .catch(() => showToast('garagehoppers.com'));
-  }
+  if(navigator.share) navigator.share(shareData).catch(()=>{});
+  else navigator.clipboard.writeText(shareUrl).then(()=>showToast('Link copied!')).catch(()=>showToast('garagehoppers.com'));
 }
 
 function addToCalendar() {
-  const l = listings.find(x=>String(x.id)===String(_currentDetailId));
-  if(!l) return;
-  const sd = (l.date_start||'').replace(/-/g,'');
-  const ed = (l.date_end||l.date_start||'').replace(/-/g,'');
-  let st='T090000', et='T140000';
-  if(l.hours) {
-    const tm = l.hours.match(/(d+):(d+)s*(AM|PM).*?(d+):(d+)s*(AM|PM)/i);
-    if(tm) {
-      let sh=parseInt(tm[1]),sm=parseInt(tm[2]),sa=tm[3].toUpperCase();
-      let eh=parseInt(tm[4]),em=parseInt(tm[5]),ea=tm[6].toUpperCase();
-      if(sa==='PM'&&sh!==12)sh+=12;if(sa==='AM'&&sh===12)sh=0;
-      if(ea==='PM'&&eh!==12)eh+=12;if(ea==='AM'&&eh===12)eh=0;
-      st='T'+String(sh).padStart(2,'0')+String(sm).padStart(2,'0')+'00';
-      et='T'+String(eh).padStart(2,'0')+String(em).padStart(2,'0')+'00';
-    }
-  }
-  const title=encodeURIComponent(l.title);
-  const loc=encodeURIComponent(l.address+', '+l.city+', '+l.province);
-  const desc=encodeURIComponent(l.description||'Garage sale on Garage Hoppers');
-  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  const l = listings.find(x => String(x.id) === String(currentListingId));
+  if(!l || !l.date_start) { showToast('No date available for this listing'); return; }
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const sd = l.date_start.replace(/-/g,'');
+  const ed = (l.date_end || l.date_start).replace(/-/g,'');
+  const loc = l.address + ', ' + l.city + ', ' + l.province;
+  const url = 'https://garagehoppers.com/#listing/' + l.id;
   if(isIOS) {
-    const ics='BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-SUMMARY:'+l.title+'
-LOCATION:'+l.address+', '+l.city+', '+l.province+'
-DESCRIPTION:'+(l.description||'')+'
-DTSTART:'+sd+st+'
-DTEND:'+ed+et+'
-END:VEVENT
-END:VCALENDAR';
-    const blob=new Blob([ics],{type:'text/calendar'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download='garage-sale.ics';a.click();URL.revokeObjectURL(url);
-  } else {
-    window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+title+'&dates='+sd+st+'/'+ed+et+'&location='+loc+'&details='+desc,'_blank');
-  }
-}
-function addToCalendar(){
-  const l=listings.find(x=>String(x.id)===String(currentListingId));
-  if(!l||!l.date_start){showToast('No date available');return;}
-  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
-  const sd=l.date_start.replace(/-/g,'');
-  const ed=(l.date_end||l.date_start).replace(/-/g,'');
-  const loc=l.address+', '+l.city+', '+l.province;
-  const url='https://garagehoppers.com/#listing/'+l.id;
-  if(isIOS){
-    const ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nDTSTART:'+sd+'T090000\r\nDTEND:'+ed+'T150000\r\nSUMMARY:'+l.title+'\r\nLOCATION:'+loc+'\r\nDESCRIPTION:'+url+'\r\nEND:VEVENT\r\nEND:VCALENDAR';
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'}));
-    a.download='garage-sale.ics';a.click();
+    const ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nDTSTART:'+sd+'T090000\r\nDTEND:'+ed+'T150000\r\nSUMMARY:'+l.title+'\r\nLOCATION:'+loc+'\r\nDESCRIPTION:'+url+'\r\nEND:VEVENT\r\nEND:VCALENDAR';
+    const blob = new Blob([ics], {type:'text/calendar'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'garage-sale.ics'; a.click();
+    URL.revokeObjectURL(a.href);
   } else {
     window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(l.title)+'&dates='+sd+'T090000/'+ed+'T150000&location='+encodeURIComponent(loc)+'&details='+encodeURIComponent(url),'_blank');
-  }
-}
-function shareListing() {
-  const title = document.getElementById('detail-title')?.textContent || 'Garage Sale';
-  const address = document.getElementById('detail-address')?.textContent || '';
-  const shareData = {
-    title: title,
-    text: 'Check out this sale on Garage Hoppers: ' + title + (address ? ' — ' + address : ''),
-    url: 'https://garagehoppers.com'
-  };
-  if(navigator.share) {
-    navigator.share(shareData).catch(() => {});
-  } else {
-    // Fallback for desktop — copy to clipboard
-    navigator.clipboard.writeText(shareData.text + ' ' + shareData.url)
-      .then(() => showToast('Copied to clipboard!'))
-      .catch(() => showToast('garagehoppers.com'));
   }
 }
 
@@ -1538,13 +1367,6 @@ function validateForm() {
   const startDate = document.getElementById('sale-start')?.value;
   if(!startDate) { setFieldError('sale-start','err-sale-start','Please select a start date.'); valid=false; }
 
-  const termsOk = document.getElementById('terms-agree')?.checked;
-  if(!termsOk) {
-    const e=document.getElementById('err-terms');
-    if(e){e.textContent='Please agree to the Terms of Use to continue.';e.style.display='block';}
-    valid=false;
-  }
-
   // Scroll to first error
   if(!valid) {
     const firstErr = document.querySelector('.form-error[style*="block"]');
@@ -1571,7 +1393,15 @@ async function submitListing(e) {
   submitBtn.disabled = true;
   submitBtn.textContent = 'Submitting…';
 
-  const _tc=document.getElementById('terms-agree');if(_tc&&!_tc.checked){_tc.parentElement.style.outline='2px solid #E8161B';showToast('Please agree to the Terms of Use.');_tc.focus();return;}
+  // Check terms checkbox first
+  const termsCheckbox = document.getElementById('terms-agree');
+  if(termsCheckbox && !termsCheckbox.checked) {
+    termsCheckbox.closest('div').style.borderColor = '#E8161B';
+    showToast('Please agree to the Terms of Use before submitting.');
+    termsCheckbox.focus();
+    return;
+  }
+
   // Gather values — IDs now match the form exactly
   const title        = document.getElementById('sale-title')?.value?.trim() || '';
   const category     = document.getElementById('sale-type')?.value || 'garage';
@@ -1608,9 +1438,9 @@ async function submitListing(e) {
   document.getElementById('form-success').style.display = 'none';
   document.getElementById('form-error-banner').style.display = 'none';
 
-  if(sbClient) {
+  if(supabase) {
     try {
-      const { error } = await sbClient.from('listings').insert([listing]);
+      const { error } = await supabase.from('listings').insert([listing]);
       if(error) throw error;
       // Show success state
       document.getElementById('form-success').style.display = 'block';
@@ -1639,65 +1469,78 @@ function showToast(msg) {
 }
 
 // ─── INIT ───
-function initApp() {
-  // location pill removed from nav
+// ─── CANADA + US REGION SELECTOR ───
+const CA_PROVINCES = [
+  ['BC','British Columbia'],['AB','Alberta'],['SK','Saskatchewan'],['MB','Manitoba'],
+  ['ON','Ontario'],['QC','Quebec'],['NB','New Brunswick'],['NS','Nova Scotia'],
+  ['PE','Prince Edward Island'],['NL','Newfoundland & Labrador'],['YT','Yukon'],
+  ['NT','Northwest Territories'],['NU','Nunavut']
+];
+const US_STATES = [
+  ['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],
+  ['CO','Colorado'],['CT','Connecticut'],['DC','Washington, DC'],['DE','Delaware'],
+  ['FL','Florida'],['GA','Georgia'],['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],
+  ['IN','Indiana'],['IA','Iowa'],['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],
+  ['ME','Maine'],['MD','Maryland'],['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],
+  ['MS','Mississippi'],['MO','Missouri'],['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],
+  ['NH','New Hampshire'],['NJ','New Jersey'],['NM','New Mexico'],['NY','New York'],
+  ['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],['OK','Oklahoma'],['OR','Oregon'],
+  ['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],['SD','South Dakota'],
+  ['TN','Tennessee'],['TX','Texas'],['UT','Utah'],['VT','Vermont'],['VA','Virginia'],
+  ['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming']
+];
+function updateRegions() {
+  const country = document.getElementById('sale-country')?.value;
+  const sel = document.getElementById('sale-province');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">Select…</option>';
+  const regions = country === 'CA' ? CA_PROVINCES : country === 'US' ? US_STATES : [];
+  regions.forEach(([val, label]) => {
+    const opt = document.createElement('option');
+    opt.value = val; opt.textContent = label;
+    sel.appendChild(opt);
+  });
+}
+
+// window.onload fires after ALL scripts including deferred ones have loaded
+window.onload = function() {
+  document.getElementById('nav-location-btn').style.display = 'flex';
   document.getElementById('nav-search').style.display = 'flex';
 
-  // Init Supabase — since script loads synchronously, it's available now
+  // Handle direct link to a listing via hash URL
+  const hash = window.location.hash;
+  if(hash.startsWith('#listing/')) {
+    const id = hash.replace('#listing/','');
+    const tryOpen = setInterval(() => {
+      if(listings.length > 0) { clearInterval(tryOpen); openListing(id); }
+    }, 200);
+    setTimeout(() => clearInterval(tryOpen), 5000);
+  }
+
+  // By window.onload, deferred Supabase script is guaranteed to be ready
   try {
     if(window.supabase && window.supabase.createClient) {
-      sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
   } catch(e) {
     console.warn('Supabase init failed:', e);
   }
 
   renderListings();
-  if(window._pendingListingId && listings.length > 0) { const pid=window._pendingListingId; window._pendingListingId=null; setTimeout(()=>openListing(pid),100); }
 
-  if(sbClient) {
+  if(supabase) {
     loadListingsFromDB();
   }
-}
 
-function updateRegions(){
-  const country=document.getElementById('sale-country')?.value;
-  const sel=document.getElementById('sale-province');
-  if(!sel)return;
-  sel.innerHTML='<option value="">Select…</option>';
-  const regions=country==='CA'?[["BC","British Columbia"],["AB","Alberta"],["SK","Saskatchewan"],["MB","Manitoba"],["ON","Ontario"],["QC","Quebec"],["NB","New Brunswick"],["NS","Nova Scotia"],["PE","Prince Edward Island"],["NL","Newfoundland & Labrador"],["YT","Yukon"],["NT","Northwest Territories"],["NU","Nunavut"]]:country==='US'?[["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DC","Washington DC"],["DE","Delaware"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MN","Minnesota"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"]]:[];
-  regions.forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;sel.appendChild(o);});
-}
-window.onload = function() {
-  const _hash=window.location.hash;
-  if(_hash.startsWith('#listing/')){
-    const _hid=_hash.replace('#listing/','');
-    const _ht=setInterval(()=>{if(listings.length>0){clearInterval(_ht);openListing(_hid);}},200);
-    setTimeout(()=>clearInterval(_ht),5000);
-  }
-  // Handle direct link to a listing
-  const _hash = window.location.hash;
-  if(_hash.startsWith('#listing/')) {
-    const _hid = _hash.replace('#listing/','');
-    const _hTimer = setInterval(()=>{ if(listings.length>0){clearInterval(_hTimer);openListing(_hid);}},200);
-    setTimeout(()=>clearInterval(_hTimer),5000);
-  }
-  document.getElementById('nav-search').style.display = 'flex';
-  // Check for shared listing URL on page load
-  if(window.location.hash.startsWith('#listing/')) {
-    window._pendingListingId = window.location.hash.replace('#listing/','');
-  }
-  try {
-    if(window.supabase && window.supabase.createClient) {
-      sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    }
-  } catch(e) { console.warn('Supabase init failed:', e); }
-  renderListings();
-  if(sbClient) loadListingsFromDB();
+  // Wire up search input
   const searchInput = document.getElementById('nav-search-input');
-  if(searchInput) searchInput.addEventListener('input', () => { renderListings(); if(mainMap) updateMapMarkers(); });
+  if(searchInput) {
+    searchInput.addEventListener('input', () => { renderListings(); if(mainMap) updateMapMarkers(); });
+  }
+
+  // Set date picker min to today
   const dp = document.getElementById('hero-date-picker');
-  if(dp) dp.min = new Date().toISOString().split('T')[0];
+  if(dp) dp.min = today.toISOString().split('T')[0];
 };
 </script>
 </body>
