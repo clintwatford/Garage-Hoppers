@@ -32,6 +32,29 @@
 <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
+<style>
+/* Mobile overflow fix */
+html, body { overflow-x: hidden; max-width: 100vw; }
+.fab-post { background: #464646 !important; box-shadow: 0 4px 20px rgba(0,0,0,0.35) !important; }
+.fab-post:hover { background: #2e2e2e !important; }
+@media (max-width: 640px) {
+  .navbar__inner { padding-inline: 12px; gap: 8px; height: 60px; }
+  .navbar__logo-img { height: 52px !important; width: 52px !important; }
+  #nav-search { flex: 1; min-width: 0; overflow: hidden; }
+  #nav-search input { min-width: 0; width: 100%; }
+  .hero { padding: 2rem 1rem 1.5rem; }
+  .hero__title { font-size: clamp(1.5rem, 6vw, 2.25rem); }
+  .listings-grid { grid-template-columns: 1fr; }
+  .container { padding-inline: 12px; }
+  .filters-bar { flex-wrap: wrap; gap: 8px; }
+  .detail-layout { grid-template-columns: 1fr; }
+  .detail-sidebar { position: static; }
+  .footer__grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .footer__brand { grid-column: 1; }
+  .modal { margin: 1rem; padding: 1.5rem; max-height: 90vh; overflow-y: auto; }
+}
+</style>
+
 
 <!-- ═══════════════════════════════════════════
   NAVBAR
@@ -42,15 +65,10 @@
       <img src="./bunny.jpg" alt="Garage Hoppers bunny logo" class="navbar__logo-img" />
       <div class="navbar__logo-text">
         Garage Hoppers
-        <span>Canada & USA Garage Sale Directory</span>
+        <span>Hunt. Find. Score.</span>
       </div>
     </a>
 
-    <button class="location-pill" id="nav-location-btn" style="display:none" onclick="openLocationModal()" aria-label="Change location">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      <span class="location-pill__city" id="nav-city">Richmond, BC</span>
-      <span class="location-pill__radius" id="nav-radius">50 km</span>
-    </button>
 
     <div class="search-bar" id="nav-search" style="display:none">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -917,9 +935,9 @@ function dbRowToListing(row) {
 }
 
 async function loadListingsFromDB() {
-  if(!supabase) return;
+  if(!sbClient) return;
   try {
-    const { data, error } = await supabase
+    const { data, error } = await sbClient
       .from('listings').select('*').eq('status','approved').order('date_start', { ascending: true });
     if(error) { console.warn('Supabase load error:', error.message); return; }
     if(data && data.length > 0) {
@@ -940,7 +958,6 @@ function showPage(page, listingId) {
   document.getElementById('page-'+page).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
   const showNav = page==='home';
-  document.getElementById('nav-location-btn').style.display=showNav?'flex':'none';
   document.getElementById('nav-search').style.display=showNav?'flex':'none';
   if(page==='home') initMainMap();
   if(page==='detail'&&listingId) renderDetailPage(listingId);
@@ -1114,8 +1131,6 @@ function updateSliderTrack() {
 function applyLocation() {
   const city = document.getElementById('modal-city').value||'Richmond, BC';
   currentCity = city;
-  document.getElementById('nav-city').textContent = city;
-  document.getElementById('nav-radius').textContent = currentRadius+' km';
   document.getElementById('hero-location-display').textContent = city+' · '+currentRadius+' km';
   closeLocationModal(); renderListings(); showToast('Location updated');
 }
@@ -1438,9 +1453,9 @@ async function submitListing(e) {
   document.getElementById('form-success').style.display = 'none';
   document.getElementById('form-error-banner').style.display = 'none';
 
-  if(supabase) {
+  if(sbClient) {
     try {
-      const { error } = await supabase.from('listings').insert([listing]);
+      const { error } = await sbClient.from('listings').insert([listing]);
       if(error) throw error;
       // Show success state
       document.getElementById('form-success').style.display = 'block';
@@ -1504,7 +1519,12 @@ function updateRegions() {
 
 // window.onload fires after ALL scripts including deferred ones have loaded
 window.onload = function() {
-  document.getElementById('nav-location-btn').style.display = 'flex';
+  const _hash=window.location.hash;
+  if(_hash.startsWith('#listing/')){
+    const _hid=_hash.replace('#listing/','');
+    const _ht=setInterval(()=>{if(typeof listings!=='undefined'&&listings.length>0){clearInterval(_ht);openListing(_hid);}},200);
+    setTimeout(()=>clearInterval(_ht),5000);
+  }
   document.getElementById('nav-search').style.display = 'flex';
 
   // Handle direct link to a listing via hash URL
@@ -1520,7 +1540,7 @@ window.onload = function() {
   // By window.onload, deferred Supabase script is guaranteed to be ready
   try {
     if(window.supabase && window.supabase.createClient) {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
   } catch(e) {
     console.warn('Supabase init failed:', e);
@@ -1528,7 +1548,7 @@ window.onload = function() {
 
   renderListings();
 
-  if(supabase) {
+  if(sbClient) {
     loadListingsFromDB();
   }
 
