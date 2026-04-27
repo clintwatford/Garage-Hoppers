@@ -1270,7 +1270,6 @@ async function applyLocation() {
   if(mainMap) updateMapMarkers();
   showToast('Location updated to ' + currentCity);
 }
-}
 
 // FIX: close modal on overlay click AND on Escape key
 document.getElementById('location-modal').addEventListener('click', function(e){ if(e.target===this) closeLocationModal(); });
@@ -1687,6 +1686,11 @@ window.onload = function() {
 
   if(sbClient) {
     loadListingsFromDB();
+  } else {
+    // Retry after short delay in case CDN is still loading
+    setTimeout(() => {
+      if(sbClient) loadListingsFromDB();
+    }, 1000);
   }
 
   // Wire up search input
