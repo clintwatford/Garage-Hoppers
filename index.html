@@ -50,6 +50,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   .navbar__logo-img { height: 52px !important; width: 52px !important; }
   .navbar__logo-text { display: none; }
   .navbar__nav { display: none !important; }
+  #navbar-auth-btn { font-size: 11px; padding: 4px 10px; }
   #nav-search { display: flex !important; flex: 1; min-width: 0; overflow: hidden; max-width: none; }
   #nav-search input { min-width: 0; width: 100%; font-size: 14px; }
   .hero { padding: 2rem 1rem 1.5rem; }
@@ -91,7 +92,9 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       <a href="#" onclick="showPage('contact');return false;" style="font-size:13px;font-weight:600;color:#444;text-decoration:none;white-space:nowrap;" onmouseover="this.style.color='#E8161B'" onmouseout="this.style.color='#444'">Contact</a>
     </nav>
 
-    <div class="navbar__actions"></div>
+    <div class="navbar__actions">
+      <button id="navbar-auth-btn" onclick="handleAuthClick()" class="btn btn--outline btn--sm" style="white-space:nowrap;display:none">Sign In</button>
+    </div>
   </div>
 </header>
 
@@ -565,8 +568,16 @@ html, body { overflow-x: hidden; max-width: 100vw; }
         </div>
 
         <!-- FIX: success / error banner shown after submission -->
-        <div id="form-success" style="display:none;margin-top:var(--space-6);padding:var(--space-4) var(--space-5);background:var(--color-success-highlight);border:1.5px solid var(--color-success);border-radius:var(--radius-lg);color:var(--color-success);font-weight:700;font-family:var(--font-display);">
-          ✓ Your listing has been submitted and is pending review. We'll have it live shortly.
+        <div id="form-success" style="display:none;margin-top:var(--space-6)">
+          <div style="padding:var(--space-4) var(--space-5);background:var(--color-success-highlight);border:1.5px solid var(--color-success);border-radius:var(--radius-lg);color:var(--color-success);font-weight:700;font-family:var(--font-display);margin-bottom:var(--space-4)">
+            ✓ Your listing has been submitted and is pending review. We'll have it live shortly.
+          </div>
+          <div id="post-signin-prompt" style="padding:var(--space-5);background:#f5f5f7;border-radius:var(--radius-lg);text-align:center">
+            <div style="font-size:1.5rem;margin-bottom:var(--space-2)">🔑</div>
+            <p style="font-weight:700;font-family:var(--font-display);margin-bottom:var(--space-2)">Want to edit or cancel your listing later?</p>
+            <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-4)">Create a free account with just your email — no password needed.</p>
+            <button class="btn btn--primary" onclick="openSignInModal()" style="justify-content:center">Create account to manage listing</button>
+          </div>
         </div>
         <div id="form-error-banner" style="display:none;margin-top:var(--space-6);padding:var(--space-4) var(--space-5);background:var(--color-error-highlight);border:1.5px solid var(--color-error);border-radius:var(--radius-lg);color:var(--color-error);font-weight:700;font-family:var(--font-display);">
           ✕ Something went wrong. Please check your details and try again.
@@ -1005,6 +1016,7 @@ let activeDateFilter='all', currentView='grid', mainMap=null, detailMap=null, pr
 
 // ─── PAGE NAV ───
 function showPage(page, listingId) {
+  if(page === 'dashboard') { setTimeout(loadDashboard, 100); }
   document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1680,6 +1692,9 @@ async function submitListing(e) {
       document.getElementById('photo-previews').innerHTML = '';
       document.getElementById('photo-count').textContent = '';
       _selectedFiles = [];
+      // Hide sign-in prompt if already logged in
+      const prompt = document.getElementById('post-signin-prompt');
+      if(prompt && currentUser) prompt.style.display = 'none';
     } catch(err) {
       console.error('Submit error:', err);
       document.getElementById('form-error-banner').style.display = 'block';
@@ -1692,6 +1707,182 @@ async function submitListing(e) {
 
   submitBtn.disabled = false;
   submitBtn.textContent = 'Publish my listing →';
+}
+
+
+// ─── SELLER AUTH ───
+let currentUser = null;
+
+async function initAuth() {
+  if(!sbClient) return;
+  try {
+    const { data: { session } } = await sbClient.auth.getSession();
+    if(session?.user) {
+      currentUser = session.user;
+      updateAuthUI();
+    }
+    // Handle magic link redirect
+    sbClient.auth.onAuthStateChange((event, session) => {
+      if(event === 'SIGNED_IN' && session?.user) {
+        currentUser = session.user;
+        updateAuthUI();
+        showToast('Signed in as ' + session.user.email);
+        // If they were redirected here, show their dashboard
+        if(window.location.hash.includes('access_token')) {
+          history.replaceState({}, '', '/');
+          showPage('dashboard');
+        }
+      } else if(event === 'SIGNED_OUT') {
+        currentUser = null;
+        updateAuthUI();
+      }
+    });
+  } catch(e) { console.warn('Auth init failed:', e.message); }
+}
+
+function updateAuthUI() {
+  const btn = document.getElementById('navbar-auth-btn');
+  if(!btn) return;
+  btn.style.display = 'block';
+  if(currentUser) {
+    btn.textContent = 'My Listings';
+    btn.onclick = () => showPage('dashboard');
+  } else {
+    btn.textContent = 'Sign In';
+    btn.onclick = handleAuthClick;
+  }
+}
+
+function handleAuthClick() {
+  if(currentUser) showPage('dashboard');
+  else openSignInModal();
+}
+
+function openSignInModal() {
+  document.getElementById('signin-modal').classList.add('open');
+  setTimeout(() => document.getElementById('signin-email')?.focus(), 100);
+}
+
+function closeSignInModal() {
+  document.getElementById('signin-modal').classList.remove('open');
+  document.getElementById('signin-status').textContent = '';
+}
+
+async function sendMagicLink() {
+  const email = document.getElementById('signin-email').value.trim();
+  const statusEl = document.getElementById('signin-status');
+  const btn = document.getElementById('signin-btn');
+  if(!email || !email.includes('@')) {
+    statusEl.textContent = 'Please enter a valid email address.';
+    statusEl.style.color = 'var(--color-error)';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  statusEl.textContent = '';
+  try {
+    const { error } = await sbClient.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: 'https://garagehoppers.com' }
+    });
+    if(error) throw error;
+    statusEl.textContent = '✓ Magic link sent! Check your email and click the link.';
+    statusEl.style.color = 'var(--color-success)';
+    btn.textContent = 'Link sent!';
+  } catch(e) {
+    statusEl.textContent = 'Something went wrong. Please try again.';
+    statusEl.style.color = 'var(--color-error)';
+    btn.disabled = false;
+    btn.textContent = 'Send magic link';
+  }
+}
+
+async function signOut() {
+  if(!sbClient) return;
+  await sbClient.auth.signOut();
+  currentUser = null;
+  updateAuthUI();
+  showPage('home');
+  showToast('Signed out');
+}
+
+// ─── SELLER DASHBOARD ───
+async function loadDashboard() {
+  if(!currentUser) { openSignInModal(); return; }
+  const emailEl = document.getElementById('dashboard-email');
+  if(emailEl) emailEl.textContent = currentUser.email;
+
+  const container = document.getElementById('dashboard-listings');
+  if(!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:var(--space-8);color:var(--color-text-muted)">Loading your listings...</div>';
+
+  try {
+    const { data, error } = await sbClient
+      .from('listings')
+      .select('*')
+      .eq('contact_email', currentUser.email)
+      .order('created_at', { ascending: false });
+
+    if(error) throw error;
+
+    if(!data || data.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:var(--space-10);color:var(--color-text-muted)">
+          <div style="font-size:2.5rem;margin-bottom:var(--space-3)">🏷️</div>
+          <p style="font-weight:700;margin-bottom:var(--space-2)">No listings yet</p>
+          <p style="font-size:var(--text-sm);margin-bottom:var(--space-5)">Post your first garage sale — it takes less than 3 minutes.</p>
+          <button class="btn btn--primary" onclick="showPage('post')">+ Post a Sale</button>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = data.map(l => {
+      const statusColor = l.status === 'approved' ? '#16a34a' : l.status === 'rejected' ? '#dc2626' : '#d97706';
+      const statusBg = l.status === 'approved' ? '#f0fff4' : l.status === 'rejected' ? '#fff0f0' : '#fffbeb';
+      const dateStr = l.date_start ? new Date(l.date_start+'T12:00:00').toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'}) : 'No date';
+      const photo = l.photos && l.photos.length > 0 ? l.photos[0] : null;
+      return `
+        <div style="background:white;border:1.5px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-4);display:flex;gap:var(--space-4);align-items:flex-start">
+          <div style="width:80px;height:80px;border-radius:var(--radius-lg);overflow:hidden;flex-shrink:0;background:#f5f5f7">
+            ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover" onerror="this.src='./no-photo.svg'"/>` : `<img src="./no-photo.svg" style="width:100%;height:100%;object-fit:cover"/>`}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;font-family:var(--font-display);font-size:var(--text-base);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.title}</div>
+            <div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:8px">${dateStr} · ${l.city}, ${l.province}</div>
+            <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;align-items:center">
+              <span style="font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;background:${statusBg};color:${statusColor}">${l.status.toUpperCase()}</span>
+              ${l.status !== 'rejected' ? `<button onclick="editListing('${l.id}')" style="font-size:12px;font-weight:600;color:var(--color-primary);background:none;border:none;cursor:pointer;padding:0">Edit</button>` : ''}
+              ${l.status === 'pending' || l.status === 'approved' ? `<button onclick="cancelListing('${l.id}',this)" style="font-size:12px;font-weight:600;color:#dc2626;background:none;border:none;cursor:pointer;padding:0">Cancel listing</button>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = '<div style="text-align:center;padding:var(--space-8);color:var(--color-error)">Could not load listings. Please try again.</div>';
+    console.warn('Dashboard load error:', e.message);
+  }
+}
+
+async function cancelListing(id, btn) {
+  if(!confirm('Cancel this listing? It will be removed from the site.')) return;
+  btn.textContent = 'Cancelling...';
+  btn.disabled = true;
+  try {
+    const { error } = await sbClient.from('listings').update({ status: 'rejected' }).eq('id', id).eq('contact_email', currentUser.email);
+    if(error) throw error;
+    showToast('Listing cancelled');
+    loadDashboard();
+  } catch(e) {
+    showToast('Could not cancel listing. Please try again.');
+    btn.textContent = 'Cancel listing';
+    btn.disabled = false;
+  }
+}
+
+function editListing(id) {
+  // For now, show a toast directing to email
+  // Full edit form is Session 5 scope
+  showToast('To edit your listing, email garagehoppersadmin@gmail.com with your changes.');
 }
 
 function showToast(msg) {
@@ -1768,6 +1959,7 @@ window.onload = function() {
 
   if(sbClient) {
     loadListingsFromDB();
+    initAuth();
   } else {
     // Retry after short delay in case CDN is still loading
     setTimeout(() => {
@@ -1786,5 +1978,55 @@ window.onload = function() {
   if(dp) dp.min = today.toISOString().split('T')[0];
 };
 </script>
+<!-- ═══════════════════════════════════════════
+  SELLER DASHBOARD PAGE
+════════════════════════════════════════════ -->
+<main id="page-dashboard" class="page-section">
+  <div class="container" style="max-width:860px;padding-top:var(--space-8);padding-bottom:var(--space-12)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-6)">
+      <div>
+        <h1 style="font-family:var(--font-display);font-weight:900;font-size:var(--text-2xl);margin-bottom:4px">My Listings</h1>
+        <p id="dashboard-email" style="font-size:var(--text-sm);color:var(--color-text-muted)"></p>
+      </div>
+      <div style="display:flex;gap:var(--space-3)">
+        <button class="btn btn--primary btn--sm" onclick="showPage('post')">+ Post a Sale</button>
+        <button class="btn btn--outline btn--sm" onclick="signOut()">Sign Out</button>
+      </div>
+    </div>
+
+    <div id="dashboard-listings" style="display:grid;gap:var(--space-4)">
+      <div style="text-align:center;padding:var(--space-10);color:var(--color-text-muted)">
+        <div style="font-size:2rem;margin-bottom:var(--space-3)">🏷️</div>
+        <p>Loading your listings...</p>
+      </div>
+    </div>
+  </div>
+</main>
+<!-- SIGN IN MODAL -->
+<div class="modal-overlay" id="signin-modal" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:420px">
+    <div class="modal__header">
+      <h2 class="modal__title">Sign in to manage your listings</h2>
+      <button class="modal__close" onclick="closeSignInModal()" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-5)">Enter your email and we'll send you a magic link — no password needed.</p>
+    <div class="modal__field">
+      <label class="modal__label" for="signin-email">Email address</label>
+      <div class="modal__input-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+        <input class="modal__input" id="signin-email" type="email" placeholder="your@email.com" />
+      </div>
+    </div>
+    <div id="signin-status" style="font-size:13px;min-height:20px;margin-top:8px"></div>
+    <button class="btn btn--primary" id="signin-btn" onclick="sendMagicLink()" style="width:100%;justify-content:center;padding:var(--space-3);margin-top:var(--space-4)">
+      Send magic link
+    </button>
+    <p style="font-size:12px;color:var(--color-text-muted);margin-top:var(--space-4);text-align:center">
+      By signing in you agree to our <a href="#" onclick="showPage('terms');closeSignInModal();return false;" style="color:var(--color-primary)">Terms of Use</a>
+    </p>
+  </div>
+</div>
 </body>
 </html>
