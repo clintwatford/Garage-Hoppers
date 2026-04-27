@@ -539,6 +539,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
               <!-- FIX: id was sale-email — kept as sale-email, JS now reads the correct id -->
               <label class="form-label" for="sale-email">Email</label>
               <input class="form-input" id="sale-email" name="sale-email" type="email" placeholder="you@example.com" />
+              <span id="sale-email-note" style="font-size:12px;color:#666;display:none">Used to manage your listing — never shown publicly.</span>
               <span class="form-hint">Not shown publicly. Used for listing management only.</span>
             </div>
           </div>
@@ -1017,6 +1018,25 @@ let activeDateFilter='all', currentView='grid', mainMap=null, detailMap=null, pr
 // ─── PAGE NAV ───
 function showPage(page, listingId) {
   if(page === 'dashboard') { setTimeout(loadDashboard, 100); }
+  if(page === 'post') {
+    // Auto-fill contact email if signed in
+    setTimeout(() => {
+      const emailField = document.getElementById('sale-email');
+      const noteEl = document.getElementById('sale-email-note');
+      if(emailField && currentUser) {
+        emailField.value = currentUser.email;
+        emailField.readOnly = true;
+        emailField.style.background = '#f5f5f7';
+        emailField.style.color = '#666';
+        if(noteEl) noteEl.style.display = 'block';
+      } else if(emailField) {
+        emailField.readOnly = false;
+        emailField.style.background = '';
+        emailField.style.color = '';
+        if(noteEl) noteEl.style.display = 'none';
+      }
+    }, 100);
+  }
   document.querySelectorAll('.page-section').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
