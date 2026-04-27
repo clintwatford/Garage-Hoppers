@@ -4,6 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Garage Hoppers — Find Garage Sales Near You</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PLACEHOLDER"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PLACEHOLDER');
+</script>
 <meta name="description" content="Find garage sales, estate sales, moving sales, and neighbourhood sales near you across Canada and the United States. Free to list, free to browse." />
 <script type="application/ld+json">
 {
@@ -810,12 +818,26 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       </button>
     </div>
     <div class="modal__field">
-      <label class="modal__label" for="modal-city">City or postal code</label>
+      <label class="modal__label" for="modal-city">City</label>
       <div class="modal__input-wrap">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <input class="modal__input" id="modal-city" type="text" placeholder="e.g. Richmond, BC" value="Richmond, BC" />
+        <input class="modal__input" id="modal-city" type="text" placeholder="e.g. Vancouver" value="Richmond" />
       </div>
     </div>
+    <div class="modal__field" style="margin-top:12px">
+      <label class="modal__label" for="modal-country">Country</label>
+      <select class="modal__input" id="modal-country" onchange="updateModalRegions()" style="padding:10px 12px;font-size:14px;border:1px solid #e0e0e0;border-radius:8px;width:100%;background:white">
+        <option value="CA" selected>Canada</option>
+        <option value="US">United States</option>
+      </select>
+    </div>
+    <div class="modal__field" style="margin-top:12px">
+      <label class="modal__label" for="modal-region">Province / State</label>
+      <select class="modal__input" id="modal-region" style="padding:10px 12px;font-size:14px;border:1px solid #e0e0e0;border-radius:8px;width:100%;background:white">
+        <option value="BC" selected>British Columbia</option>
+      </select>
+    </div>
+    <div id="location-geocode-status" style="font-size:13px;color:#666;margin-top:8px;min-height:18px"></div>
     <div id="location-preview-map"></div>
     <div class="radius-slider-wrap">
       <div class="radius-slider-header">
@@ -916,6 +938,30 @@ const sampleListings = [
 
 let listings = [...sampleListings];
 
+// ─── DISTANCE CALCULATION (Haversine) ───
+function calcDistance(lat, lng) {
+  if(!lat || !lng) return '—';
+  const R = 6371; // km
+  const dLat = (lat - currentLat) * Math.PI / 180;
+  const dLng = (lng - currentLng) * Math.PI / 180;
+  const a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+    Math.cos(currentLat*Math.PI/180)*Math.cos(lat*Math.PI/180)*
+    Math.sin(dLng/2)*Math.sin(dLng/2);
+  const d = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return d < 1 ? (d*1000).toFixed(0)+'m away' : d.toFixed(1)+' km away';
+}
+
+function getDistanceKm(lat, lng) {
+  if(!lat || !lng) return 9999;
+  const R = 6371;
+  const dLat = (lat - currentLat) * Math.PI / 180;
+  const dLng = (lng - currentLng) * Math.PI / 180;
+  const a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+    Math.cos(currentLat*Math.PI/180)*Math.cos(lat*Math.PI/180)*
+    Math.sin(dLng/2)*Math.sin(dLng/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
 function dbRowToListing(row) {
   const start = new Date(row.date_start);
   const end = row.date_end ? new Date(row.date_end) : null;
@@ -931,7 +977,7 @@ function dbRowToListing(row) {
     id: row.id, title: row.title, category: row.category, categoryLabel: row.category_label,
     address: row.address, city: row.city, province: row.province,
     lat: row.lat || 49.1666, lng: row.lng || -123.1336,
-    dateTag, dates, hours: row.hours || 'See listing', distance: '—',
+    dateTag, dates, hours: row.hours || 'See listing', distance: calcDistance(row.lat, row.lng),
     items: row.items || [], description: row.description || '',
     photos: row.photos || [], status: row.status
   };
@@ -970,7 +1016,18 @@ function scrollToListings() { document.getElementById('listings-anchor').scrollI
 
 // ─── FILTER ───
 function getFiltered() {
-  let base = listings;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+
+  // Auto-hide listings more than 1 day past their end date
+  let base = listings.filter(l => {
+    const endDate = l.date_end ? new Date(l.date_end+'T23:59:59') : new Date(l.date_start+'T23:59:59');
+    return endDate >= yesterday;
+  });
+
+  // Filter by radius using real distance
+  base = base.filter(l => getDistanceKm(l.lat, l.lng) <= currentRadius);
+
   const q = document.getElementById('nav-search-input')?.value?.trim().toLowerCase();
   if(q) base = base.filter(l =>
     l.title.toLowerCase().includes(q) ||
@@ -1102,18 +1159,54 @@ function updateMapMarkers() {
 }
 
 // ─── LOCATION MODAL ───
+let currentLat = 49.166, currentLng = -123.133; // Default: Richmond, BC
+
+const MODAL_CA_PROVINCES = [
+  ['BC','British Columbia'],['AB','Alberta'],['SK','Saskatchewan'],['MB','Manitoba'],
+  ['ON','Ontario'],['QC','Quebec'],['NB','New Brunswick'],['NS','Nova Scotia'],
+  ['PE','Prince Edward Island'],['NL','Newfoundland & Labrador'],['YT','Yukon'],
+  ['NT','Northwest Territories'],['NU','Nunavut']
+];
+const MODAL_US_STATES = [
+  ['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],
+  ['CO','Colorado'],['CT','Connecticut'],['DC','Washington DC'],['DE','Delaware'],
+  ['FL','Florida'],['GA','Georgia'],['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],
+  ['IN','Indiana'],['IA','Iowa'],['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],
+  ['ME','Maine'],['MD','Maryland'],['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],
+  ['MS','Mississippi'],['MO','Missouri'],['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],
+  ['NH','New Hampshire'],['NJ','New Jersey'],['NM','New Mexico'],['NY','New York'],
+  ['NC','North Carolina'],['ND','North Dakota'],['OH','Ohio'],['OK','Oklahoma'],['OR','Oregon'],
+  ['PA','Pennsylvania'],['RI','Rhode Island'],['SC','South Carolina'],['SD','South Dakota'],
+  ['TN','Tennessee'],['TX','Texas'],['UT','Utah'],['VT','Vermont'],['VA','Virginia'],
+  ['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming']
+];
+
+function updateModalRegions() {
+  const country = document.getElementById('modal-country')?.value;
+  const sel = document.getElementById('modal-region');
+  if(!sel) return;
+  sel.innerHTML = '';
+  const regions = country === 'CA' ? MODAL_CA_PROVINCES : MODAL_US_STATES;
+  regions.forEach(([v,l]) => {
+    const o = document.createElement('option');
+    o.value = v; o.textContent = l;
+    if(v === 'BC') o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
 function openLocationModal() {
   document.getElementById('location-modal').classList.add('open');
-  // FIX: trap focus inside modal
-  setTimeout(()=>{
+  updateModalRegions();
+  setTimeout(() => {
     document.getElementById('modal-city').focus();
-    if(!previewMap&&typeof L!=='undefined'){
-      previewMap=L.map('location-preview-map',{zoomControl:true,scrollWheelZoom:false}).setView([49.166,-123.133],9);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18}).addTo(previewMap);
-      previewCircle=L.circle([49.166,-123.133],{radius:currentRadius*1000,color:'#E8161B',fillColor:'#E8161B',fillOpacity:0.1,weight:2}).addTo(previewMap);
+    if(!previewMap && typeof L !== 'undefined') {
+      previewMap = L.map('location-preview-map', {zoomControl:true, scrollWheelZoom:false}).setView([currentLat, currentLng], 9);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap', maxZoom:18}).addTo(previewMap);
+      previewCircle = L.circle([currentLat, currentLng], {radius:currentRadius*1000, color:'#E8161B', fillColor:'#E8161B', fillOpacity:0.1, weight:2}).addTo(previewMap);
     } else if(previewMap) previewMap.invalidateSize();
     updateSliderTrack();
-  },100);
+  }, 100);
 }
 
 function closeLocationModal() { document.getElementById('location-modal').classList.remove('open'); }
@@ -1128,14 +1221,55 @@ function updateRadius(val) {
 function updateSliderTrack() {
   const s = document.getElementById('radius-slider');
   const pct = ((parseInt(s.value)-parseInt(s.min))/(parseInt(s.max)-parseInt(s.min))*100).toFixed(1);
-  s.style.setProperty('--slider-pct',pct+'%');
+  s.style.setProperty('--slider-pct', pct+'%');
 }
 
-function applyLocation() {
-  const city = document.getElementById('modal-city').value||'Richmond, BC';
-  currentCity = city;
-  document.getElementById('hero-location-display').textContent = city+' · '+currentRadius+' km';
-  closeLocationModal(); renderListings(); showToast('Location updated');
+async function applyLocation() {
+  const city = document.getElementById('modal-city').value.trim();
+  const country = document.getElementById('modal-country')?.value || 'CA';
+  const region = document.getElementById('modal-region')?.value || 'BC';
+  const statusEl = document.getElementById('location-geocode-status');
+
+  if(!city) { showToast('Please enter a city name'); return; }
+
+  const regionLabel = (country === 'CA' ? MODAL_CA_PROVINCES : MODAL_US_STATES).find(([v])=>v===region)?.[1] || region;
+  const countryLabel = country === 'CA' ? 'Canada' : 'United States';
+  const displayName = city + ', ' + region;
+
+  if(statusEl) statusEl.textContent = 'Finding location...';
+
+  try {
+    const q = encodeURIComponent(city + ', ' + regionLabel + ', ' + countryLabel);
+    const res = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1', {
+      headers: { 'Accept-Language': 'en', 'User-Agent': 'GarageHoppers/1.0' }
+    });
+    const data = await res.json();
+    if(data && data.length > 0) {
+      currentLat = parseFloat(data[0].lat);
+      currentLng = parseFloat(data[0].lon);
+      currentCity = displayName;
+      if(previewMap && previewCircle) {
+        previewMap.setView([currentLat, currentLng], 9);
+        previewCircle.setLatLng([currentLat, currentLng]);
+      }
+      if(statusEl) statusEl.textContent = '✓ Found: ' + data[0].display_name.split(',').slice(0,2).join(',');
+    } else {
+      if(statusEl) statusEl.textContent = '⚠ City not found — try adding province/state';
+      showToast('City not found. Try "Vancouver, BC"');
+      return;
+    }
+  } catch(e) {
+    // Fallback — just use the city name without geocoding
+    currentCity = displayName;
+    if(statusEl) statusEl.textContent = '';
+  }
+
+  document.getElementById('hero-location-display').textContent = currentCity + ' · ' + currentRadius + ' km';
+  closeLocationModal();
+  renderListings();
+  if(mainMap) updateMapMarkers();
+  showToast('Location updated to ' + currentCity);
+}
 }
 
 // FIX: close modal on overlay click AND on Escape key
