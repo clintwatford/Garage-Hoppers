@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="./base.css" />
 <link rel="stylesheet" href="./style.css" />
 </head>
-
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Garage Hoppers","url":"https://garagehoppers.com","description":"Find and list garage sales, estate sales, moving sales, and neighbourhood sales across Canada and the USA."}</script>
 <body>
 <style>
 /* ─── MOBILE OVERFLOW FIX ─── */
@@ -522,8 +522,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 
             <div class="form-group">
               <label class="form-label" for="sale-country">Country <span>*</span></label>
-              <select class="form-select" id="sale-country" name="sale-country" required onchange="1188
-                ()">
+              <select class="form-select" id="sale-country" name="sale-country" required onchange="updateRegions()">
                 <option value="CA">Canada</option>
                 <option value="US">United States</option>
               </select>
@@ -585,7 +584,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
         </div>
 
         <!-- Spam notice -->
-        <div style="background:#f5f5f7;border:1.5px solid #e0e0e0;border-radius:12px;padding:16px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start"><input type="checkbox" id="terms-agree" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:#E8161B;cursor:pointer"/><label for="terms-agree" style="font-size:14px;color:#444;line-height:1.5;cursor:pointer">I agree to the <a href="#" onclick="showPage('terms');return false;" style="color:#E8161B;font-weight:600">Terms of Use</a> and confirm my listing is accurate. False or misleading listings will be removed.</label></div><div style="background:var(--color-surface-2);border:1px solid var(--color-divider);border-radius:var(--radius-lg);padding:var(--space-4);margin-bottom:var(--space-6);display:flex;gap:var(--space-3);align-items:flex-start">
+        <div style="background:var(--color-surface-2);border:1px solid var(--color-divider);border-radius:var(--radius-lg);padding:var(--space-4);margin-bottom:var(--space-6);display:flex;gap:var(--space-3);align-items:flex-start">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="2" style="flex-shrink:0;margin-top:2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <div>
             <div style="font-family:var(--font-display);font-weight:700;font-size:var(--text-sm);margin-bottom:4px">Spam protection</div>
@@ -1184,36 +1183,522 @@ function updateMapMarkers() {
   filtered.forEach(l=>{
     const m = L.marker([l.lat,l.lng]).addTo(mainMap);
     const mUrl = encodeURIComponent(l.address + ', ' + l.city + ', ' + l.province);
-    m.bindPopup('<div style="font-family:sans-serif;max-width:240px;padding:4px 0"><b style="font-size:14px;display:block;margin-bottom:6px">'+l.title+'</b><a href="https://maps.google.com/?q='+encodeURIComponent(l.address+', '+l.city+', '+l.province)+'" target="_blank" style="font-size:12px;color:#666;display:block;margin-bottom:4px;text-decoration:none">📍 '+l.address+', '+l.city+'</a><div style="font-size:12px;color:#666;margin-bottom:10px">📅 '+l.dates+(l.hours?' · '+l.hours:'')+'</div><button onclick="openListing(\''+l.id+'\')" style="width:100%;padding:7px 0;background:#E8161B;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">View Details →</button></div>',{maxWidth:260}); }); }
+    const lid = l.id;
+    m.bindPopup(
+      `<div style="font-family:sans-serif;max-width:220px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:6px">${l.title}</div>
+        <a href="https://maps.google.com/?q=${mUrl}" target="_blank" style="font-size:12px;color:#E8161B;display:block;margin-bottom:4px;text-decoration:none">📍 ${l.address}, ${l.city}</a>
+        <div style="font-size:12px;color:#666;margin-bottom:8px">📅 ${l.dates} · ${l.hours}</div>
+        <button onclick="openListing('${lid}')" style="background:#E8161B;color:white;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;width:100%">View details →</button>
+      </div>`,
+      {maxWidth:240}
+    );
+  });
+  if(filtered.length>0) mainMap.fitBounds(L.latLngBounds(filtered.map(l=>[l.lat,l.lng])).pad(0.2));
+}
 
-// ─── REGION/PROVINCE HELPERS ───
-const PROVINCES = {BC:'British Columbia',AB:'Alberta',SK:'Saskatchewan',MB:'Manitoba',ON:'Ontario',QC:'Quebec',NB:'New Brunswick',NS:'Nova Scotia',PE:'Prince Edward Island',NL:'Newfoundland & Labrador',NT:'Northwest Territories',YT:'Yukon',NU:'Nunavut'};
-const STATES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming',DC:'District of Columbia'};
-function updateRegions(){const sel=document.getElementById('sale-province');if(!sel)return;const country=document.getElementById('sale-country')?.value;sel.innerHTML='<option value="">Select...</option>';const regions=country==='CA'?PROVINCES:STATES;Object.entries(regions).forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;sel.appendChild(o);});}
+// ─── LOCATION MODAL ───
+function openLocationModal() {
+  document.getElementById('location-modal').classList.add('open');
+  // FIX: trap focus inside modal
+  setTimeout(()=>{
+    document.getElementById('modal-city').focus();
+    if(!previewMap&&typeof L!=='undefined'){
+      previewMap=L.map('location-preview-map',{zoomControl:true,scrollWheelZoom:false}).setView([49.166,-123.133],9);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18}).addTo(previewMap);
+      previewCircle=L.circle([49.166,-123.133],{radius:currentRadius*1000,color:'#E8161B',fillColor:'#E8161B',fillOpacity:0.1,weight:2}).addTo(previewMap);
+    } else if(previewMap) previewMap.invalidateSize();
+    updateSliderTrack();
+  },100);
+}
 
+function closeLocationModal() { document.getElementById('location-modal').classList.remove('open'); }
+
+function updateRadius(val) {
+  currentRadius = parseInt(val);
+  document.getElementById('radius-display').textContent = val+' km';
+  updateSliderTrack();
+  if(previewCircle) previewCircle.setRadius(currentRadius*1000);
+}
+
+function updateSliderTrack() {
+  const s = document.getElementById('radius-slider');
+  const pct = ((parseInt(s.value)-parseInt(s.min))/(parseInt(s.max)-parseInt(s.min))*100).toFixed(1);
+  s.style.setProperty('--slider-pct',pct+'%');
+}
+
+function applyLocation() {
+  const city = document.getElementById('modal-city').value||'Richmond, BC';
+  currentCity = city;
+  // nav-city removed
+  // nav-radius removed
+  document.getElementById('hero-location-display').textContent = city+' · '+currentRadius+' km';
+  closeLocationModal(); renderListings(); showToast('Location updated');
+}
+
+// FIX: close modal on overlay click AND on Escape key
+document.getElementById('location-modal').addEventListener('click', function(e){ if(e.target===this) closeLocationModal(); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLocationModal(); });
+
+// ─── DETAIL PAGE ───
+let _currentDetailId = null;
+function openListing(id) {
+  _currentDetailId = id;
+  history.pushState(null, '', '#listing/' + id);
+  showPage('detail', id);
+}
+function navigateToHash() {
+  const hash = window.location.hash;
+  if(hash.startsWith('#listing/')) {
+    window._pendingListingId = hash.replace('#listing/', '');
+  }
+}
+window.addEventListener('popstate', function() {
+  const hash = window.location.hash;
+  if(hash.startsWith('#listing/')) openListing(hash.replace('#listing/', ''));
+  else showPage('home');
+});
+function navigateListing(dir) {
+  const f = getFiltered();
+  const idx = f.findIndex(l => String(l.id) === String(_currentDetailId));
+  if(idx === -1) return;
+  const n = idx + dir;
+  if(n < 0 || n >= f.length) return;
+  openListing(f[n].id);
+}
+
+function renderDetailPage(id) {
+  const l = listings.find(x=>String(x.id)===String(id)); if(!l) return;
+  const f = getFiltered();
+  const idx = f.findIndex(x=>String(x.id)===String(id));
+  const prev = document.getElementById('btn-prev');
+  const next = document.getElementById('btn-next');
+  if(prev) prev.style.display = idx > 0 ? 'block' : 'none';
+  if(next) next.style.display = idx < f.length-1 ? 'block' : 'none';
+  const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(l.address+', '+l.city+', '+l.province)}`;
+  document.title = l.title+' — Garage Hoppers';
+  document.getElementById('detail-title').textContent = l.title;
+  const _strip=document.getElementById('detail-date-strip');
+  const _stripTxt=document.getElementById('detail-strip-text');
+  if(_strip&&l.date_start){try{const _d=new Date(l.date_start+'T12:00:00');let _t='📅 '+_d.toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'});if(l.date_end&&l.date_end!==l.date_start){const _d2=new Date(l.date_end+'T12:00:00');_t+=' – '+_d2.toLocaleDateString('en-CA',{month:'short',day:'numeric'});}if(l.hours)_t+=' · '+l.hours;_stripTxt.textContent=_t;_strip.style.display='block';}catch(e){_strip.style.display='none';}}
+  const stripEl = document.getElementById('detail-date-strip-text');
+  if(stripEl) { let t=l.dates||''; if(l.hours&&l.hours!=='TBD')t+=' · '+l.hours; stripEl.textContent=t; }
+  document.getElementById('detail-category').textContent = l.categoryLabel;
+  document.getElementById('detail-date').textContent = l.dates;
+  const addrEl = document.getElementById('detail-address');
+  addrEl.textContent = l.address+', '+l.city+', '+l.province;
+  addrEl.href = mapsUrl;
+  
+  const distWrap = document.getElementById('detail-distance-wrap');
+  const distEl = document.getElementById('detail-distance');
+  if(l.distance && l.distance !== '—') {
+    distEl.textContent = l.distance;
+    if(distWrap) distWrap.style.display = 'inline';
+  } else {
+    if(distWrap) distWrap.style.display = 'none';
+  }
+  document.getElementById('detail-description').textContent = l.description;
+  document.getElementById('detail-items').innerHTML = l.items.map(i=>`<span class="item-tag">${i}</span>`).join('');
+  const mapAddrEl = document.getElementById('detail-map-address');
+  mapAddrEl.textContent = l.address+', '+l.city+', '+l.province;
+  mapAddrEl.href = mapsUrl;
+  document.getElementById('sidebar-dates').textContent = l.dates;
+  document.getElementById('sidebar-hours').textContent = l.hours;
+  const sideLocEl = document.getElementById('sidebar-location');
+  sideLocEl.textContent = l.address+', '+l.city+', '+l.province;
+  sideLocEl.href = mapsUrl;
+  const sideDistEl = document.getElementById('sidebar-distance');
+  if(l.distance && l.distance !== '—') {
+    sideDistEl.textContent = l.distance;
+    sideDistEl.style.color = 'var(--color-black)';
+  } else {
+    sideDistEl.textContent = 'Not available';
+    sideDistEl.style.color = 'var(--color-text-muted)';
+  }
+  document.getElementById('directions-link').href = mapsUrl;
+  document.getElementById('directions-link-2').href = mapsUrl;
+
+  const photos = document.getElementById('detail-photos');
+  if(!l.photos || l.photos.length===0){
+    photos.className='detail-gallery detail-gallery--single';
+    photos.innerHTML=`<img src="./no-photo.svg" alt="No photo available" class="detail-gallery__main" style="object-fit:contain;background:#f5f5f7"/>`;
+  } else if(l.photos.length===1){
+    photos.className='detail-gallery detail-gallery--single';
+    photos.innerHTML=`<img src="${l.photos[0]}" alt="${l.title}" class="detail-gallery__main" onerror="this.src='./no-photo.svg';this.style.objectFit='contain'"/>`;
+  } else {
+    photos.className='detail-gallery detail-gallery--multi';
+    const thumbs=l.photos.slice(1,3).map(p=>`<img src="${p}" alt="" class="detail-gallery__thumb" onerror="this.src='./no-photo.svg'"/>`).join('');
+    photos.innerHTML=`<img src="${l.photos[0]}" alt="${l.title}" class="detail-gallery__main" onerror="this.src='./no-photo.svg'"/><div class="detail-gallery__thumbs">${thumbs}</div>`;
+  }
+
+  if(detailMap){ detailMap.remove(); detailMap=null; }
+  setTimeout(()=>{
+    if(typeof L==='undefined') return;
+    detailMap=L.map('detail-map',{zoomControl:true,scrollWheelZoom:false}).setView([l.lat,l.lng],15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18}).addTo(detailMap);
+    const icon=L.divIcon({className:'',html:`<div style="width:36px;height:36px;background:var(--color-primary);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3)"></div>`,iconSize:[36,36],iconAnchor:[18,36]});
+    L.marker([l.lat,l.lng],{icon}).addTo(detailMap)
+      .bindPopup(`<div style="font-family:sans-serif;font-size:13px;font-weight:600;padding:2px 0">${l.address}, ${l.city}</div>`)
+      .openPopup();
+  },200);
+}
+
+// ─── HELPERS ───
+const US_STATES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',DC:'Washington DC',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
+function updateRegions() {
+  const country = document.getElementById('sale-country')?.value;
+  const sel = document.getElementById('sale-province');
+  const lbl = document.getElementById('region-label');
+  if(!sel) return;
+  if(country === 'US') {
+    if(lbl) lbl.innerHTML = 'State <span style="color:var(--color-error)">*</span>';
+    sel.innerHTML = '<option value="">Select state…</option>' + Object.entries(US_STATES).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('');
+  } else {
+    if(lbl) lbl.innerHTML = 'Province <span style="color:var(--color-error)">*</span>';
+    sel.innerHTML = '<option value="">Select…</option><option value="BC">British Columbia</option><option value="AB">Alberta</option><option value="SK">Saskatchewan</option><option value="MB">Manitoba</option><option value="ON">Ontario</option><option value="QC">Quebec</option><option value="NB">New Brunswick</option><option value="NS">Nova Scotia</option><option value="PE">Prince Edward Island</option><option value="NL">Newfoundland & Labrador</option><option value="NT">Northwest Territories</option><option value="YT">Yukon</option><option value="NU">Nunavut</option>';
+  }
+}
+function getSavedIds() { try { return JSON.parse(localStorage.getItem('gh_saved')||'[]'); } catch(e) { return []; } }
+function setSavedIds(ids) { try { localStorage.setItem('gh_saved', JSON.stringify(ids)); } catch(e) {} }
+function restoreSavedStates() {
+  const saved = getSavedIds();
+  document.querySelectorAll('.listing-card').forEach(card => {
+    const m = card.getAttribute('onclick')?.match(/'([^']+)'/);
+    if(m && saved.includes(m[1])) {
+      const btn = card.querySelector('.listing-card__save');
+      if(btn) { btn.classList.add('saved'); btn.querySelector('svg').style.fill='var(--color-primary)'; btn.querySelector('svg').style.stroke='var(--color-primary)'; }
+    }
+  });
+}
+function toggleSave(btn) {
+  const card = btn.closest('.listing-card');
+  const m = card?.getAttribute('onclick')?.match(/'([^']+)'/);
+  if(!m) return;
+  const id = m[1];
+  const saved = getSavedIds();
+  const isSaved = saved.includes(id);
+  if(isSaved) {
+    setSavedIds(saved.filter(x=>x!==id));
+    btn.classList.remove('saved'); btn.querySelector('svg').style.fill='none'; btn.querySelector('svg').style.stroke='currentColor';
+    showToast('Removed from saved sales');
+  } else {
+    setSavedIds([...saved,id]);
+    btn.classList.add('saved'); btn.querySelector('svg').style.fill='var(--color-primary)'; btn.querySelector('svg').style.stroke='var(--color-primary)';
+    showToast('Saved! Tap Saved Sales to see all ❤️');
+  }
+  if(activeDateFilter==='saved') renderListings();
+}
+
+function shareCard(title, address) {
+  const shareData = {
+    title: title,
+    text: 'Check out this sale on Garage Hoppers: ' + title + ' — ' + address,
+    url: 'https://garagehoppers.com'
+  };
+  if(navigator.share) {
+    navigator.share(shareData).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(shareData.text + ' ' + shareData.url)
+      .then(() => showToast('Copied to clipboard!'))
+      .catch(() => showToast('garagehoppers.com'));
+  }
+}
+
+function addToCalendar() {
+  const l = listings.find(x=>String(x.id)===String(_currentDetailId));
+  if(!l) return;
+  const sd = (l.date_start||'').replace(/-/g,'');
+  const ed = (l.date_end||l.date_start||'').replace(/-/g,'');
+  let st='T090000', et='T140000';
+  if(l.hours) {
+    const tm = l.hours.match(/(d+):(d+)s*(AM|PM).*?(d+):(d+)s*(AM|PM)/i);
+    if(tm) {
+      let sh=parseInt(tm[1]),sm=parseInt(tm[2]),sa=tm[3].toUpperCase();
+      let eh=parseInt(tm[4]),em=parseInt(tm[5]),ea=tm[6].toUpperCase();
+      if(sa==='PM'&&sh!==12)sh+=12;if(sa==='AM'&&sh===12)sh=0;
+      if(ea==='PM'&&eh!==12)eh+=12;if(ea==='AM'&&eh===12)eh=0;
+      st='T'+String(sh).padStart(2,'0')+String(sm).padStart(2,'0')+'00';
+      et='T'+String(eh).padStart(2,'0')+String(em).padStart(2,'0')+'00';
+    }
+  }
+  const title=encodeURIComponent(l.title);
+  const loc=encodeURIComponent(l.address+', '+l.city+', '+l.province);
+  const desc=encodeURIComponent(l.description||'Garage sale on Garage Hoppers');
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  if(isIOS) {
+    const ics='BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+SUMMARY:'+l.title+'
+LOCATION:'+l.address+', '+l.city+', '+l.province+'
+DESCRIPTION:'+(l.description||'')+'
+DTSTART:'+sd+st+'
+DTEND:'+ed+et+'
+END:VEVENT
+END:VCALENDAR';
+    const blob=new Blob([ics],{type:'text/calendar'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='garage-sale.ics';a.click();URL.revokeObjectURL(url);
+  } else {
+    window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+title+'&dates='+sd+st+'/'+ed+et+'&location='+loc+'&details='+desc,'_blank');
+  }
+}
+function addToCalendar(){
+  const l=listings.find(x=>String(x.id)===String(currentListingId));
+  if(!l||!l.date_start){showToast('No date available');return;}
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  const sd=l.date_start.replace(/-/g,'');
+  const ed=(l.date_end||l.date_start).replace(/-/g,'');
+  const loc=l.address+', '+l.city+', '+l.province;
+  const url='https://garagehoppers.com/#listing/'+l.id;
+  if(isIOS){
+    const ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nDTSTART:'+sd+'T090000\r\nDTEND:'+ed+'T150000\r\nSUMMARY:'+l.title+'\r\nLOCATION:'+loc+'\r\nDESCRIPTION:'+url+'\r\nEND:VEVENT\r\nEND:VCALENDAR';
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'}));
+    a.download='garage-sale.ics';a.click();
+  } else {
+    window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(l.title)+'&dates='+sd+'T090000/'+ed+'T150000&location='+encodeURIComponent(loc)+'&details='+encodeURIComponent(url),'_blank');
+  }
+}
+function shareListing() {
+  const title = document.getElementById('detail-title')?.textContent || 'Garage Sale';
+  const address = document.getElementById('detail-address')?.textContent || '';
+  const shareData = {
+    title: title,
+    text: 'Check out this sale on Garage Hoppers: ' + title + (address ? ' — ' + address : ''),
+    url: 'https://garagehoppers.com'
+  };
+  if(navigator.share) {
+    navigator.share(shareData).catch(() => {});
+  } else {
+    // Fallback for desktop — copy to clipboard
+    navigator.clipboard.writeText(shareData.text + ' ' + shareData.url)
+      .then(() => showToast('Copied to clipboard!'))
+      .catch(() => showToast('garagehoppers.com'));
+  }
+}
+
+function previewPhotos(input) {
+  const previews = document.getElementById('photo-previews'); previews.innerHTML='';
+  Array.from(input.files).slice(0,10).forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.style.cssText='position:relative;aspect-ratio:1;border-radius:var(--radius-lg);overflow:hidden';
+      div.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover"/><button onclick="this.parentElement.remove()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:white;border-radius:50%;width:24px;height:24px;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer" aria-label="Remove photo">×</button>`;
+      previews.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ─── FORM VALIDATION HELPERS ───
+function setFieldError(fieldId, errId, message) {
+  const field = document.getElementById(fieldId);
+  const errEl = document.getElementById(errId);
+  if(!field || !errEl) return;
+  if(message) {
+    field.style.borderColor = 'var(--color-error)';
+    errEl.textContent = message;
+    errEl.style.display = 'block';
+  } else {
+    field.style.borderColor = '';
+    errEl.textContent = '';
+    errEl.style.display = 'none';
+  }
+}
+
+function clearAllErrors() {
+  document.querySelectorAll('.form-error').forEach(e=>{ e.textContent=''; e.style.display='none'; });
+  document.querySelectorAll('.form-input,.form-textarea,.form-select').forEach(f=>{ f.style.borderColor=''; });
+}
+
+function validateForm() {
+  let valid = true;
+  clearAllErrors();
+
+  const title = document.getElementById('sale-title')?.value?.trim();
+  if(!title) { setFieldError('sale-title','err-sale-title','Please enter a sale title.'); valid=false; }
+
+  const type = document.getElementById('sale-type')?.value;
+  if(!type) { setFieldError('sale-type','err-sale-type','Please select a sale type.'); valid=false; }
+
+  const desc = document.getElementById('sale-desc')?.value?.trim();
+  if(!desc) { setFieldError('sale-desc','err-sale-desc','Please add a description.'); valid=false; }
+
+  const address = document.getElementById('sale-address')?.value?.trim();
+  if(!address) { setFieldError('sale-address','err-sale-address','Please enter a street address.'); valid=false; }
+
+  const city = document.getElementById('sale-city')?.value?.trim();
+  if(!city) { setFieldError('sale-city','err-sale-city','Please enter a city.'); valid=false; }
+
+  const province = document.getElementById('sale-province')?.value;
+  if(!province) { setFieldError('sale-province','err-sale-province','Please select a province.'); valid=false; }
+
+  const startDate = document.getElementById('sale-start')?.value;
+  if(!startDate) { setFieldError('sale-start','err-sale-start','Please select a start date.'); valid=false; }
+
+  const termsOk = document.getElementById('terms-agree')?.checked;
+  if(!termsOk) {
+    const e=document.getElementById('err-terms');
+    if(e){e.textContent='Please agree to the Terms of Use to continue.';e.style.display='block';}
+    valid=false;
+  }
+
+  // Scroll to first error
+  if(!valid) {
+    const firstErr = document.querySelector('.form-error[style*="block"]');
+    if(firstErr) firstErr.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+
+  return valid;
+}
+
+// ─── SUBMIT LISTING ───
+// FIX: all field IDs now match the actual HTML form elements
+async function submitListing(e) {
+  e.preventDefault();
+
+  // Honeypot check
+  const honeypot = document.querySelector('input[name="website"]');
+  if(honeypot && honeypot.value) { showToast('Listing submitted!'); setTimeout(()=>showPage('home'),1500); return; }
+
+  // Validate
+  if(!validateForm()) return;
+
+  // Disable submit button during processing
+  const submitBtn = document.getElementById('submit-btn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting…';
+
+  const _tc=document.getElementById('terms-agree');if(_tc&&!_tc.checked){_tc.parentElement.style.outline='2px solid #E8161B';showToast('Please agree to the Terms of Use.');_tc.focus();return;}
+  // Gather values — IDs now match the form exactly
+  const title        = document.getElementById('sale-title')?.value?.trim() || '';
+  const category     = document.getElementById('sale-type')?.value || 'garage';
+  const description  = document.getElementById('sale-desc')?.value?.trim() || '';
+  const tagsRaw      = document.getElementById('sale-tags')?.value?.trim() || '';
+  const items        = tagsRaw ? tagsRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
+  const address      = document.getElementById('sale-address')?.value?.trim() || '';
+  const city         = document.getElementById('sale-city')?.value?.trim() || '';
+  const province     = document.getElementById('sale-province')?.value || 'BC';
+  const dateStart    = document.getElementById('sale-start')?.value || '';
+  const dateEnd      = document.getElementById('sale-end')?.value || null;
+  const hoursOpen    = document.getElementById('sale-hours-open')?.value || '';
+  const hoursClose   = document.getElementById('sale-hours-close')?.value || '';
+  const hours        = hoursOpen && hoursClose ? `${hoursOpen} – ${hoursClose}` : '';
+  const contactName  = document.getElementById('sale-name')?.value?.trim() || '';
+  const contactEmail = document.getElementById('sale-email')?.value?.trim() || '';
+
+  const categoryLabels = { garage:'Garage Sale', neighbourhood:'Neighbourhood Sale', estate:'Estate Sale', moving:'Moving Sale' };
+
+  const listing = {
+    title, category,
+    category_label: categoryLabels[category] || 'Garage Sale',
+    address, city, province,
+    date_start: dateStart,
+    date_end: dateEnd || null,
+    hours, description, items,
+    contact_name: contactName,
+    contact_email: contactEmail,
+    photos: [],
+    status: 'pending'
+  };
+
+  // Hide any old banners
+  document.getElementById('form-success').style.display = 'none';
+  document.getElementById('form-error-banner').style.display = 'none';
+
+  if(sbClient) {
+    try {
+      const { error } = await sbClient.from('listings').insert([listing]);
+      if(error) throw error;
+      // Show success state
+      document.getElementById('form-success').style.display = 'block';
+      document.getElementById('form-success').scrollIntoView({behavior:'smooth',block:'center'});
+      document.getElementById('post-sale-form').reset();
+      document.getElementById('photo-previews').innerHTML = '';
+    } catch(err) {
+      console.error('Submit error:', err);
+      document.getElementById('form-error-banner').style.display = 'block';
+      document.getElementById('form-error-banner').scrollIntoView({behavior:'smooth',block:'center'});
+    }
+  } else {
+    document.getElementById('form-success').style.display = 'block';
+    document.getElementById('form-success').scrollIntoView({behavior:'smooth',block:'center'});
+  }
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Publish my listing →';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.style.transform='translateY(0)'; t.style.opacity='1';
+  setTimeout(()=>{ t.style.transform='translateY(100px)'; t.style.opacity='0'; },2500);
+}
+
+// ─── INIT ───
+function initApp() {
+  // location pill removed from nav
+  document.getElementById('nav-search').style.display = 'flex';
+
+  // Init Supabase — since script loads synchronously, it's available now
+  try {
+    if(window.supabase && window.supabase.createClient) {
+      sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+  } catch(e) {
+    console.warn('Supabase init failed:', e);
+  }
+
+  renderListings();
+  if(window._pendingListingId && listings.length > 0) { const pid=window._pendingListingId; window._pendingListingId=null; setTimeout(()=>openListing(pid),100); }
+
+  if(sbClient) {
+    loadListingsFromDB();
+  }
+}
+
+function updateRegions(){
+  const country=document.getElementById('sale-country')?.value;
+  const sel=document.getElementById('sale-province');
+  if(!sel)return;
+  sel.innerHTML='<option value="">Select…</option>';
+  const regions=country==='CA'?[["BC","British Columbia"],["AB","Alberta"],["SK","Saskatchewan"],["MB","Manitoba"],["ON","Ontario"],["QC","Quebec"],["NB","New Brunswick"],["NS","Nova Scotia"],["PE","Prince Edward Island"],["NL","Newfoundland & Labrador"],["YT","Yukon"],["NT","Northwest Territories"],["NU","Nunavut"]]:country==='US'?[["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DC","Washington DC"],["DE","Delaware"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MN","Minnesota"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"]]:[];
+  regions.forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;sel.appendChild(o);});
+}
 window.onload = function() {
-// Handle direct link to a listing
-const _hash = window.location.hash;
-if(_hash.startsWith('#listing/')) {
-const _hid = _hash.replace('#listing/','');
-const _hTimer = setInterval(()=>{ if(listings.length>0){clearInterval(_hTimer);openListing(_hid);} },200);
-setTimeout(()=>clearInterval(_hTimer),5000);
-}
-document.getElementById('nav-search').style.display = 'flex';
-// Check for shared listing URL on page load
-if(window.location.hash.startsWith('#listing/')) {
-window._pendingListingId = window.location.hash.replace('#listing/','');
-}
-try {
-if(window.supabase && window.supabase.createClient) {
-sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-}
-} catch(e) { console.warn('Supabase init failed:', e); }
-renderListings();
-if(sbClient) loadListingsFromDB();
-const searchInput = document.getElementById('nav-search-input');
-if(searchInput) searchInput.addEventListener('input', () => { renderListings(); if(mainMap) updateMapMarkers(); });
-const dp = document.getElementById('hero-date-picker');
-if(dp) dp.min = new Date().toISOString().split('T')[0];
+  const _hash=window.location.hash;
+  if(_hash.startsWith('#listing/')){
+    const _hid=_hash.replace('#listing/','');
+    const _ht=setInterval(()=>{if(listings.length>0){clearInterval(_ht);openListing(_hid);}},200);
+    setTimeout(()=>clearInterval(_ht),5000);
+  }
+  // Handle direct link to a listing
+  const _hash = window.location.hash;
+  if(_hash.startsWith('#listing/')) {
+    const _hid = _hash.replace('#listing/','');
+    const _hTimer = setInterval(()=>{ if(listings.length>0){clearInterval(_hTimer);openListing(_hid);}},200);
+    setTimeout(()=>clearInterval(_hTimer),5000);
+  }
+  document.getElementById('nav-search').style.display = 'flex';
+  // Check for shared listing URL on page load
+  if(window.location.hash.startsWith('#listing/')) {
+    window._pendingListingId = window.location.hash.replace('#listing/','');
+  }
+  try {
+    if(window.supabase && window.supabase.createClient) {
+      sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+  } catch(e) { console.warn('Supabase init failed:', e); }
+  renderListings();
+  if(sbClient) loadListingsFromDB();
+  const searchInput = document.getElementById('nav-search-input');
+  if(searchInput) searchInput.addEventListener('input', () => { renderListings(); if(mainMap) updateMapMarkers(); });
+  const dp = document.getElementById('hero-date-picker');
+  if(dp) dp.min = new Date().toISOString().split('T')[0];
 };
 </script>
+</body>
+</html>
