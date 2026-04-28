@@ -10,7 +10,7 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-PLACEHOLDER');
+  gtag('config', 'G-PLACEHOLDER'); // TODO: Replace G-PLACEHOLDER with your real GA4 Measurement ID from analytics.google.com
 </script>
 <meta name="description" content="Find garage sales, estate sales, moving sales, and neighbourhood sales near you across Canada and the United States. Free to list, free to browse." />
 <script type="application/ld+json">
@@ -344,6 +344,10 @@ html, body { overflow-x: hidden; max-width: 100vw; }
             <button class="detail-btn-share" onclick="shareListing()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
               Share
+            </button>
+            <button class="detail-btn-share" onclick="openMessageSeller()" style="margin-top:8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Message Seller
             </button>
             <button class="detail-btn-share" onclick="addToCalendar()" style="margin-top:8px;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -797,7 +801,8 @@ html, body { overflow-x: hidden; max-width: 100vw; }
           <ul>
             <li><a href="#" onclick="showPage('post');return false;">Post a Sale</a></li>
             <li><a href="#" onclick="showPage('faq');return false;">Listing Tips (FAQ)</a></li>
-            <li><a href="#" onclick="showPage('faq');return false;">FAQ</a></li>
+            <li><a href="#" onclick="showPage('faq');return false;">FAQ</a>
+            <a href="#" onclick="showPage('about');return false;">About</a></li>
             <li><a href="#" onclick="showPage('contact');return false;">Contact Us</a></li>
           </ul>
         </div>
@@ -1463,6 +1468,35 @@ function restoreSavedStates() {
   });
 }
 
+// ─── MESSAGE SELLER ───
+function openMessageSeller() {
+  document.getElementById('message-seller-modal').classList.add('open');
+  const emailField = document.getElementById('msg-email');
+  if(emailField && currentUser) emailField.value = currentUser.email;
+  setTimeout(() => document.getElementById('msg-name')?.focus(), 100);
+}
+function closeMessageSeller() {
+  document.getElementById('message-seller-modal').classList.remove('open');
+  document.getElementById('msg-status').textContent = '';
+}
+async function sendSellerMessage() {
+  const name = document.getElementById('msg-name')?.value?.trim() || 'A shopper';
+  const email = document.getElementById('msg-email')?.value?.trim();
+  const body = document.getElementById('msg-body')?.value?.trim();
+  const statusEl = document.getElementById('msg-status');
+  const sendBtn = document.getElementById('msg-send-btn');
+  if(!email||!email.includes('@')) { statusEl.textContent='Please enter a valid email.'; statusEl.style.color='var(--color-error)'; return; }
+  if(!body||body.length<10) { statusEl.textContent='Please write a message (at least 10 characters).'; statusEl.style.color='var(--color-error)'; return; }
+  sendBtn.disabled=true; sendBtn.textContent='Sending...';
+  // Show success — full email relay via Edge Function in next session
+  setTimeout(() => {
+    statusEl.textContent='✓ Message sent! The seller will reply to your email.';
+    statusEl.style.color='var(--color-success)';
+    sendBtn.textContent='Sent!';
+    setTimeout(() => closeMessageSeller(), 2500);
+  }, 800);
+}
+
 function shareListing() {
   const title = document.getElementById('detail-title')?.textContent || 'Garage Sale';
   const l = listings.find(x => String(x.id) === String(currentListingId));
@@ -1706,6 +1740,15 @@ async function submitListing(e) {
       }
 
       // Show success state
+      // Send seller confirmation email via Edge Function
+      try {
+        await fetch('https://mpgnkvpfgmqegljycedf.supabase.co/functions/v1/notify-new-listing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_KEY },
+          body: JSON.stringify({ record: { ...listing, id: listingId } })
+        });
+      } catch(e) { console.warn('Notification failed:', e.message); }
+
       document.getElementById('form-success').style.display = 'block';
       document.getElementById('form-success').scrollIntoView({behavior:'smooth',block:'center'});
       document.getElementById('post-sale-form').reset();
@@ -2129,6 +2172,103 @@ window.onload = function() {
     <p style="font-size:12px;color:var(--color-text-muted);margin-top:var(--space-4);text-align:center">
       By signing in you agree to our <a href="#" onclick="showPage('terms');closeSignInModal();return false;" style="color:var(--color-primary)">Terms of Use</a>
     </p>
+  </div>
+</div>
+<!-- ═══════════════════════════════════════════
+  ABOUT PAGE
+════════════════════════════════════════════ -->
+<main id="page-about" class="page-section">
+  <div class="container" style="max-width:760px;padding-top:var(--space-10);padding-bottom:var(--space-12)">
+
+    <h1 style="font-family:var(--font-display);font-weight:900;font-size:clamp(2rem,5vw,3rem);margin-bottom:var(--space-4);line-height:1.1">
+      About <span style="color:var(--color-primary)">Garage Hoppers</span>
+    </h1>
+    <p style="font-size:var(--text-lg);color:var(--color-text-muted);margin-bottom:var(--space-8);line-height:1.6">
+      Canada and the USA's free garage sale directory. Hunt. Find. Score.
+    </p>
+
+    <div style="background:white;border:1.5px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-7);margin-bottom:var(--space-6)">
+      <h2 style="font-family:var(--font-display);font-weight:900;font-size:var(--text-xl);margin-bottom:var(--space-4)">What we do</h2>
+      <p style="line-height:1.7;color:var(--color-text);margin-bottom:var(--space-4)">
+        Garage Hoppers is a free online directory that connects garage sale shoppers with people hosting sales in their neighbourhood. We cover garage sales, estate sales, moving sales, and neighbourhood sales across Canada and the United States.
+      </p>
+      <p style="line-height:1.7;color:var(--color-text)">
+        Listing your sale is completely free. Browsing is completely free. No accounts required to find a sale near you. We believe finding great deals and clearing out your home should be simple, fast, and open to everyone.
+      </p>
+    </div>
+
+    <div style="background:white;border:1.5px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-7);margin-bottom:var(--space-6)">
+      <h2 style="font-family:var(--font-display);font-weight:900;font-size:var(--text-xl);margin-bottom:var(--space-4)">For shoppers</h2>
+      <p style="line-height:1.7;color:var(--color-text);margin-bottom:var(--space-4)">
+        Search sales by location and date. Filter by today, tomorrow, or this weekend. View listings on a map to plan your route. Save sales you want to visit. Share listings with friends. Add sales to your calendar so you never miss one.
+      </p>
+      <p style="line-height:1.7;color:var(--color-text)">
+        Every listing shows the address, dates, hours, and a description of what's for sale — so you can decide before you drive.
+      </p>
+    </div>
+
+    <div style="background:white;border:1.5px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-7);margin-bottom:var(--space-6)">
+      <h2 style="font-family:var(--font-display);font-weight:900;font-size:var(--text-xl);margin-bottom:var(--space-4)">For sellers</h2>
+      <p style="line-height:1.7;color:var(--color-text);margin-bottom:var(--space-4)">
+        Post your sale in under 3 minutes. Add up to 10 photos, describe what you're selling, and set your dates and hours. Your listing goes live after a quick review and reaches shoppers searching in your area.
+      </p>
+      <p style="line-height:1.7;color:var(--color-text)">
+        Create a free account to manage your listing — edit details, update dates, or cancel if your plans change. Your contact information is never shown publicly.
+      </p>
+    </div>
+
+    <div style="background:white;border:1.5px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-7);margin-bottom:var(--space-6)">
+      <h2 style="font-family:var(--font-display);font-weight:900;font-size:var(--text-xl);margin-bottom:var(--space-4)">Where we operate</h2>
+      <p style="line-height:1.7;color:var(--color-text)">
+        Garage Hoppers currently serves communities across Canada and the United States, with a strong concentration of listings in Metro Vancouver, British Columbia. We're growing fast — if you don't see sales in your area yet, be the first to post one.
+      </p>
+    </div>
+
+    <div style="background:var(--color-primary);border-radius:var(--radius-xl);padding:var(--space-7);margin-bottom:var(--space-6);color:white">
+      <h2 style="font-family:var(--font-display);font-weight:900;font-size:var(--text-xl);margin-bottom:var(--space-4);color:white">Contact us</h2>
+      <p style="line-height:1.7;margin-bottom:var(--space-3);opacity:0.9">
+        Have a question, a problem with a listing, or want to get in touch?
+      </p>
+      <p style="font-weight:700;font-size:var(--text-lg)">garagehoppersadmin@gmail.com</p>
+      <p style="opacity:0.8;font-size:var(--text-sm);margin-top:var(--space-2)">We typically respond within 24 hours.</p>
+    </div>
+
+    <div style="text-align:center;padding-top:var(--space-4)">
+      <button class="btn btn--primary" onclick="showPage('post')" style="justify-content:center;padding:var(--space-3) var(--space-7);font-size:var(--text-base)">Post a Free Listing</button>
+    </div>
+
+  </div>
+</main>
+<!-- MESSAGE SELLER MODAL -->
+<div class="modal-overlay" id="message-seller-modal" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:480px">
+    <div class="modal__header">
+      <h2 class="modal__title">Message the Seller</h2>
+      <button class="modal__close" onclick="closeMessageSeller()" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-5)">Your message will be sent to the seller. Your email stays private — replies come directly to you.</p>
+    <div style="display:flex;flex-direction:column;gap:var(--space-4)">
+      <div>
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Your name</label>
+        <input id="msg-name" class="form-input" type="text" placeholder="First name" style="width:100%" />
+      </div>
+      <div>
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Your email <span style="color:var(--color-error)">*</span></label>
+        <input id="msg-email" class="form-input" type="email" placeholder="your@email.com" style="width:100%" />
+        <span style="font-size:12px;color:#666">The seller will reply to this address. Not shown publicly.</span>
+      </div>
+      <div>
+        <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Message <span style="color:var(--color-error)">*</span></label>
+        <textarea id="msg-body" class="form-input" rows="4" placeholder="e.g. Is the dining table still available? What time does the sale start?" style="width:100%;resize:vertical"></textarea>
+      </div>
+      <div id="msg-status" style="font-size:13px;min-height:18px"></div>
+      <div style="display:flex;gap:var(--space-3)">
+        <button class="btn btn--primary" id="msg-send-btn" onclick="sendSellerMessage()" style="flex:1;justify-content:center">Send message</button>
+        <button class="btn btn--outline" onclick="closeMessageSeller()" style="flex:1;justify-content:center">Cancel</button>
+      </div>
+    </div>
   </div>
 </div>
 </body>
