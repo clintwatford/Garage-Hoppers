@@ -92,7 +92,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 
     <nav class="navbar__nav" style="display:flex;gap:20px;align-items:center;margin-left:8px;">
       <a href="#" onclick="showPage('faq');return false;" style="font-size:13px;font-weight:600;color:#444;text-decoration:none;white-space:nowrap;" onmouseover="this.style.color='#E8161B'" onmouseout="this.style.color='#444'">FAQ</a>
-      <a href="#" onclick="showPage('contact');return false;" style="font-size:13px;font-weight:600;color:#444;text-decoration:none;white-space:nowrap;" onmouseover="this.style.color='#E8161B'" onmouseout="this.style.color='#444'">Contact</a>
+      
     </nav>
 
     <div class="navbar__actions">
@@ -990,7 +990,16 @@ function dbRowToListing(row) {
   let dateTag = 'all';
   if(start.toDateString()===todayDate.toDateString()) dateTag='today';
   else if(start.toDateString()===tomorrow.toDateString()) dateTag='tomorrow';
-  else if(start >= sat && start <= sun) dateTag='weekend';
+  else {
+    const endCheck = end || start;
+    const cur = new Date(start); cur.setHours(0,0,0,0);
+    const endD = new Date(endCheck); endD.setHours(23,59,59,999);
+    while(cur <= endD) {
+      const day = cur.getDay();
+      if(day === 0 || day === 6) { dateTag='weekend'; break; }
+      cur.setDate(cur.getDate()+1);
+    }
+  }
   const dates = end ? fmt(start)+' – '+fmt(end) : fmt(start);
   return {
     id: row.id, title: row.title, category: row.category, categoryLabel: row.category_label,
