@@ -1597,6 +1597,8 @@ function openMessageSeller() {
   document.getElementById('message-seller-modal').classList.add('open');
   const emailField = document.getElementById('msg-email');
   if(emailField && currentUser) emailField.value = currentUser.email;
+  const sendBtn = document.getElementById('msg-send-btn');
+  if(sendBtn) { sendBtn.disabled = false; sendBtn.textContent = 'Send message'; }
   setTimeout(() => document.getElementById('msg-name')?.focus(), 100);
 }
 function closeMessageSeller() {
@@ -1612,13 +1614,31 @@ async function sendSellerMessage() {
   if(!email||!email.includes('@')) { statusEl.textContent='Please enter a valid email.'; statusEl.style.color='var(--color-error)'; return; }
   if(!body||body.length<10) { statusEl.textContent='Please write a message (at least 10 characters).'; statusEl.style.color='var(--color-error)'; return; }
   sendBtn.disabled=true; sendBtn.textContent='Sending...';
-  // Show success — full email relay via Edge Function in next session
-  setTimeout(() => {
+  statusEl.textContent='';
+  try {
+    const res = await fetch('/.netlify/functions/contact-seller', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        listingId: currentListingId,
+        name,
+        email,
+        message: body
+      })
+    });
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok) throw new Error(data.error || 'Could not send message.');
     statusEl.textContent='✓ Message sent! The seller will reply to your email.';
     statusEl.style.color='var(--color-success)';
     sendBtn.textContent='Sent!';
+    document.getElementById('msg-body').value = '';
     setTimeout(() => closeMessageSeller(), 2500);
-  }, 800);
+  } catch(err) {
+    statusEl.textContent = err.message || 'Could not send message. Please try again.';
+    statusEl.style.color='var(--color-error)';
+    sendBtn.disabled=false;
+    sendBtn.textContent='Send message';
+  }
 }
 
 function shareListing() {
