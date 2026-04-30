@@ -180,6 +180,31 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let allListings = [];
 let currentTab = 'pending';
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value);
+}
+
+function safeImageUrl(value) {
+  const url = String(value || '').trim();
+  if(!url) return '';
+  if(url.startsWith('./') || url.startsWith('/')) return escapeAttr(url);
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol) ? escapeAttr(parsed.href) : '';
+  } catch(e) {
+    return '';
+  }
+}
+
 // ─── AUTH — Magic Link ───
 async function sendMagicLink() {
   const email = document.getElementById('login-email').value.trim();
@@ -286,34 +311,45 @@ function renderAdminListings() {
   }
 
   container.innerHTML = filtered.map(l => {
-    const photo = l.photos && l.photos.length > 0
-      ? `<img src="${l.photos[0]}" class="admin-card__thumb" alt="" onerror="this.style.display='none'" />`
+    const id = escapeAttr(l.id);
+    const title = escapeHtml(l.title);
+    const status = escapeHtml(l.status);
+    const address = escapeHtml(l.address);
+    const city = escapeHtml(l.city);
+    const province = escapeHtml(l.province);
+    const dateStart = escapeHtml(l.date_start);
+    const contactName = escapeHtml(l.contact_name);
+    const contactEmail = escapeHtml(l.contact_email);
+    const description = escapeHtml(l.description || 'No description provided.');
+    const photoUrl = l.photos && l.photos.length > 0 ? safeImageUrl(l.photos[0]) : '';
+    const photo = photoUrl
+      ? `<img src="${photoUrl}" class="admin-card__thumb" alt="" onerror="this.style.display='none'" />`
       : `<div class="admin-card__thumb--placeholder">🏷️</div>`;
 
     const actions = l.status === 'pending' ? `
-      <button class="btn-approve" onclick="updateStatus('${l.id}','approved')">✓ Approve</button>
-      <button class="btn-reject" onclick="updateStatus('${l.id}','rejected')">✕ Reject</button>
+      <button class="btn-approve" onclick="updateStatus('${id}','approved')">✓ Approve</button>
+      <button class="btn-reject" onclick="updateStatus('${id}','rejected')">✕ Reject</button>
     ` : l.status === 'approved' ? `
-      <button class="btn-reject" onclick="updateStatus('${l.id}','rejected')">Reject</button>
-      <button class="btn-delete" onclick="deleteListing('${l.id}')">Delete</button>
+      <button class="btn-reject" onclick="updateStatus('${id}','rejected')">Reject</button>
+      <button class="btn-delete" onclick="deleteListing('${id}')">Delete</button>
     ` : `
-      <button class="btn-approve" onclick="updateStatus('${l.id}','approved')">Re-approve</button>
-      <button class="btn-delete" onclick="deleteListing('${l.id}')">Delete</button>
+      <button class="btn-approve" onclick="updateStatus('${id}','approved')">Re-approve</button>
+      <button class="btn-delete" onclick="deleteListing('${id}')">Delete</button>
     `;
 
     return `
-      <div class="admin-card" id="card-${l.id}">
+      <div class="admin-card" id="card-${id}">
         ${photo}
         <div class="admin-card__info">
-          <div class="admin-card__title">${l.title}</div>
+          <div class="admin-card__title">${title}</div>
           <div class="admin-card__meta">
-            <span class="status-badge status-badge--${l.status}">${l.status}</span>
-            &nbsp;·&nbsp; ${l.address}, ${l.city}, ${l.province}
-            &nbsp;·&nbsp; ${l.date_start}
-            ${l.contact_name ? '&nbsp;·&nbsp; ' + l.contact_name : ''}
-            ${l.contact_email ? '&nbsp;·&nbsp; ' + l.contact_email : ''}
+            <span class="status-badge status-badge--${status}">${status}</span>
+            &nbsp;·&nbsp; ${address}, ${city}, ${province}
+            &nbsp;·&nbsp; ${dateStart}
+            ${l.contact_name ? '&nbsp;·&nbsp; ' + contactName : ''}
+            ${l.contact_email ? '&nbsp;·&nbsp; ' + contactEmail : ''}
           </div>
-          <div class="admin-card__desc">${l.description || 'No description provided.'}</div>
+          <div class="admin-card__desc">${description}</div>
         </div>
         <div class="admin-card__actions">${actions}</div>
       </div>

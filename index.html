@@ -1084,6 +1084,31 @@ function listingIncludesDate(listing, dateValue) {
   return Boolean(picked && start && picked >= start && picked <= end);
 }
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value);
+}
+
+function safeImageUrl(value) {
+  const url = String(value || '').trim();
+  if(!url) return '';
+  if(url.startsWith('./') || url.startsWith('/')) return escapeAttr(url);
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol) ? escapeAttr(parsed.href) : '';
+  } catch(e) {
+    return '';
+  }
+}
+
 // ─── FILTER ───
 function getFiltered() {
   const today = new Date(); today.setHours(0,0,0,0);
@@ -1196,17 +1221,29 @@ function renderListings() {
     return;
   }
 
-  grid.innerHTML = filtered.map(l => `
-    <div class="listing-card" onclick="openListing('${l.id}')" role="listitem" aria-label="${l.title}" tabindex="0" onkeydown="if(event.key==='Enter')openListing('${l.id}')" style="cursor:pointer">
+  grid.innerHTML = filtered.map(l => {
+    const id = escapeAttr(l.id);
+    const title = escapeHtml(l.title);
+    const categoryLabel = escapeHtml(l.categoryLabel);
+    const dates = escapeHtml(l.dates);
+    const address = escapeHtml(l.address);
+    const city = escapeHtml(l.city);
+    const province = escapeHtml(l.province);
+    const distance = escapeHtml(l.distance);
+    const locationText = `${l.address || ''}, ${l.city || ''}, ${l.province || ''}`;
+    const itemsText = l.items.slice(0,3).map(escapeHtml).join(', ');
+    const firstPhotos = (l.photos || []).slice(0,4).map(safeImageUrl).filter(Boolean);
+    return `
+    <div class="listing-card" onclick="openListing('${id}')" role="listitem" aria-label="${title}" tabindex="0" onkeydown="if(event.key==='Enter')openListing('${id}')" style="cursor:pointer">
       <div class="listing-card__photos">
-        <div class="listing-card__photos-grid count-${l.photos && l.photos.length > 0 ? Math.min(l.photos.length,4) : 1}">
-          ${l.photos && l.photos.length > 0
-            ? l.photos.slice(0,4).map(p=>`<img src="${p}" alt="${l.title}" loading="lazy" onerror="this.src='./no-photo.svg'"/>`).join('')
+        <div class="listing-card__photos-grid count-${firstPhotos.length > 0 ? Math.min(firstPhotos.length,4) : 1}">
+          ${firstPhotos.length > 0
+            ? firstPhotos.map(p=>`<img src="${p}" alt="${title}" loading="lazy" onerror="this.src='./no-photo.svg'"/>`).join('')
             : `<img src="./no-photo.svg" alt="No photo available" loading="lazy" style="width:100%;height:100%;object-fit:cover"/>`
           }
         </div>
         <!-- Badge on photo only — no duplicate in card body -->
-        <div class="listing-card__badge">${l.categoryLabel}</div>
+        <div class="listing-card__badge">${categoryLabel}</div>
         <button class="listing-card__save" onclick="event.preventDefault();event.stopPropagation();toggleSave(this)" aria-label="Save listing">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         </button>
@@ -1214,22 +1251,23 @@ function renderListings() {
       <div class="listing-card__body">
         <div class="listing-card__meta">
           <!-- FIX: removed duplicate .listing-card__category span — category is on the badge -->
-          <span class="listing-card__date">${l.dates}</span>
+          <span class="listing-card__date">${dates}</span>
         </div>
-        <h3 class="listing-card__title">${l.title}</h3>
+        <h3 class="listing-card__title">${title}</h3>
         <div class="listing-card__location">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <a href="https://maps.google.com/?q=${encodeURIComponent(l.address+', '+l.city+', '+l.province)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='inherit'">${l.address}, ${l.city}, ${l.province}</a>
+          <a href="https://maps.google.com/?q=${encodeURIComponent(locationText)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="color:inherit;text-decoration:none;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='inherit'">${address}, ${city}, ${province}</a>
         </div>
       </div>
       <div class="listing-card__footer">
         <div class="listing-card__items">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-          ${l.items.slice(0,3).join(', ')}${l.items.length>3?' +'+( l.items.length-3)+' more':''}
+          ${itemsText}${l.items.length>3?' +'+( l.items.length-3)+' more':''}
         </div>
-        <span class="listing-card__distance">${l.distance}</span>
+        <span class="listing-card__distance">${distance}</span>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   restoreSavedStates();
 }
 
@@ -1260,7 +1298,13 @@ function updateMapMarkers() {
   const filtered = getFiltered();
   filtered.forEach(l=>{
     const m = L.marker([l.lat,l.lng]).addTo(mainMap);
-    m.bindPopup(`<div style="font-family:sans-serif;max-width:240px;padding:4px 0"><div style="font-weight:700;font-size:14px;margin-bottom:6px;line-height:1.3">${l.title}</div><a href="https://maps.google.com/?q=${encodeURIComponent(l.address+', '+l.city+', '+l.province)}" target="_blank" rel="noopener" style="font-size:12px;color:#666;display:block;margin-bottom:4px;text-decoration:none">📍 ${l.address}, ${l.city}</a><div style="font-size:12px;color:#666;margin-bottom:10px">📅 ${l.dates}${l.hours?' · '+l.hours:''}</div><button onclick="openListing('${l.id}')" style="width:100%;padding:7px 0;background:#E8161B;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">View Details →</button></div>`,{maxWidth:260});
+    const title = escapeHtml(l.title);
+    const address = escapeHtml(l.address);
+    const city = escapeHtml(l.city);
+    const dates = escapeHtml(l.dates);
+    const hours = l.hours ? ' · ' + escapeHtml(l.hours) : '';
+    const locationText = `${l.address || ''}, ${l.city || ''}, ${l.province || ''}`;
+    m.bindPopup(`<div style="font-family:sans-serif;max-width:240px;padding:4px 0"><div style="font-weight:700;font-size:14px;margin-bottom:6px;line-height:1.3">${title}</div><a href="https://maps.google.com/?q=${encodeURIComponent(locationText)}" target="_blank" rel="noopener" style="font-size:12px;color:#666;display:block;margin-bottom:4px;text-decoration:none">📍 ${address}, ${city}</a><div style="font-size:12px;color:#666;margin-bottom:10px">📅 ${dates}${hours}</div><button onclick="openListing('${escapeAttr(l.id)}')" style="width:100%;padding:7px 0;background:#E8161B;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">View Details →</button></div>`,{maxWidth:260});
   });
   if(filtered.length>0) mainMap.fitBounds(L.latLngBounds(filtered.map(l=>[l.lat,l.lng])).pad(0.2));
 }
@@ -1469,7 +1513,7 @@ function renderDetailPage(id) {
   if(dl1) dl1.href = mapUrl;
   if(dl2) dl2.href = mapUrl;
   document.getElementById('detail-description').textContent = l.description;
-  document.getElementById('detail-items').innerHTML = l.items.map(i=>`<span class="item-tag">${i}</span>`).join('');
+  document.getElementById('detail-items').innerHTML = l.items.map(i=>`<span class="item-tag">${escapeHtml(i)}</span>`).join('');
   const mapAddrEl = document.getElementById('detail-map-address');
   if(mapAddrEl) mapAddrEl.textContent = l.address+', '+l.city+', '+l.province;
 
@@ -1479,11 +1523,12 @@ function renderDetailPage(id) {
     photos.innerHTML=`<img src="./no-photo.svg" alt="No photo available" class="detail-gallery__main" style="object-fit:contain;background:#f5f5f7"/>`;
   } else if(l.photos.length===1){
     photos.className='detail-gallery detail-gallery--single';
-    photos.innerHTML=`<img src="${l.photos[0]}" alt="${l.title}" class="detail-gallery__main" onerror="this.src='./no-photo.svg';this.style.objectFit='contain'"/>`;
+    photos.innerHTML=`<img src="${safeImageUrl(l.photos[0]) || './no-photo.svg'}" alt="${escapeAttr(l.title)}" class="detail-gallery__main" onerror="this.src='./no-photo.svg';this.style.objectFit='contain'"/>`;
   } else {
     photos.className='detail-gallery detail-gallery--multi';
-    const thumbs=l.photos.slice(1,3).map(p=>`<img src="${p}" alt="" class="detail-gallery__thumb" onerror="this.src='./no-photo.svg'"/>`).join('');
-    photos.innerHTML=`<img src="${l.photos[0]}" alt="${l.title}" class="detail-gallery__main" onerror="this.src='./no-photo.svg'"/><div class="detail-gallery__thumbs">${thumbs}</div>`;
+    const safePhotos = l.photos.map(safeImageUrl).filter(Boolean);
+    const thumbs=safePhotos.slice(1,3).map(p=>`<img src="${p}" alt="" class="detail-gallery__thumb" onerror="this.src='./no-photo.svg'"/>`).join('');
+    photos.innerHTML=`<img src="${safePhotos[0] || './no-photo.svg'}" alt="${escapeAttr(l.title)}" class="detail-gallery__main" onerror="this.src='./no-photo.svg'"/><div class="detail-gallery__thumbs">${thumbs}</div>`;
   }
 
   if(detailMap){ detailMap.remove(); detailMap=null; }
@@ -2051,19 +2096,24 @@ async function loadDashboard() {
       const statusColor = l.status === 'approved' ? '#16a34a' : l.status === 'rejected' ? '#dc2626' : '#d97706';
       const statusBg = l.status === 'approved' ? '#f0fff4' : l.status === 'rejected' ? '#fff0f0' : '#fffbeb';
       const dateStr = l.date_start ? new Date(l.date_start+'T12:00:00').toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'}) : 'No date';
-      const photo = l.photos && l.photos.length > 0 ? l.photos[0] : null;
+      const photo = l.photos && l.photos.length > 0 ? safeImageUrl(l.photos[0]) : null;
+      const id = escapeAttr(l.id);
+      const title = escapeHtml(l.title);
+      const city = escapeHtml(l.city);
+      const province = escapeHtml(l.province);
+      const status = escapeHtml(l.status || '');
       return `
         <div style="background:white;border:1.5px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-4);display:flex;gap:var(--space-4);align-items:flex-start">
           <div style="width:80px;height:80px;border-radius:var(--radius-lg);overflow:hidden;flex-shrink:0;background:#f5f5f7">
             ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover" onerror="this.src='./no-photo.svg'"/>` : `<img src="./no-photo.svg" style="width:100%;height:100%;object-fit:cover"/>`}
           </div>
           <div style="flex:1;min-width:0">
-            <div style="font-weight:700;font-family:var(--font-display);font-size:var(--text-base);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.title}</div>
-            <div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:8px">${dateStr} · ${l.city}, ${l.province}</div>
+            <div style="font-weight:700;font-family:var(--font-display);font-size:var(--text-base);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${title}</div>
+            <div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:8px">${escapeHtml(dateStr)} · ${city}, ${province}</div>
             <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;align-items:center">
-              <span style="font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;background:${statusBg};color:${statusColor}">${l.status.toUpperCase()}</span>
-              ${l.status !== 'rejected' ? `<button onclick="editListing('${l.id}')" style="font-size:12px;font-weight:600;color:var(--color-primary);background:none;border:none;cursor:pointer;padding:0">Edit</button>` : ''}
-              ${l.status === 'pending' || l.status === 'approved' ? `<button onclick="cancelListing('${l.id}',this)" style="font-size:12px;font-weight:600;color:#dc2626;background:none;border:none;cursor:pointer;padding:0">Cancel listing</button>` : ''}
+              <span style="font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;background:${statusBg};color:${statusColor}">${status.toUpperCase()}</span>
+              ${l.status !== 'rejected' ? `<button onclick="editListing('${id}')" style="font-size:12px;font-weight:600;color:var(--color-primary);background:none;border:none;cursor:pointer;padding:0">Edit</button>` : ''}
+              ${l.status === 'pending' || l.status === 'approved' ? `<button onclick="cancelListing('${id}',this)" style="font-size:12px;font-weight:600;color:#dc2626;background:none;border:none;cursor:pointer;padding:0">Cancel listing</button>` : ''}
             </div>
           </div>
         </div>`;
@@ -2099,6 +2149,13 @@ function editListing(id) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay open';
   overlay.id = 'edit-listing-overlay';
+  const safeExistingTitle = escapeAttr(existing.title || '');
+  const safeExistingHours = escapeAttr(existing.hours || '');
+  const safeExistingDescription = escapeHtml(existing.description || '');
+  const safeExistingAddress = escapeAttr(existing.address || '');
+  const safeExistingStart = escapeAttr(existing.date_start || '');
+  const safeExistingEnd = escapeAttr(existing.date_end || '');
+  const safeId = escapeAttr(id);
   overlay.innerHTML = `
     <div class="modal" style="max-width:560px;max-height:85vh;overflow-y:auto">
       <div class="modal__header">
@@ -2112,33 +2169,33 @@ function editListing(id) {
       <div style="display:flex;flex-direction:column;gap:var(--space-4)">
         <div>
           <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Sale Title</label>
-          <input id="edit-title" class="form-input" type="text" value="${(existing.title||'').replace(/"/g,'&quot;')}" style="width:100%" />
+          <input id="edit-title" class="form-input" type="text" value="${safeExistingTitle}" style="width:100%" />
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)">
           <div>
             <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Start Date</label>
-            <input id="edit-date-start" class="form-input" type="date" value="${existing.date_start||''}" style="width:100%" />
+            <input id="edit-date-start" class="form-input" type="date" value="${safeExistingStart}" style="width:100%" />
           </div>
           <div>
             <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">End Date</label>
-            <input id="edit-date-end" class="form-input" type="date" value="${existing.date_end||''}" style="width:100%" />
+            <input id="edit-date-end" class="form-input" type="date" value="${safeExistingEnd}" style="width:100%" />
           </div>
         </div>
         <div>
           <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Hours</label>
-          <input id="edit-hours" class="form-input" type="text" value="${(existing.hours||'').replace(/"/g,'&quot;')}" placeholder="e.g. 9:00 AM – 3:00 PM" style="width:100%" />
+          <input id="edit-hours" class="form-input" type="text" value="${safeExistingHours}" placeholder="e.g. 9:00 AM – 3:00 PM" style="width:100%" />
         </div>
         <div>
           <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Description</label>
-          <textarea id="edit-description" class="form-input" rows="4" style="width:100%;resize:vertical">${existing.description||''}</textarea>
+          <textarea id="edit-description" class="form-input" rows="4" style="width:100%;resize:vertical">${safeExistingDescription}</textarea>
         </div>
         <div>
           <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Address</label>
-          <input id="edit-address" class="form-input" type="text" value="${(existing.address||'').replace(/"/g,'&quot;')}" style="width:100%" />
+          <input id="edit-address" class="form-input" type="text" value="${safeExistingAddress}" style="width:100%" />
         </div>
         <div id="edit-error" style="display:none;color:var(--color-error);font-size:13px;font-weight:600"></div>
         <div style="display:flex;gap:var(--space-3)">
-          <button class="btn btn--primary" onclick="saveListingEdit('${id}')" style="flex:1;justify-content:center">Save changes</button>
+          <button class="btn btn--primary" onclick="saveListingEdit('${safeId}')" style="flex:1;justify-content:center">Save changes</button>
           <button class="btn btn--outline" onclick="document.getElementById('edit-listing-overlay').remove()" style="flex:1;justify-content:center">Cancel</button>
         </div>
       </div>
