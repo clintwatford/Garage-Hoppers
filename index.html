@@ -1428,6 +1428,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLoca
 
 // ─── DETAIL PAGE ───
 let currentListingId = null;
+let messageSellerOpenedAt = 0;
 
 function openListing(id) {
   currentListingId = id;
@@ -1640,6 +1641,9 @@ function toggleDetailSave() {
 
 function openMessageSeller() {
   document.getElementById('message-seller-modal').classList.add('open');
+  messageSellerOpenedAt = Date.now();
+  const websiteField = document.getElementById('msg-website');
+  if(websiteField) websiteField.value = '';
   const emailField = document.getElementById('msg-email');
   if(emailField && currentUser) emailField.value = currentUser.email;
   const sendBtn = document.getElementById('msg-send-btn');
@@ -1654,6 +1658,7 @@ async function sendSellerMessage() {
   const name = document.getElementById('msg-name')?.value?.trim() || 'A shopper';
   const email = document.getElementById('msg-email')?.value?.trim();
   const body = document.getElementById('msg-body')?.value?.trim();
+  const website = document.getElementById('msg-website')?.value || '';
   const statusEl = document.getElementById('msg-status');
   const sendBtn = document.getElementById('msg-send-btn');
   if(!email||!email.includes('@')) { statusEl.textContent='Please enter a valid email.'; statusEl.style.color='var(--color-error)'; return; }
@@ -1668,7 +1673,9 @@ async function sendSellerMessage() {
         listingId: currentListingId,
         name,
         email,
-        message: body
+        message: body,
+        website,
+        startedAt: messageSellerOpenedAt
       })
     });
     const data = await res.json().catch(() => ({}));
@@ -2469,6 +2476,10 @@ window.onload = function() {
       <div>
         <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Message <span style="color:var(--color-error)">*</span></label>
         <textarea id="msg-body" class="form-input" rows="4" placeholder="e.g. Is the dining table still available? What time does the sale start?" style="width:100%;resize:vertical"></textarea>
+      </div>
+      <div style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden" aria-hidden="true">
+        <label for="msg-website">Website</label>
+        <input id="msg-website" type="text" tabindex="-1" autocomplete="off" />
       </div>
       <div id="msg-status" style="font-size:13px;min-height:18px"></div>
       <div style="display:flex;gap:var(--space-3)">
