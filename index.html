@@ -143,11 +143,11 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       <div class="listings-header">
         <h2 id="listings-count-heading">Loading sales near you…</h2>
         <div class="view-toggle">
-          <button class="toggle-btn active" id="btn-grid" onclick="setView('grid')" aria-label="Grid view">
+          <button class="toggle-btn" id="btn-grid" onclick="setView('grid')" aria-label="Grid view">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
             Grid
           </button>
-          <button class="toggle-btn" id="btn-map" onclick="setView('map')" aria-label="Map view">
+          <button class="toggle-btn active" id="btn-map" onclick="setView('map')" aria-label="Map view">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
             Map
           </button>
@@ -164,12 +164,12 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       </div>
 
       <!-- Map view -->
-      <div class="map-view" id="map-view-container">
+      <div class="map-view visible" id="map-view-container">
         <div id="map"></div>
       </div>
 
       <!-- Grid view -->
-      <div class="listings-grid" id="listings-grid" role="list" aria-label="Garage sale listings"></div>
+      <div class="listings-grid hidden" id="listings-grid" role="list" aria-label="Garage sale listings"></div>
     </div>
   </section>
 
@@ -1030,7 +1030,7 @@ async function loadListingsFromDB() {
   }
 }
 
-let activeDateFilter='all', selectedDateFilter='', currentView='grid', mainMap=null, detailMap=null, previewMap=null, previewCircle=null, currentRadius=50, currentCity='Richmond, BC';
+let activeDateFilter='all', selectedDateFilter='', currentView='map', mainMap=null, detailMap=null, previewMap=null, previewCircle=null, currentRadius=50, currentCity='Richmond, BC';
 
 // ─── PAGE NAV ───
 function showPage(page, listingId) {
@@ -2311,6 +2311,7 @@ window.onload = function() {
   }
 
   renderListings();
+  setView(currentView);
 
   if(sbClient) {
     loadListingsFromDB();
