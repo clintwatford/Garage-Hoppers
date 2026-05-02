@@ -1020,8 +1020,7 @@ async function loadListingsFromDB() {
     if(error) { console.warn('Supabase load error:', error.message); return; }
     if(data && data.length > 0) {
       listings = data.map(dbRowToListing);
-      renderListings();
-      if(mainMap) initMainMap();
+      syncListingsView();
       // If detail page is open, re-render it now that DB data is loaded
       if(currentListingId) renderDetailPage(currentListingId);
     }
@@ -1030,7 +1029,7 @@ async function loadListingsFromDB() {
   }
 }
 
-let activeDateFilter='all', selectedDateFilter='', currentView='map', mainMap=null, detailMap=null, previewMap=null, previewCircle=null, currentRadius=50, currentCity='Richmond, BC';
+let activeDateFilter='all', selectedDateFilter='', currentView='map', mainMap=null, mainMarkersLayer=null, detailMap=null, previewMap=null, previewCircle=null, currentRadius=50, currentCity='Richmond, BC';
 
 // ─── PAGE NAV ───
 function showPage(page, listingId) {
@@ -1177,6 +1176,26 @@ function filterDate(btn, filter) {
   if(mainMap) updateMapMarkers();
 }
 
+function syncListingsView() {
+  renderListings();
+  if(currentView !== 'map') return;
+  if(!mainMap) {
+    initMainMap();
+  } else {
+    updateMapMarkers();
+  }
+  [250, 900].forEach(delay => {
+    setTimeout(() => {
+      if(currentView !== 'map') return;
+      if(!mainMap) initMainMap();
+      else {
+        mainMap.invalidateSize();
+        updateMapMarkers();
+      }
+    }, delay);
+  });
+}
+
 // FIX: connect the hero date picker to the filter chips
 function filterByDate(val) {
   const dateValue = normalizeDateValue(val);
@@ -1279,25 +1298,47 @@ function setView(v) {
   document.getElementById('listings-grid').classList.toggle('hidden',v==='map');
   const mc = document.getElementById('map-view-container');
   mc.classList.toggle('visible',v==='map');
-  if(v==='map') setTimeout(()=>{ if(!mainMap) initMainMap(); else mainMap.invalidateSize(); },50);
+  if(v==='map') setTimeout(()=>{ if(!mainMap) initMainMap(); else refreshMainMap(); },50);
 }
 
 // ─── MAPS ───
+const DEFAULT_REGIONAL_MAP_BOUNDS = [[48.88, -123.35], [49.42, -122.20]];
+
+function shouldUseDefaultRegionalMapView() {
+  return activeDateFilter === 'all'
+    && !selectedDateFilter
+    && currentCity === 'Richmond, BC'
+    && currentRadius === 50;
+}
+
 function initMainMap() {
   if(mainMap) return;
   const el = document.getElementById('map');
   if(!el||typeof L==='undefined') return;
-  mainMap = L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([49.165,-123.135],11);
+  mainMap = L.map('map',{zoomControl:true,scrollWheelZoom:false}).fitBounds(DEFAULT_REGIONAL_MAP_BOUNDS, { padding: [18, 18] });
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18}).addTo(mainMap);
+  mainMarkersLayer = L.layerGroup().addTo(mainMap);
+  refreshMainMap();
+}
+
+function refreshMainMap() {
+  if(!mainMap) return;
+  mainMap.invalidateSize();
   updateMapMarkers();
+  setTimeout(() => {
+    if(!mainMap) return;
+    mainMap.invalidateSize();
+    updateMapMarkers();
+  }, 150);
 }
 
 function updateMapMarkers() {
   if(!mainMap) return;
-  mainMap.eachLayer(l=>{ if(l instanceof L.Marker||l instanceof L.Circle) mainMap.removeLayer(l); });
+  if(!mainMarkersLayer) mainMarkersLayer = L.layerGroup().addTo(mainMap);
+  mainMarkersLayer.clearLayers();
   const filtered = getFiltered();
   filtered.forEach(l=>{
-    const m = L.marker([l.lat,l.lng]).addTo(mainMap);
+    const m = L.marker([l.lat,l.lng]).addTo(mainMarkersLayer);
     const title = escapeHtml(l.title);
     const address = escapeHtml(l.address);
     const city = escapeHtml(l.city);
@@ -1306,7 +1347,13 @@ function updateMapMarkers() {
     const locationText = `${l.address || ''}, ${l.city || ''}, ${l.province || ''}`;
     m.bindPopup(`<div style="font-family:sans-serif;max-width:240px;padding:4px 0"><div style="font-weight:700;font-size:14px;margin-bottom:6px;line-height:1.3">${title}</div><a href="https://maps.google.com/?q=${encodeURIComponent(locationText)}" target="_blank" rel="noopener" style="font-size:12px;color:#666;display:block;margin-bottom:4px;text-decoration:none">📍 ${address}, ${city}</a><div style="font-size:12px;color:#666;margin-bottom:10px">📅 ${dates}${hours}</div><button onclick="openListing('${escapeAttr(l.id)}')" style="width:100%;padding:7px 0;background:#E8161B;color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">View Details →</button></div>`,{maxWidth:260});
   });
-  if(filtered.length>0) mainMap.fitBounds(L.latLngBounds(filtered.map(l=>[l.lat,l.lng])).pad(0.2));
+  if(filtered.length>0) {
+    if(shouldUseDefaultRegionalMapView()) {
+      mainMap.fitBounds(DEFAULT_REGIONAL_MAP_BOUNDS, { padding: [18, 18] });
+    } else {
+      mainMap.fitBounds(L.latLngBounds(filtered.map(l=>[l.lat,l.lng])).pad(0.2), { padding: [18, 18] });
+    }
+  }
 }
 
 // ─── LOCATION MODAL ───
