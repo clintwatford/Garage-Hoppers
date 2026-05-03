@@ -5,6 +5,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Garage Hoppers | Free Garage Sale Listings Across Canada & the USA</title>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8Y75EG48DP"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-8Y75EG48DP');
+</script>
 <meta name="description" content="Find garage sales near you or list your own for free. Garage Hoppers is Canada and the USA's free online garage sale directory. Hunt. Find. Score." />
 <meta name="keywords" content="garage sales, yard sales, garage sale listings, community garage sale, free listings, Canada, USA" />
 <meta name="author" content="Garage Hoppers" />
@@ -1146,33 +1154,22 @@ function listingIncludesDate(listing, dateValue) {
   return Boolean(picked && start && picked >= start && picked <= end);
 }
 
-function listingOverlapsDateRange(listing, rangeStart, rangeEnd) {
-  const startValue = normalizeDateValue(listing?.date_start);
-  if(!startValue) return false;
-  const endValue = normalizeDateValue(listing?.date_end) || startValue;
-  const start = new Date(startValue+'T00:00:00');
-  const end = new Date(endValue+'T23:59:59');
-  return start <= rangeEnd && end >= rangeStart;
-}
-
-function getThisWeekendRange() {
-  const start = new Date();
+function getWeekendRange(fromDate = new Date()) {
+  const start = new Date(fromDate);
   start.setHours(0,0,0,0);
   const day = start.getDay();
 
-  if(day === 0) {
-    const end = new Date(start);
-    end.setHours(23,59,59,999);
+  if(day === 6) {
+    const end = addDays(start, 1);
     return { start, end };
   }
 
-  if(day !== 6) {
-    start.setDate(start.getDate() + ((6 - day + 7) % 7));
+  if(day === 0) {
+    return { start, end: new Date(start) };
   }
 
-  const end = new Date(start);
-  end.setDate(start.getDate() + 1);
-  end.setHours(23,59,59,999);
+  start.setDate(start.getDate() + ((6 - day + 7) % 7));
+  const end = addDays(start, 1);
   return { start, end };
 }
 
@@ -1232,10 +1229,14 @@ function getFiltered() {
     return base.filter(l => savedIds.includes(String(l.id))).sort((a,b) => new Date(a.date_start) - new Date(b.date_start));
   }
   if(activeDateFilter==='weekend') {
-    const { start, end } = getThisWeekendRange();
-    return base
-      .filter(l => listingOverlapsDateRange(l, start, end))
-      .sort((a,b) => new Date(a.date_start) - new Date(b.date_start));
+    const weekendRange = getWeekendRange(today);
+    const weekendStart = getLocalDateValue(weekendRange.start);
+    const weekendEnd = getLocalDateValue(weekendRange.end);
+    return base.filter(l => {
+      const start = normalizeDateValue(l.date_start);
+      const end = normalizeDateValue(l.date_end) || start;
+      return Boolean(start && start <= weekendEnd && end >= weekendStart);
+    });
   }
   if(activeDateFilter==='custom') {
     return base
@@ -1255,7 +1256,7 @@ function filterDate(btn, filter) {
     if(filter==='all' || filter==='saved') dp.value='';
     else if(filter==='today') dp.value = getLocalDateValue(new Date());
     else if(filter==='tomorrow') dp.value = getLocalDateValue(addDays(new Date(),1));
-    else if(filter==='weekend') dp.value = getLocalDateValue(nextSat);
+    else if(filter==='weekend') dp.value = getLocalDateValue(getWeekendRange().start);
   }
   renderListings();
   if(mainMap) updateMapMarkers();
@@ -1287,13 +1288,14 @@ function filterByDate(val) {
   if(!dateValue) { filterDate(document.querySelector('.filter-chip'), 'all'); return; }
   const todayValue = getLocalDateValue(today);
   const tomorrowValue = getLocalDateValue(addDays(today,1));
-  const nextSatValue = getLocalDateValue(nextSat);
-  const nextSunValue = getLocalDateValue(nextSun);
+  const weekendRange = getWeekendRange(today);
+  const weekendStartValue = getLocalDateValue(weekendRange.start);
+  const weekendEndValue = getLocalDateValue(weekendRange.end);
   if(dateValue===todayValue) {
     filterDate(document.getElementById('chip-today'),'today');
   } else if(dateValue===tomorrowValue) {
     filterDate(document.getElementById('chip-tomorrow'),'tomorrow');
-  } else if(dateValue >= nextSatValue && dateValue <= nextSunValue) {
+  } else if(dateValue >= weekendStartValue && dateValue <= weekendEndValue) {
     filterDate(document.getElementById('chip-weekend'),'weekend');
   } else {
     // Custom date — show sales whose date range includes the selected day.
