@@ -1411,10 +1411,17 @@ function updateModalRegions() {
   if(!sel) return;
   sel.innerHTML = '';
   const regions = country === 'CA' ? MODAL_CA_PROVINCES : MODAL_US_STATES;
+  if(country === 'US') {
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Select state...';
+    placeholder.selected = true;
+    sel.appendChild(placeholder);
+  }
   regions.forEach(([v,l]) => {
     const o = document.createElement('option');
     o.value = v; o.textContent = l;
-    if(v === 'BC') o.selected = true;
+    if(country === 'CA' && v === 'BC') o.selected = true;
     sel.appendChild(o);
   });
 }
@@ -1451,10 +1458,11 @@ function updateSliderTrack() {
 async function applyLocation() {
   const city = document.getElementById('modal-city').value.trim();
   const country = document.getElementById('modal-country')?.value || 'CA';
-  const region = document.getElementById('modal-region')?.value || 'BC';
+  const region = document.getElementById('modal-region')?.value || '';
   const statusEl = document.getElementById('location-geocode-status');
 
   if(!city) { showToast('Please enter a city name'); return; }
+  if(!region) { showToast('Please select a province or state'); return; }
 
   const regionLabel = (country === 'CA' ? MODAL_CA_PROVINCES : MODAL_US_STATES).find(([v])=>v===region)?.[1] || region;
   const countryLabel = country === 'CA' ? 'Canada' : 'United States';
@@ -1913,6 +1921,9 @@ function validateForm() {
   const city = document.getElementById('sale-city')?.value?.trim();
   if(!city) { setFieldError('sale-city','err-sale-city','Please enter a city.'); valid=false; }
 
+  const country = document.getElementById('sale-country')?.value;
+  if(!country) { setFieldError('sale-country','err-sale-country','Please select a country.'); valid=false; }
+
   const province = document.getElementById('sale-province')?.value;
   if(!province) { setFieldError('sale-province','err-sale-province','Please select a province.'); valid=false; }
 
@@ -1926,6 +1937,43 @@ function validateForm() {
   }
 
   return valid;
+}
+
+function getRegionLabel(country, region) {
+  const regions = country === 'US' ? MODAL_US_STATES : MODAL_CA_PROVINCES;
+  return regions.find(([value]) => value === region)?.[1] || region;
+}
+
+function normalizeSubmittedCity(city, province) {
+  return String(city || '')
+    .replace(new RegExp(`\\s*,?\\s*${province}\\s*$`, 'i'), '')
+    .trim();
+}
+
+async function geocodeListingLocation(address, city, province, country) {
+  const regionLabel = getRegionLabel(country, province);
+  const countryLabel = country === 'US' ? 'United States' : 'Canada';
+  const countryCode = country === 'US' ? 'us' : 'ca';
+  const searches = [
+    [address, city, regionLabel, countryLabel].filter(Boolean).join(', '),
+    [city, regionLabel, countryLabel].filter(Boolean).join(', ')
+  ];
+
+  for(const search of searches) {
+    const url = 'https://nominatim.openstreetmap.org/search?q=' +
+      encodeURIComponent(search) +
+      '&format=json&limit=1&countrycodes=' + countryCode;
+    const res = await fetch(url, {
+      headers: { 'Accept-Language': 'en', 'User-Agent': 'GarageHoppers/1.0' }
+    });
+    if(!res.ok) continue;
+    const data = await res.json();
+    if(data && data.length > 0) {
+      return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    }
+  }
+
+  return null;
 }
 
 // ─── SUBMIT LISTING ───
@@ -1962,8 +2010,9 @@ async function submitListing(e) {
   const tagsRaw      = document.getElementById('sale-tags')?.value?.trim() || '';
   const items        = tagsRaw ? tagsRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
   const address      = document.getElementById('sale-address')?.value?.trim() || '';
-  const city         = document.getElementById('sale-city')?.value?.trim() || '';
+  const country      = document.getElementById('sale-country')?.value || 'CA';
   const province     = document.getElementById('sale-province')?.value || 'BC';
+  const city         = normalizeSubmittedCity(document.getElementById('sale-city')?.value?.trim() || '', province);
   const dateStart    = document.getElementById('sale-start')?.value || '';
   const dateEnd      = document.getElementById('sale-end')?.value || null;
   const hoursOpen    = document.getElementById('sale-hours-open')?.value || '';
@@ -1973,11 +2022,21 @@ async function submitListing(e) {
   const contactEmail = document.getElementById('sale-email')?.value?.trim() || '';
 
   const categoryLabels = { garage:'Garage Sale', neighbourhood:'Neighbourhood Sale', estate:'Estate Sale', moving:'Moving Sale' };
+  submitBtn.textContent = 'Finding address...';
+  const coords = await geocodeListingLocation(address, city, province, country);
+  if(!coords) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Listing';
+    setFieldError('sale-address', 'err-sale-address', 'We could not place this address on the map. Please check the street, city, and province/state.');
+    return;
+  }
 
   const listing = {
     title, category,
     category_label: categoryLabels[category] || 'Garage Sale',
     address, city, province,
+    lat: coords.lat,
+    lng: coords.lng,
     date_start: dateStart,
     date_end: dateEnd || null,
     hours, description, items,
