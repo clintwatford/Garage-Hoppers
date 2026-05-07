@@ -1109,6 +1109,36 @@ function listingIncludesDate(listing, dateValue) {
   return Boolean(picked && start && picked >= start && picked <= end);
 }
 
+function listingOverlapsDateRange(listing, rangeStart, rangeEnd) {
+  const startValue = normalizeDateValue(listing?.date_start);
+  if(!startValue) return false;
+  const endValue = normalizeDateValue(listing?.date_end) || startValue;
+  const start = new Date(startValue+'T00:00:00');
+  const end = new Date(endValue+'T23:59:59');
+  return start <= rangeEnd && end >= rangeStart;
+}
+
+function getThisWeekendRange() {
+  const start = new Date();
+  start.setHours(0,0,0,0);
+  const day = start.getDay();
+
+  if(day === 0) {
+    const end = new Date(start);
+    end.setHours(23,59,59,999);
+    return { start, end };
+  }
+
+  if(day !== 6) {
+    start.setDate(start.getDate() + ((6 - day + 7) % 7));
+  }
+
+  const end = new Date(start);
+  end.setDate(start.getDate() + 1);
+  end.setHours(23,59,59,999);
+  return { start, end };
+}
+
 function escapeHtml(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -1165,18 +1195,10 @@ function getFiltered() {
     return base.filter(l => savedIds.includes(String(l.id))).sort((a,b) => new Date(a.date_start) - new Date(b.date_start));
   }
   if(activeDateFilter==='weekend') {
-    return base.filter(l => {
-      if(!l.date_start) return false;
-      const s = new Date(l.date_start+'T00:00:00');
-      const e = l.date_end ? new Date(l.date_end+'T23:59:59') : new Date(l.date_start+'T23:59:59');
-      const cur = new Date(s);
-      while(cur <= e) {
-        const d = cur.getDay();
-        if(d === 0 || d === 6) return true;
-        cur.setDate(cur.getDate()+1);
-      }
-      return false;
-    });
+    const { start, end } = getThisWeekendRange();
+    return base
+      .filter(l => listingOverlapsDateRange(l, start, end))
+      .sort((a,b) => new Date(a.date_start) - new Date(b.date_start));
   }
   if(activeDateFilter==='custom') {
     return base
