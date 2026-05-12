@@ -267,8 +267,12 @@ async function checkSession() {
   }
 
   // Listen for auth state changes (fires when magic link is clicked)
-  sb.auth.onAuthStateChange((event, session) => {
-    if (session && ['crew@garagehoppers.com','garagehoppersadmin@gmail.com'].includes(session.user.email)) { showDashboard(); } else { await sb.auth.signOut(); }
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (session && ['crew@garagehoppers.com','garagehopsadmin@gmail.com'].includes(session.user.email)) {
+      showDashboard();
+    } else {
+      await sb.auth.signOut();
+    }
   });
 }
 
