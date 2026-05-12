@@ -101,6 +101,7 @@ exports.handler = async (event) => {
     return json(403, { error: 'Request is not allowed.' }, origin);
   }
 
+  // Runtime email settings are supplied from Netlify environment variables.
   const supabaseUrl = process.env.SUPABASE_URL || 'https://mpgnkvpfgmqegljycedf.supabase.co';
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const resendApiKey = process.env.RESEND_API_KEY;
