@@ -4,7 +4,8 @@
 <!-- Primary Meta -->
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Garage Hoppers | Free Garage Sale Listings Across Canada & the USA</title>
+<meta name="facebook-domain-verification" content="w6qp5qql5wzo2atbv87sb8wkmikqar" />
+<title>Garage Hoppers | Free Garage Sale Directory Canada & USA</title>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-8Y75EG48DP"></script>
 <script>
@@ -13,7 +14,7 @@
   gtag('js', new Date());
   gtag('config', 'G-8Y75EG48DP');
 </script>
-<meta name="description" content="Find garage sales near you or list your own for free. Garage Hoppers is Canada and the USA's free online garage sale directory. Hunt. Find. Score." />
+<meta name="description" content="Free garage sale directory for Canada and the USA. Find garage sales, estate sales, and moving sales near you. Hunt. Find. Score.">
 <meta name="keywords" content="garage sales, yard sales, garage sale listings, community garage sale, free listings, Canada, USA" />
 <meta name="author" content="Garage Hoppers" />
 <link rel="canonical" href="https://garagehoppers.com/" />
@@ -25,8 +26,8 @@
 <!-- Open Graph (Facebook, LinkedIn, iMessage previews) -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://garagehoppers.com/" />
-<meta property="og:title" content="Garage Hoppers | Free Garage Sale Listings Across Canada & the USA" />
-<meta property="og:description" content="Find garage sales near you or list your own for free. Canada and the USA's free online garage sale directory. Hunt. Find. Score." />
+<meta property="og:title" content="Garage Hoppers | Free Garage Sale Directory Canada & USA" />
+<meta property="og:description" content="Free garage sale directory for Canada and the USA. Find garage sales, estate sales, and moving sales near you. Hunt. Find. Score." />
 <meta property="og:image" content="https://garagehoppers.com/bunny.jpg" />
 <meta property="og:site_name" content="Garage Hoppers" />
 <meta property="og:locale" content="en_CA" />
@@ -34,8 +35,8 @@
 <!-- Twitter / X Card -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:url" content="https://garagehoppers.com/" />
-<meta name="twitter:title" content="Garage Hoppers | Free Garage Sale Listings Across Canada & the USA" />
-<meta name="twitter:description" content="Find garage sales near you or list your own for free. Canada and the USA's free online garage sale directory. Hunt. Find. Score." />
+<meta name="twitter:title" content="Garage Hoppers | Free Garage Sale Directory Canada & USA" />
+<meta name="twitter:description" content="Free garage sale directory for Canada and the USA. Find garage sales, estate sales, and moving sales near you. Hunt. Find. Score." />
 <meta name="twitter:image" content="https://garagehoppers.com/bunny.jpg" />
 
 <!-- Preconnect Hints (performance) -->
@@ -72,14 +73,6 @@
     "query-input": "required name=search_term_string"
   }
 }
-</script>
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-8Y75EG48DP"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-8Y75EG48DP');
 </script>
 <!-- Meta Pixel Code -->
 <script>
@@ -118,6 +111,12 @@ src="https://www.facebook.com/tr?id=1110001062781659&ev=PageView&noscript=1"
 html, body { overflow-x: hidden; max-width: 100vw; }
 .fab-post { background: #464646 !important; box-shadow: 0 4px 20px rgba(0,0,0,0.35) !important; }
 .fab-post:hover { background: #2e2e2e !important; }
+.filters-bar--dates { margin-bottom: 10px; }
+.filters-bar--types { margin-top: 0; }
+.filter-chip--secondary { background: #fff; color: var(--color-text-muted); border-color: var(--color-border); box-shadow: none; }
+.filter-chip--secondary.active { background: #fff7f7; color: var(--color-primary); border-color: var(--color-primary); }
+.detail-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-3); }
+.detail-save-button { position:static; flex:0 0 auto; width:42px; height:42px; border-radius:999px; }
 @media (max-width: 640px) {
   .navbar__inner { padding-inline: 12px; gap: 8px; height: 60px; }
   .navbar__logo-img { height: 52px !important; width: 52px !important; }
@@ -131,6 +130,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   .listings-grid { grid-template-columns: 1fr; }
   .container { padding-inline: 12px; }
   .filters-bar { flex-wrap: wrap; gap: 8px; }
+  .detail-title-row { align-items:center; }
   .detail-layout { grid-template-columns: 1fr; }
   .detail-sidebar { position: static; }
   .footer__grid { grid-template-columns: 1fr; gap: 1.5rem; }
@@ -181,7 +181,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   <section class="hero">
     <div class="hero__content">
       <h1 class="hero__title">Find <em>great deals</em> at sales near you</h1>
-      <p class="hero__subtitle">Browse garage sales, estate sales, and neighbourhood sales in your area. Free to list, free to browse.</p>
+      <p class="hero__subtitle">Browse garage sales, estate sales, and community sales in your area. Free to list, free to browse.</p>
       <div class="hero-search">
         <div class="hero-search__row">
           <div class="hero-search__field" onclick="openLocationModal()" style="cursor:pointer">
@@ -226,12 +226,22 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       </div>
 
       <!-- Date filters -->
-      <div class="filters-bar" role="list" aria-label="Date filters">
-        <button class="filter-chip active" onclick="filterDate(this,'all')" role="listitem">All Sales</button>
-        <button class="filter-chip" onclick="filterDate(this,'today')" role="listitem" id="chip-today">📅 Today</button>
-        <button class="filter-chip" onclick="filterDate(this,'tomorrow')" role="listitem" id="chip-tomorrow">🌅 Tomorrow</button>
-        <button class="filter-chip" onclick="filterDate(this,'weekend')" role="listitem" id="chip-weekend">🎉 This Weekend</button>
-        <button class="filter-chip" onclick="filterDate(this,'saved')" role="listitem" id="chip-saved">❤️ Saved Sales</button>
+      <div class="filters-bar filters-bar--dates" role="list" aria-label="Date filters">
+        <button class="filter-chip date-filter-chip active" onclick="filterDate(this,'all')" role="listitem">All Sales</button>
+        <button class="filter-chip date-filter-chip" onclick="filterDate(this,'today')" role="listitem" id="chip-today">📅 Today</button>
+        <button class="filter-chip date-filter-chip" onclick="filterDate(this,'tomorrow')" role="listitem" id="chip-tomorrow">🌅 Tomorrow</button>
+        <button class="filter-chip date-filter-chip" onclick="filterDate(this,'weekend')" role="listitem" id="chip-weekend">🎉 This Weekend</button>
+        <button class="filter-chip date-filter-chip" onclick="filterDate(this,'saved')" role="listitem" id="chip-saved">❤️ Saved Sales</button>
+      </div>
+
+      <!-- Sale type filters -->
+      <div class="filters-bar filters-bar--types" role="list" aria-label="Sale type filters">
+        <button class="filter-chip filter-chip--secondary type-filter-chip active" onclick="filterType(this,'all')" role="listitem" id="type-chip-all">🏷️ All Types</button>
+        <button class="filter-chip filter-chip--secondary type-filter-chip" onclick="filterType(this,'garage')" role="listitem" id="type-chip-garage">🏠 Garage Sale</button>
+        <button class="filter-chip filter-chip--secondary type-filter-chip" onclick="filterType(this,'community')" role="listitem" id="type-chip-community">🤝 Community Sale</button>
+        <button class="filter-chip filter-chip--secondary type-filter-chip" onclick="filterType(this,'estate')" role="listitem" id="type-chip-estate">🏛️ Estate Sale</button>
+        <button class="filter-chip filter-chip--secondary type-filter-chip" onclick="filterType(this,'moving')" role="listitem" id="type-chip-moving">📦 Moving Sale</button>
+        <button class="filter-chip filter-chip--secondary type-filter-chip" onclick="filterType(this,'swap-meet')" role="listitem" id="type-chip-swap-meet">🔄 Swap Meet</button>
       </div>
 
       <!-- Map view -->
@@ -313,10 +323,6 @@ html, body { overflow-x: hidden; max-width: 100vw; }
         Back to all listings
       </a>
       <div style="display:flex;gap:var(--space-2);align-items:center">
-        <button id="detail-save-btn" onclick="toggleDetailSave()" style="padding:4px 12px;border:1.5px solid #e0e0e0;border-radius:999px;background:white;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px">
-          <svg id="detail-save-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          <span id="detail-save-label">Save</span>
-        </button>
         <button id="btn-prev-listing" onclick="navigateListing(-1)" style="display:none;padding:var(--space-1) var(--space-3);border:1.5px solid var(--color-border);border-radius:var(--radius-full);background:white;font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:var(--font-display)" onmouseover="this.style.borderColor='var(--color-primary)';this.style.color='var(--color-primary)'" onmouseout="this.style.borderColor='var(--color-border)';this.style.color='inherit'">← Prev</button>
         <button id="btn-next-listing" onclick="navigateListing(1)" style="display:none;padding:var(--space-1) var(--space-3);border:1.5px solid var(--color-border);border-radius:var(--radius-full);background:white;font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:var(--font-display)" onmouseover="this.style.borderColor='var(--color-primary)';this.style.color='var(--color-primary)'" onmouseout="this.style.borderColor='var(--color-border)';this.style.color='inherit'">Next →</button>
       </div>
@@ -332,11 +338,18 @@ html, body { overflow-x: hidden; max-width: 100vw; }
     <div class="detail-layout">
       <div class="detail-main">
         <div class="detail-title-block">
-          <div class="detail-badges">
-            <span class="detail-badge detail-badge--category" id="detail-category"></span>
-            <span class="detail-badge detail-badge--date" id="detail-date"></span>
+          <div class="detail-title-row">
+            <div>
+              <div class="detail-badges">
+                <span class="detail-badge detail-badge--category" id="detail-category"></span>
+                <span class="detail-badge detail-badge--date" id="detail-date"></span>
+              </div>
+              <h1 class="detail-title" id="detail-title"></h1>
+            </div>
+            <button id="detail-save-btn" class="listing-card__save detail-save-button" onclick="toggleDetailSave()" aria-label="Save listing">
+              <svg id="detail-save-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
           </div>
-          <h1 class="detail-title" id="detail-title"></h1>
         </div>
 
         <div class="detail-section-card">
@@ -506,9 +519,10 @@ html, body { overflow-x: hidden; max-width: 100vw; }
               <select class="form-select" id="sale-type" name="sale-type" required>
                 <option value="">Select type…</option>
                 <option value="garage">Garage Sale</option>
-                <option value="neighbourhood">Neighbourhood Sale</option>
+                <option value="community">Community Sale</option>
                 <option value="estate">Estate Sale</option>
                 <option value="moving">Moving Sale</option>
+                <option value="swap-meet">Swap Meet</option>
               </select>
               <span class="form-error" id="err-sale-type" aria-live="polite"></span>
             </div>
@@ -687,7 +701,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 
       <details class="faq-item">
         <summary class="faq-question">Is it free to list my sale?</summary>
-        <p class="faq-answer">Yes, 100% free. There are no fees to list your garage sale, estate sale, moving sale, or neighbourhood sale on Garage Hoppers.</p>
+        <p class="faq-answer">Yes, 100% free. There are no fees to list your garage sale, estate sale, moving sale, swap meet, or community sale on Garage Hoppers.</p>
       </details>
 
       <details class="faq-item">
@@ -707,7 +721,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 
       <details class="faq-item">
         <summary class="faq-question">What types of sales can I list?</summary>
-        <p class="faq-answer">Garage sales, estate sales, moving sales, and neighbourhood sales. We do not list commercial sales, online-only sales, or business liquidations.</p>
+        <p class="faq-answer">Garage sales, estate sales, moving sales, swap meets, and community sales. We do not list commercial sales, online-only sales, or business liquidations.</p>
       </details>
 
       <details class="faq-item">
@@ -808,7 +822,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 
     <div class="static-page-body">
       <h2>Using Garage Hoppers</h2>
-      <p>Garage Hoppers is a free listing directory for personal garage sales, estate sales, moving sales, and neighbourhood sales across Canada and the United States. By using this site you agree to these terms.</p>
+      <p>Garage Hoppers is a free listing directory for personal garage sales, estate sales, moving sales, swap meets, and community sales across Canada and the United States. By using this site you agree to these terms.</p>
 
       <h2>Listing rules</h2>
       <p>You may only list sales for property you own or have authority to sell. Listings must be accurate, include a real address, and represent a genuine in-person sale. The following are not permitted: commercial sales, online-only sales, business liquidations, prohibited items (weapons, drugs, counterfeit goods), or any listing intended to defraud buyers.</p>
@@ -864,7 +878,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
             <li><a href="#" onclick="showPage('home');return false;">Browse Sales</a></li>
             <li><a href="#" onclick="showPage('home');setView('map');return false;">Map View</a></li>
             <li><a href="#" onclick="showPage('home');filterDate(document.getElementById('chip-weekend'),'weekend');scrollToListings();return false;">This Weekend</a></li>
-            <li><a href="#" onclick="showPage('home');filterDate(document.querySelector('.filter-chip'),'all');document.getElementById('nav-search-input').focus();return false;">Neighbourhood Sales</a></li>
+            <li><a href="#" onclick="showPage('home');filterDate(document.querySelector('.date-filter-chip'),'all');filterType(document.getElementById('type-chip-community'),'community');scrollToListings();return false;">Community Sales</a></li>
           </ul>
         </div>
 
@@ -982,7 +996,7 @@ const sampleListings = [
     description:"Beautiful estate sale with over 40 years of collected treasures. Vintage furniture, original artwork, fine china sets, vinyl records, and jewellery. Everything professionally priced and tagged.",
     photos:["https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80","https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?w=300&q=80"]
   },
-  { id:3, title:"Neighbourhood Sale — Tools, Sports Gear & Garden", category:"neighbourhood", categoryLabel:"Neighbourhood Sale",
+  { id:3, title:"Community Sale — Tools, Sports Gear & Garden", category:"community", categoryLabel:"Community Sale",
     address:"312 No. 2 Rd", city:"Richmond", province:"BC", lat:49.1800, lng:-123.1300,
     dateTag:"tomorrow", dates:fmt(addDays(today,1)), hours:"7:00 AM – 1:00 PM", distance:"4.1 km away",
     items:["Tools","Power tools","Garden equipment","Sports gear","Bikes"],
@@ -1000,10 +1014,10 @@ const sampleListings = [
     address:"2201 Blundell Rd", city:"Richmond", province:"BC", lat:49.1690, lng:-123.1520,
     dateTag:"weekend", dates:fmt(nextSat)+" & "+fmt(nextSun), hours:"8:00 AM – 12:00 PM", distance:"6.0 km away",
     items:["Books","Décor","Clothing","Shoes","Handbags","Plants"],
-    description:"A friendly neighbourhood sale with hundreds of books, decorative items, women's clothing sizes S-XL, shoes, handbags, and potted plants. Hot coffee available!",
+    description:"A friendly community sale with hundreds of books, decorative items, women's clothing sizes S-XL, shoes, handbags, and potted plants. Hot coffee available!",
     photos:["https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=80","https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=300&q=80"]
   },
-  { id:6, title:"Multi-Family Neighbourhood Sale — Something for Everyone", category:"neighbourhood", categoryLabel:"Neighbourhood Sale",
+  { id:6, title:"Multi-Family Community Sale — Something for Everyone", category:"community", categoryLabel:"Community Sale",
     address:"5611 Minoru Blvd", city:"Richmond", province:"BC", lat:49.1760, lng:-123.1400,
     dateTag:"weekend", dates:fmt(nextSat), hours:"7:30 AM – 2:00 PM", distance:"7.5 km away",
     items:["Kids items","Clothing","Furniture","Kitchen","Holiday décor","Games"],
@@ -1027,6 +1041,25 @@ const sampleListings = [
 ];
 
 let listings = [...sampleListings];
+
+const PUBLIC_LISTING_COLUMNS = [
+  'id',
+  'title',
+  'category',
+  'category_label',
+  'address',
+  'city',
+  'province',
+  'lat',
+  'lng',
+  'date_start',
+  'date_end',
+  'hours',
+  'items',
+  'description',
+  'photos',
+  'status'
+].join(',');
 
 // ─── DISTANCE CALCULATION (Haversine) ───
 function calcDistance(lat, lng) {
@@ -1052,6 +1085,36 @@ function getDistanceKm(lat, lng) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
+const SALE_TYPE_LABELS = {
+  garage: 'Garage Sale',
+  community: 'Community Sale',
+  neighbourhood: 'Community Sale',
+  estate: 'Estate Sale',
+  moving: 'Moving Sale',
+  'swap-meet': 'Swap Meet'
+};
+
+function normalizeSaleType(value) {
+  const raw = String(value || '').trim().toLowerCase();
+  if(!raw) return '';
+  const compact = raw.replace(/[_\s]+/g, '-');
+  if(compact === 'neighbourhood' || compact === 'neighbourhood-sale' || compact === 'neighbourhood-sales' || compact === 'community' || compact === 'community-sale' || compact === 'community-sales') return 'community';
+  if(compact === 'swap-meet' || compact === 'swap-meets') return 'swap-meet';
+  if(compact === 'garage' || compact === 'garage-sale' || compact === 'garage-sales') return 'garage';
+  if(compact === 'estate' || compact === 'estate-sale' || compact === 'estate-sales') return 'estate';
+  if(compact === 'moving' || compact === 'moving-sale' || compact === 'moving-sales') return 'moving';
+  return compact;
+}
+
+function getListingSaleType(listing) {
+  return normalizeSaleType(listing?.category) || normalizeSaleType(listing?.categoryLabel) || normalizeSaleType(listing?.category_label);
+}
+
+function getSaleTypeLabel(listing) {
+  const type = getListingSaleType(listing);
+  return SALE_TYPE_LABELS[type] || listing?.categoryLabel || listing?.category_label || 'Garage Sale';
+}
+
 function dbRowToListing(row) {
   const start = new Date(row.date_start + 'T12:00:00');
   const end = row.date_end ? new Date(row.date_end + 'T12:00:00') : null;
@@ -1073,7 +1136,7 @@ function dbRowToListing(row) {
   }
   const dates = end ? fmt(start)+' – '+fmt(end) : fmt(start);
   return {
-    id: row.id, title: row.title, category: row.category, categoryLabel: row.category_label,
+    id: row.id, title: row.title, category: row.category, categoryLabel: getSaleTypeLabel(row),
     address: row.address, city: row.city, province: row.province,
     lat: row.lat || 49.1666, lng: row.lng || -123.1336,
     date_start: row.date_start || null, date_end: row.date_end || null,
@@ -1087,7 +1150,7 @@ async function loadListingsFromDB() {
   if(!sbClient) return;
   try {
     const { data, error } = await sbClient
-      .from('listings').select('*').eq('status','approved').order('date_start', { ascending: true });
+      .from('listings').select(PUBLIC_LISTING_COLUMNS).eq('status','approved').order('date_start', { ascending: true });
     if(error) { console.warn('Supabase load error:', error.message); return; }
     if(data && data.length > 0) {
       listings = data.map(dbRowToListing);
@@ -1100,7 +1163,7 @@ async function loadListingsFromDB() {
   }
 }
 
-let activeDateFilter='all', selectedDateFilter='', currentView='map', mainMap=null, mainMarkersLayer=null, detailMap=null, previewMap=null, previewCircle=null, currentRadius=50, currentCity='Richmond, BC';
+let activeDateFilter='all', activeTypeFilter='all', selectedDateFilter='', currentView='map', mainMap=null, mainMarkersLayer=null, detailMap=null, previewMap=null, previewCircle=null, currentRadius=50, currentCity='Richmond, BC';
 
 // ─── PAGE NAV ───
 function showPage(page, listingId) {
@@ -1223,6 +1286,11 @@ function getFiltered() {
     l.items.some(i=>i.toLowerCase().includes(q)) ||
     l.description.toLowerCase().includes(q)
   );
+
+  if(activeTypeFilter !== 'all') {
+    base = base.filter(l => getListingSaleType(l) === activeTypeFilter);
+  }
+
   if(activeDateFilter==='all') return base;
   if(activeDateFilter==='saved') {
     const savedIds = getSavedIds();
@@ -1247,7 +1315,7 @@ function getFiltered() {
 }
 
 function filterDate(btn, filter) {
-  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.date-filter-chip').forEach(c=>c.classList.remove('active'));
   btn?.classList.add('active');
   activeDateFilter = filter;
   selectedDateFilter = '';
@@ -1258,8 +1326,14 @@ function filterDate(btn, filter) {
     else if(filter==='tomorrow') dp.value = getLocalDateValue(addDays(new Date(),1));
     else if(filter==='weekend') dp.value = getLocalDateValue(getWeekendRange().start);
   }
-  renderListings();
-  if(mainMap) updateMapMarkers();
+  syncListingsView();
+}
+
+function filterType(btn, filter) {
+  document.querySelectorAll('.type-filter-chip').forEach(c=>c.classList.remove('active'));
+  btn?.classList.add('active');
+  activeTypeFilter = filter;
+  syncListingsView();
 }
 
 function syncListingsView() {
@@ -1285,7 +1359,7 @@ function syncListingsView() {
 // FIX: connect the hero date picker to the filter chips
 function filterByDate(val) {
   const dateValue = normalizeDateValue(val);
-  if(!dateValue) { filterDate(document.querySelector('.filter-chip'), 'all'); return; }
+  if(!dateValue) { filterDate(document.querySelector('.date-filter-chip'), 'all'); return; }
   const todayValue = getLocalDateValue(today);
   const tomorrowValue = getLocalDateValue(addDays(today,1));
   const weekendRange = getWeekendRange(today);
@@ -1301,9 +1375,8 @@ function filterByDate(val) {
     // Custom date — show sales whose date range includes the selected day.
     activeDateFilter='custom';
     selectedDateFilter = dateValue;
-    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-    renderListings();
-    if(mainMap) updateMapMarkers();
+    document.querySelectorAll('.date-filter-chip').forEach(c=>c.classList.remove('active'));
+    syncListingsView();
   }
   scrollToListings();
 }
@@ -1330,7 +1403,7 @@ function renderListings() {
   grid.innerHTML = filtered.map(l => {
     const id = escapeAttr(l.id);
     const title = escapeHtml(l.title);
-    const categoryLabel = escapeHtml(l.categoryLabel);
+    const categoryLabel = escapeHtml(getSaleTypeLabel(l));
     const dates = escapeHtml(l.dates);
     const address = escapeHtml(l.address);
     const city = escapeHtml(l.city);
@@ -1393,6 +1466,7 @@ const DEFAULT_REGIONAL_MAP_BOUNDS = [[48.88, -123.35], [49.42, -122.20]];
 
 function shouldUseDefaultRegionalMapView() {
   return activeDateFilter === 'all'
+    && activeTypeFilter === 'all'
     && !selectedDateFilter
     && currentCity === 'Richmond, BC'
     && currentRadius === 50;
@@ -1616,10 +1690,11 @@ function renderDetailPage(id) {
   const _savedNow = getSavedIds().includes(String(l.id));
   const _saveBtn = document.getElementById('detail-save-btn');
   const _saveIcon = document.getElementById('detail-save-icon');
-  const _saveLabel = document.getElementById('detail-save-label');
-  if(_saveIcon) { _saveIcon.style.fill=_savedNow?'#E8161B':'none'; _saveIcon.style.stroke=_savedNow?'#E8161B':'currentColor'; }
-  if(_saveLabel) _saveLabel.textContent = _savedNow?'Saved':'Save';
-  if(_saveBtn) _saveBtn.style.borderColor = _savedNow?'#E8161B':'#e0e0e0';
+  if(_saveIcon) { _saveIcon.style.fill=_savedNow?'var(--color-primary)':'none'; _saveIcon.style.stroke=_savedNow?'var(--color-primary)':'currentColor'; }
+  if(_saveBtn) {
+    _saveBtn.classList.toggle('saved', _savedNow);
+    _saveBtn.setAttribute('aria-label', _savedNow ? 'Unsave listing' : 'Save listing');
+  }
 
   // Date/time strip under photo (Option A1 — light grey)
   const strip = document.getElementById('detail-date-strip');
@@ -1638,7 +1713,7 @@ function renderDetailPage(id) {
       strip.style.display = 'block';
     } catch(e) { strip.style.display = 'none'; }
   }
-  document.getElementById('detail-category').textContent = l.categoryLabel;
+  document.getElementById('detail-category').textContent = getSaleTypeLabel(l);
   document.getElementById('detail-date').textContent = l.dates;
   const fullAddr = [l.address, l.city, l.province].filter(Boolean).join(', ');
   const sidebarLoc = document.getElementById('sidebar-location');
@@ -1755,30 +1830,30 @@ function toggleMapSave(id, btn) {
 }
 
 function toggleDetailSave() {
-  if(!currentUser) {
-    openSignInModal();
-    showToast('Sign in to save listings across devices');
-    return;
-  }
   const id = String(currentListingId);
+  if(!id || id === 'null' || id === 'undefined') return;
   const saved = getSavedIds();
   const isSaved = saved.includes(id);
   const btn = document.getElementById('detail-save-btn');
   const icon = document.getElementById('detail-save-icon');
-  const label = document.getElementById('detail-save-label');
   if(isSaved) {
     setSavedIds(saved.filter(x=>x!==id));
     if(icon) { icon.style.fill='none'; icon.style.stroke='currentColor'; }
-    if(label) label.textContent='Save';
-    if(btn) btn.style.borderColor='#e0e0e0';
+    if(btn) {
+      btn.classList.remove('saved');
+      btn.setAttribute('aria-label', 'Save listing');
+    }
     showToast('Removed from saved sales');
   } else {
     setSavedIds([...saved, id]);
-    if(icon) { icon.style.fill='#E8161B'; icon.style.stroke='#E8161B'; }
-    if(label) label.textContent='Saved';
-    if(btn) btn.style.borderColor='#E8161B';
-    showToast('Saved! View in Saved Sales');
+    if(icon) { icon.style.fill='var(--color-primary)'; icon.style.stroke='var(--color-primary)'; }
+    if(btn) {
+      btn.classList.add('saved');
+      btn.setAttribute('aria-label', 'Unsave listing');
+    }
+    showToast('Saved! View in Saved Sales ❤️');
   }
+  if(activeDateFilter === 'saved') syncListingsView();
 }
 
 function openMessageSeller() {
@@ -2082,7 +2157,7 @@ async function submitListing(e) {
   const contactName  = document.getElementById('sale-name')?.value?.trim() || '';
   const contactEmail = document.getElementById('sale-email')?.value?.trim() || '';
 
-  const categoryLabels = { garage:'Garage Sale', neighbourhood:'Neighbourhood Sale', estate:'Estate Sale', moving:'Moving Sale' };
+  const categoryLabels = { garage:'Garage Sale', community:'Community Sale', neighbourhood:'Community Sale', estate:'Estate Sale', moving:'Moving Sale', 'swap-meet':'Swap Meet' };
   submitBtn.textContent = 'Finding address...';
   const coords = await geocodeListingLocation(address, city, province, country);
   if(!coords) {
@@ -2570,7 +2645,7 @@ window.onload = function() {
       <label class="modal__label" for="signin-email">Email address</label>
       <div class="modal__input-wrap">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
-        <input class="modal__input" id="signin-email" type="email" placeholder="your@email.com" />
+        <input class="modal__input" id="signin-email" type="email" placeholder="your@email.com" autocomplete="off" autocapitalize="none" spellcheck="false" />
       </div>
     </div>
     <div id="signin-status" style="font-size:13px;min-height:20px;margin-top:8px"></div>
@@ -2598,7 +2673,7 @@ window.onload = function() {
     <div style="background:white;border:1.5px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-7);margin-bottom:var(--space-6)">
       <h2 style="font-family:var(--font-display);font-weight:900;font-size:var(--text-xl);margin-bottom:var(--space-4)">What we do</h2>
       <p style="line-height:1.7;color:var(--color-text);margin-bottom:var(--space-4)">
-        Garage Hoppers is a free online directory that connects garage sale shoppers with people hosting sales in their neighbourhood. We cover garage sales, estate sales, moving sales, and neighbourhood sales across Canada and the United States.
+        Garage Hoppers is a free online directory that connects garage sale shoppers with people hosting sales in their community. We cover garage sales, estate sales, moving sales, swap meets, and community sales across Canada and the United States.
       </p>
       <p style="line-height:1.7;color:var(--color-text)">
         Listing your sale is completely free. Browsing is completely free. No accounts required to find a sale near you. We believe finding great deals and clearing out your home should be simple, fast, and open to everyone.
