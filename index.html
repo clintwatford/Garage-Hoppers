@@ -1519,6 +1519,8 @@ function updateMapMarkers() {
 
 // ─── LOCATION MODAL ───
 let currentLat = 49.166, currentLng = -123.133; // Default: Richmond, BC
+const DEFAULT_LOCATION = { city: 'Richmond, BC', lat: 49.166, lng: -123.133, radius: 50 };
+const SAVED_LOCATION_KEY = 'gh_location';
 
 const MODAL_CA_PROVINCES = [
   ['BC','British Columbia'],['AB','Alberta'],['SK','Saskatchewan'],['MB','Manitoba'],
@@ -1577,6 +1579,96 @@ function openLocationModal() {
 
 function closeLocationModal() { document.getElementById('location-modal').classList.remove('open'); }
 
+function updateActiveLocationDisplay() {
+  const display = document.getElementById('hero-location-display');
+  if(display) display.textContent = currentCity + ' · ' + currentRadius + ' km';
+}
+
+function applyActiveLocation(location, shouldSave = false) {
+  if(!location) return;
+  const lat = parseFloat(location.lat);
+  const lng = parseFloat(location.lng);
+  const radius = parseInt(location.radius);
+  currentCity = location.city || DEFAULT_LOCATION.city;
+  currentLat = Number.isFinite(lat) ? lat : DEFAULT_LOCATION.lat;
+  currentLng = Number.isFinite(lng) ? lng : DEFAULT_LOCATION.lng;
+  currentRadius = Number.isFinite(radius) ? radius : currentRadius;
+  updateActiveLocationDisplay();
+
+  const radiusSlider = document.getElementById('radius-slider');
+  const radiusDisplay = document.getElementById('radius-display');
+  if(radiusSlider) radiusSlider.value = String(currentRadius);
+  if(radiusDisplay) radiusDisplay.textContent = currentRadius + ' km';
+  if(previewMap && previewCircle) {
+    previewMap.setView([currentLat, currentLng], 9);
+    previewCircle.setLatLng([currentLat, currentLng]);
+    previewCircle.setRadius(currentRadius * 1000);
+  }
+
+  if(shouldSave) {
+    try { localStorage.setItem(SAVED_LOCATION_KEY, JSON.stringify({ city: currentCity, lat: currentLat, lng: currentLng, radius: currentRadius })); } catch(e) {}
+  }
+}
+
+function getSavedLocation() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVED_LOCATION_KEY) || 'null');
+    if(saved && Number.isFinite(parseFloat(saved.lat)) && Number.isFinite(parseFloat(saved.lng)) && saved.city) return saved;
+  } catch(e) {}
+  return null;
+}
+
+function fallbackToDefaultLocation() {
+  applyActiveLocation(DEFAULT_LOCATION);
+}
+
+function getBrowserPosition() {
+  return new Promise((resolve, reject) => {
+    if(!navigator.geolocation) { reject(new Error('Geolocation unavailable')); return; }
+    navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 });
+  });
+}
+
+function getRegionCodeFromName(countryCode, regionName) {
+  const regions = countryCode === 'us' ? MODAL_US_STATES : MODAL_CA_PROVINCES;
+  const match = regions.find(([, label]) => label.toLowerCase() === String(regionName || '').toLowerCase());
+  return match ? match[0] : '';
+}
+
+async function reverseGeocodeLocation(lat, lng) {
+  const url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lng);
+  const res = await fetch(url, {
+    headers: { 'Accept-Language': 'en', 'User-Agent': 'GarageHoppers/1.0' }
+  });
+  if(!res.ok) throw new Error('Reverse geocode failed');
+  const data = await res.json();
+  const address = data.address || {};
+  const city = address.city || address.town || address.village || address.municipality || address.suburb || address.county;
+  if(!city) throw new Error('City not found');
+  const countryCode = String(address.country_code || '').toLowerCase();
+  const region = getRegionCodeFromName(countryCode, address.state || address.province) || address.state || address.province || '';
+  return region ? city + ', ' + region : city;
+}
+
+async function initializeVisitorLocation() {
+  const saved = getSavedLocation();
+  if(saved) {
+    applyActiveLocation(saved);
+    return;
+  }
+
+  updateActiveLocationDisplay();
+  try {
+    const position = await getBrowserPosition();
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+    const city = await reverseGeocodeLocation(lat, lng);
+    applyActiveLocation({ city, lat, lng, radius: currentRadius });
+  } catch(e) {
+    fallbackToDefaultLocation();
+  }
+}
+
 function updateRadius(val) {
   currentRadius = parseInt(val);
   document.getElementById('radius-display').textContent = val+' km';
@@ -1631,7 +1723,7 @@ async function applyLocation() {
     if(statusEl) statusEl.textContent = '';
   }
 
-  document.getElementById('hero-location-display').textContent = currentCity + ' · ' + currentRadius + ' km';
+  applyActiveLocation({ city: currentCity, lat: currentLat, lng: currentLng, radius: currentRadius }, true);
   closeLocationModal();
   renderListings();
   if(mainMap) updateMapMarkers();
@@ -2550,7 +2642,7 @@ function updateRegions() {
 }
 
 // window.onload fires after ALL scripts including deferred ones have loaded
-window.onload = function() {
+window.onload = async function() {
   const _hash=window.location.hash;
   if(_hash.startsWith('#listing/')){
     const _hid=_hash.replace('#listing/','');
@@ -2578,6 +2670,7 @@ window.onload = function() {
     console.warn('Supabase init failed:', e);
   }
 
+  await initializeVisitorLocation();
   renderListings();
   setView(currentView);
 
