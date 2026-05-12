@@ -1571,13 +1571,26 @@ function openLocationModal() {
     if(!previewMap && typeof L !== 'undefined') {
       previewMap = L.map('location-preview-map', {zoomControl:true, scrollWheelZoom:false}).setView([currentLat, currentLng], 9);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap', maxZoom:18}).addTo(previewMap);
-      previewCircle = L.circle([currentLat, currentLng], {radius:currentRadius*1000, color:'#E8161B', fillColor:'#E8161B', fillOpacity:0.1, weight:2}).addTo(previewMap);
-    } else if(previewMap) previewMap.invalidateSize();
+      previewCircle = L.circle([currentLat, currentLng], {radius:currentRadius*1000, color:'#E8161B', fillColor:'#E8161B', fillOpacity:0.1, weight:2});
+      previewMap.on('zoomend', updatePreviewRadiusVisibility);
+      updatePreviewRadiusVisibility();
+    } else if(previewMap) {
+      previewMap.invalidateSize();
+      updatePreviewRadiusVisibility();
+    }
     updateSliderTrack();
   }, 100);
 }
 
 function closeLocationModal() { document.getElementById('location-modal').classList.remove('open'); }
+
+function updatePreviewRadiusVisibility() {
+  if(!previewMap || !previewCircle) return;
+  const shouldShow = previewMap.getZoom() >= 10;
+  const isVisible = previewMap.hasLayer(previewCircle);
+  if(shouldShow && !isVisible) previewCircle.addTo(previewMap);
+  if(!shouldShow && isVisible) previewMap.removeLayer(previewCircle);
+}
 
 function updateActiveLocationDisplay() {
   const display = document.getElementById('hero-location-display');
@@ -1603,6 +1616,7 @@ function applyActiveLocation(location, shouldSave = false) {
     previewMap.setView([currentLat, currentLng], 9);
     previewCircle.setLatLng([currentLat, currentLng]);
     previewCircle.setRadius(currentRadius * 1000);
+    updatePreviewRadiusVisibility();
   }
 
   if(shouldSave) {
@@ -1674,6 +1688,7 @@ function updateRadius(val) {
   document.getElementById('radius-display').textContent = val+' km';
   updateSliderTrack();
   if(previewCircle) previewCircle.setRadius(currentRadius*1000);
+  updatePreviewRadiusVisibility();
 }
 
 function updateSliderTrack() {
@@ -1710,6 +1725,7 @@ async function applyLocation() {
       if(previewMap && previewCircle) {
         previewMap.setView([currentLat, currentLng], 9);
         previewCircle.setLatLng([currentLat, currentLng]);
+        updatePreviewRadiusVisibility();
       }
       if(statusEl) statusEl.textContent = '✓ Found: ' + data[0].display_name.split(',').slice(0,2).join(',');
     } else {
