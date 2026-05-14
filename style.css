@@ -712,6 +712,10 @@
   letter-spacing:0.05em;text-transform:uppercase;
 }
 
+.sales-near-section { padding:var(--space-12) 0;background:#ffffff; }
+.sales-near-section__header { margin-bottom:var(--space-6); }
+.sales-near-section__actions { display:flex;justify-content:center;margin-top:var(--space-8); }
+
 .page-section { display:none; }
 .page-section.active { display:block; }
 
@@ -730,6 +734,7 @@
   .form-grid { grid-template-columns:1fr; }
   .form-group--full { grid-column:1; }
   .footer__grid { grid-template-columns:1fr; }
+  .footer__col + .footer__col { border-top:1px solid var(--color-divider);padding-top:var(--space-6); }
   .listings-header { flex-direction:column;align-items:flex-start; }
 }
 /* ═══════════════════════════════════════════
@@ -945,4 +950,3 @@ textarea:focus-visible,
   transition: top 0.1s;
 }
 .skip-link:focus { top: var(--space-2); }
-

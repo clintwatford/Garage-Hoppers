@@ -42,6 +42,8 @@
 <!-- Preconnect Hints (performance) -->
 <link rel="preconnect" href="https://mpgnkvpfgmqegljycedf.supabase.co" />
 <link rel="preconnect" href="https://tile.openstreetmap.org" />
+<link rel="preconnect" href="https://www.googletagmanager.com">
+<link rel="preconnect" href="https://connect.facebook.net">
 
 <!-- Structured Data (JSON-LD) -->
 <script type="application/ld+json">
@@ -135,6 +137,7 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   .detail-sidebar { position: static; }
   .footer__grid { grid-template-columns: 1fr; gap: 1.5rem; }
   .footer__brand { grid-column: 1; }
+  .footer__col + .footer__col { border-top: 1px solid var(--color-divider); padding-top: 1.5rem; }
   .modal { margin: 1rem; padding: 1.5rem; max-height: 90vh; overflow-y: auto; }
   .fab-post { bottom: 16px; right: 12px; padding: 10px 16px; font-size: 12px; }
   .footer__bottom { padding-bottom: 80px; }
@@ -261,6 +264,19 @@ html, body { overflow-x: hidden; max-width: 100vw; }
       <!-- <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins> -->
     </div>
   </div>
+
+  <!-- SALES NEAR YOU -->
+  <section class="sales-near-section">
+    <div class="container">
+      <div class="sales-near-section__header">
+        <h2 class="section-title">Sales Near You</h2>
+      </div>
+      <div class="listings-grid" id="sales-near-grid" role="list" aria-label="Sales near you"></div>
+      <div class="sales-near-section__actions">
+        <button class="btn btn--primary" onclick="showAllSales()" type="button">See all sales</button>
+      </div>
+    </div>
+  </section>
 
   <!-- HOW IT WORKS -->
   <section class="how-it-works">
@@ -1388,19 +1404,7 @@ function applyHeroSearch() {
 
 // ─── RENDER LISTINGS ───
 // FIX: removed duplicate category badge from card body — badge on photo is enough
-function renderListings() {
-  const filtered = getFiltered();
-  const grid = document.getElementById('listings-grid');
-  const heading = document.getElementById('listings-count-heading');
-  const labels = {'all':'sales','today':'sales today','tomorrow':'sales tomorrow','weekend':'weekend sales','saved':'saved sales','custom':'sales on selected date'};
-  heading.innerHTML = `<strong style="color:var(--color-primary)">${filtered.length} ${labels[activeDateFilter]||'sales'}</strong> near ${currentCity} <span style="color:var(--color-text-muted);font-size:var(--text-base);font-weight:400">· within ${currentRadius} km</span>`;
-
-  if(!filtered.length) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:var(--space-16);color:var(--color-text-muted)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:auto auto var(--space-4)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><h3 style="font-family:var(--font-display);font-weight:700;color:var(--color-text);margin-bottom:var(--space-2)">No sales found</h3><p>Try a different date or expand your search radius.</p></div>`;
-    return;
-  }
-
-  grid.innerHTML = filtered.map(l => {
+function renderListingCard(l) {
     const id = escapeAttr(l.id);
     const title = escapeHtml(l.title);
     const categoryLabel = escapeHtml(getSaleTypeLabel(l));
@@ -1417,7 +1421,7 @@ function renderListings() {
       <div class="listing-card__photos">
         <div class="listing-card__photos-grid count-${firstPhotos.length > 0 ? Math.min(firstPhotos.length,4) : 1}">
           ${firstPhotos.length > 0
-            ? firstPhotos.map(p=>`<img src="${p}" alt="${title}" loading="lazy" onerror="this.src='./no-photo.svg'"/>`).join('')
+            ? firstPhotos.map(p=>`<img src="${p}" alt="Garage sale listing photo" loading="lazy" onerror="this.src='./no-photo.svg'"/>`).join('')
             : `<img src="./no-photo.svg" alt="No photo available" loading="lazy" style="width:100%;height:100%;object-fit:cover"/>`
           }
         </div>
@@ -1446,8 +1450,35 @@ function renderListings() {
         <span class="listing-card__distance">${distance}</span>
       </div>
     </div>`;
-  }).join('');
+}
+
+function renderSalesNearYou(filteredListings) {
+  const grid = document.getElementById('sales-near-grid');
+  if(!grid) return;
+  grid.innerHTML = filteredListings.slice(0, 12).map(renderListingCard).join('');
+}
+
+function renderListings() {
+  const filtered = getFiltered();
+  const grid = document.getElementById('listings-grid');
+  const heading = document.getElementById('listings-count-heading');
+  const labels = {'all':'sales','today':'sales today','tomorrow':'sales tomorrow','weekend':'weekend sales','saved':'saved sales','custom':'sales on selected date'};
+  heading.innerHTML = `<strong style="color:var(--color-primary)">${filtered.length} ${labels[activeDateFilter]||'sales'}</strong> near ${currentCity} <span style="color:var(--color-text-muted);font-size:var(--text-base);font-weight:400">· within ${currentRadius} km</span>`;
+
+  if(!filtered.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:var(--space-16);color:var(--color-text-muted)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:auto auto var(--space-4)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><h3 style="font-family:var(--font-display);font-weight:700;color:var(--color-text);margin-bottom:var(--space-2)">No sales found</h3><p>Try a different date or expand your search radius.</p></div>`;
+    renderSalesNearYou(filtered);
+    return;
+  }
+
+  grid.innerHTML = filtered.map(renderListingCard).join('');
+  renderSalesNearYou(filtered);
   restoreSavedStates();
+}
+
+function showAllSales() {
+  setView('grid');
+  scrollToListings();
 }
 
 // ─── VIEW TOGGLE ───
